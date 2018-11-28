@@ -1,0 +1,18 @@
+﻿<li onclick="return getImgName('@dataFile.FileName', 'uploadImg')">
+    <div class="imgBoxBg" 
+            style="background-image: url('../gallery/uploadImg/@dataFile.UserId/@dataFile.FileName');"></div>
+    <div class="boxFooter">
+        <div class="boxFooter__FileName">@dataFile.FileName</div>
+        <div class="boxFooter__Panel">
+            <div class="size">@dataFile.Size</div>
+            <div class="zoom">
+                <a href="../gallery/uploadImg/@dataFile.UserId/@dataFile.FileName" target="_blank">
+                    <span class="glyphicon glyphicon-zoom-in"></span>
+                </a>
+            </div>
+            <div class="trash" onclick="return deleteImageById(@dataFile.Id)">
+                <span class="glyphicon glyphicon-trash"></span>
+            </div>
+        </div>
+    </div>
+</li>

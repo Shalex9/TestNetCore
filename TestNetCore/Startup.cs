@@ -40,6 +40,34 @@ namespace TestNetCore
             services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            //services.AddIdentity<ApplicationUser, IdentityRole>()
+            //    .AddEntityFrameworkStores<ApplicationDbContext>()
+            //    .AddDefaultTokenProviders();
+
+            services.AddAuthentication().AddGoogle(googleOptions =>
+            {
+                googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
+                googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+                //googleOptions.ClientId = Configuration.GetConnectionString("ClientId");
+                //googleOptions.ClientSecret = Configuration.GetConnectionString("ClientSecret");
+            });
+            //services.AddAuthentication().AddGoogle(googleOptions =>
+            //{
+            //    googleOptions.ClientId = Configuration["Authentication:Google:179363509285-0p32d19nf3efp9ju23j6ngpu82v4rcjo.apps.googleusercontent.com"];
+            //    googleOptions.ClientSecret = Configuration["Authentication:Google:ymd36VEmDOe0mmnjpvB2OXbu"];
+            //});
+
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                // Set a short timeout for easy testing.
+                options.IdleTimeout = TimeSpan.FromSeconds(10);
+                options.Cookie.HttpOnly = true;
+            });
+
+            services.AddMemoryCache();
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
@@ -60,8 +88,16 @@ namespace TestNetCore
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseSession();
+            //app.UseHttpContextItemsMiddleware();
 
             app.UseAuthentication();
+
+            //app.UseGoogleAuthentication(new GoogleOptions()
+            //{
+            //    ClientId = "179363509285-0p32d19nf3efp9ju23j6ngpu82v4rcjo.apps.googleusercontent.com",
+            //    ClientSecret = "ymd36VEmDOe0mmnjpvB2OXbu"
+            //});
 
             app.UseMvc(routes =>
             {

@@ -1,0 +1,53 @@
+﻿<div class="col-md-3 text-left">
+
+    <div>
+        <span class="gallery-title" id="mydownloads">Мои загрузки</span>
+    </div>
+    <ul class="gallery__list">
+        <li>
+            <a id="imgUpload">
+                <span class="glyphicon glyphicon-picture"></span>
+                <span class="mar-left10" id="pictures">Изображения</span>
+            </a>
+        </li>
+        <li>
+            <a id="soundUpload">
+                <span class="glyphicon glyphicon-music"></span>
+                <span class="mar-left10" id="sounds">Звуки</span>
+            </a>
+        </li>
+    </ul>
+
+    <div>
+        <span class="gallery-title">Галерея</span>
+    </div>
+    <ul class="gallery__list">
+        <li>
+            <a id="imgGallery">
+                <span class="glyphicon glyphicon-picture"></span>
+                <span class="mar-left10" id="pictures1">Изображения</span>
+            </a>
+        </li>
+        <li>
+            <a id="soundGallery">
+                <span class="glyphicon glyphicon-music"></span>
+                <span class="mar-left10">Звуки</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="file_upload" id="chooseImg">
+        <button type="button" id="uploadBtn" onclick="return uploadFiles('uploadFiles')">
+            <span class="glyphicon glyphicon-cloud-upload"></span>
+            <span id="download">Загрузить</span>
+        </button>
+        <div id="fileName" style="margin-top: 5px;">Файл не выбран</div>
+        <input type="file" name="files" id="files" accept="image/*, audio/*"/>
+        <button type="submit" id="pushFile" class="display-none uploadFile">Button</button>
+    </div>
+
+    <div class="galleryClose">
+        <span id="modal_ok" class="defaultStyleButton">Принять</span>
+        <span id="modal_cancel" class="defaultStyleButton">Отмена</span>
+    </div>
+</div>

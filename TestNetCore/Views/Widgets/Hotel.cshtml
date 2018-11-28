@@ -1,0 +1,499 @@
+﻿@using TestNetCore.Controllers
+@using TestNetCore.Models.WidgetsViewModels
+@using Newtonsoft.Json;
+
+@model TestNetCore.Models.WidgetsViewModels.HotelViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
+}
+<link rel="stylesheet" href="~/css/animate.min.css">
+<link rel="stylesheet" href="~/css/jquery-ui.min.css">
+<link rel="stylesheet" href="~/css/txt.wav.css">
+<script type="text/javascript" src="~/js/jquery.tablesorter.js"></script>
+<script src="~/js/jquery-ui.min.js"></script>
+<script src="~/lib/jquery.globalize.min.js"></script>
+<script src="~/lib/jquery.validate.min.js"></script>
+<script src="https://cdn.syncfusion.com/js/assets/i18n/ej.culture.ru-RU.min.js"></script>
+<script src="https://cdn.syncfusion.com/js/assets/i18n/ej.culture.uk-UA.min.js"></script>
+
+<script>
+    var hasToilet = @Html.Raw(Model.HasToilet).ToString().ToLower(),
+        hasTv = @Html.Raw(Model.HasTV).ToString().ToLower(),
+        hasBigBed = @Html.Raw(Model.HasBigBed).ToString().ToLower(),
+        isFreeNow = @Html.Raw(Model.IsFreeNow).ToString().ToLower(),
+        chosenLanguage = "@Html.Raw(Model.ChosenLanguage)";
+</script>
+
+<div class="col-md-12">
+    <div class="page-block">
+        <h2 id="infoHotel">Информация о номерах</h2>
+
+        <table class="table">
+            <thead>
+                <tr style="width: 100%; font-weight: bold">
+                    <th style="width: 7%">Номер</th>
+                    <th style="width: 15%">Комфортность</th>
+                    <th style="width: 12%">Цена, грн</th>
+                    <th style="width: 15%">Сан.узел в номере</th>
+                    <th style="width: 15%">Наличие ТВ</th>
+                    <th style="width: 18%">Двуспальная кровать</th>
+                    <th style="width: 18%">Доступность сегодня</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var room in Model.ListRooms)
+                {
+                    <tr style="width: 100%">
+                        <td>@room.NumberOfRoom</td>
+                        <td>@room.ComfortableOfRoom</td>
+                        <td>@room.PriceForRoom</td>
+                        <td>
+                            @if (room.HasToilet)
+                            {<span>Есть</span>}
+                            else
+                            { <span>Нет</span>}
+                        </td>
+                        <td>
+                            @if (room.HasTV)
+                            {<span>Есть</span>}
+                            else
+                            { <span>Нет</span>}
+                        </td>
+                        <td>
+                            @if (room.HasBigBed)
+                            {<span>Есть</span>}
+                            else
+                            { <span>Нет</span>}
+                        </td>
+                        <td>
+                            @if (room.IsFreeNow)
+                            {<span>Номер свободен</span>}
+                            else
+                            { <span>Номер занят</span>}
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<form class="form-inline col-md-12"
+      asp-controller="Widgets" asp-action="Hotel"
+      id="Hotel"
+      method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <div class="page-block">
+        <h2 id="reserveHotel">Бронировать номер</h2>
+        @Model.NameOffice
+        <div class="form-group">
+            <label class="col-md-3 control-label" for=""
+                   id="filtext"
+                   style="line-height: 58px;">
+                Выберите даты заезда:
+            </label>
+            <div class="col-md-9 chooseDateReserv">
+                <span id="ejCalendarStart">
+                    <input type="text" id="startDate" />
+                </span>
+                <span class="filter-text"> - </span>
+                <span id="ejCalendarEnd">
+                    <input type="text" id="endDate" />
+                </span>
+
+                <a onclick="return checkIsFreeRoom()"
+                   id="animationOn"
+                   class="defaultStyleButton"
+                   style="margin-left: 20px;">
+                    <span class="glyphicon glyphicon-search"></span>
+                    <span>Поиск по датам</span>
+                </a>
+
+            </div>
+        </div>
+        <div class="form-group" id="freeRoom" style="display: none;">
+            <h4 style="text-align: center; margin-top: 25px;" id="chooseRoom">Выберите более подходящий Вам номер:</h4>
+            <div class="col-md-8 col-md-offset-2">
+                <div class="styleSelect" style="width: 100%">
+                    <p></p>
+                    <select asp-for="@Model.NumberOfRoom" id="boxForFreeRooms"
+                            name="NumberOfRoom" class="form-control"></select>
+                </div>
+            </div>
+
+            <div style="margin-top: 50px; text-align: center;">
+                <button class="defaultStyleButton" id="btnSearch" type="submit">
+                    <span class="glyphicon glyphicon-ok"></span>
+                    <span class="" id="search">Бронировать</span>
+                </button>
+                @*<button id="submitSearch" class="text-center" type="submit" style="display: none;"></button>*@
+            </div>
+
+        </div>
+        <input type="hidden" asp-for="StartReserv" id="StartReserv" />
+        <input type="hidden" asp-for="EndReserv" id="EndReserv" />
+
+        <div id="alertEngaged" class="alertMsg" style="display: none">
+            На указанные даты этот номер занят. Выберите другие даты или номер.
+        </div>
+
+        @if (Model.RoomReserved)
+        {
+            <div id="alertReserved" class="alertMsg" style="display: block">
+                Ваш номер успешно забронирован. Вы получите подтверждение на почтовый ящик.
+            </div>
+        }
+
+        @*@if (Model.DeletedReserved)
+        {*@
+        <div id="alertDeleteReserved" class="alertMsg" style="display: none">
+            Ваша бронь отменена. Вы получите подтверждение на почтовый ящик.
+        </div>
+        @*}*@
+    </div>
+
+
+    <div class="page-block">
+        <h2 id="myReserved">Мои бронирования</h2>
+        @if (Model.HasUserReserve)
+        {
+            <table class="table" id="myReserve">
+                <thead>
+                    <tr style="width: 100%; font-weight: bold">
+                        <th style="width: 9%">№ Брони</th>
+                        <th style="width: 9%">Номер</th>
+                        <th style="width: 17%">Заезд</th>
+                        <th style="width: 17%">Выезд</th>
+                        <th style="width: 17%">Дата брони</th>
+                        <th style="width: 17%">Сумма, грн</th>
+                        <th style="width: 14%">Отменить бронь</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var res in Model.ListUserReserved)
+                    {
+                        <tr style="width: 100%">
+                            <td>@res.Id</td>
+                            <td>@res.NumberOfRoom</td>
+                            <td>@res.StartReserv</td>
+                            <td>@res.EndReserv</td>
+                            <td>@res.DateReserv</td>
+                            <td>@res.SummReserv</td>
+                            <td style="text-align: center;">
+                                <a onclick="return deleteReserved(@res.Id)"
+                                   id="deleteReserved"
+                                   class="defaultStyleButton"
+                                   style="padding: 0px 5px;">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                    <span>Отменить</span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <a id="myArhiveOpen"
+               class="defaultStyleButton"
+               style="padding: 0px 5px;">
+                <span class="glyphicon glyphicon-eye-open"></span>
+                <span>Показать архив</span>
+            </a>
+            <a id="myArhiveClose"
+               class="defaultStyleButton display-none"
+               style="padding: 0px 5px;">
+                <span class="glyphicon glyphicon-eye-close"></span>
+                <span>Скрыть архив</span>
+            </a>
+            <div class="display-none  tablesorter" id="myArhiveTable">
+                @if (Model.HasUserArhive)
+                {
+                    <table class="table">
+                        <thead>
+                            <tr style="width: 100%; font-weight: bold">
+                                <th style="width: 9%">№ Брони</th>
+                                <th style="width: 9%">Номер</th>
+                                <th style="width: 17%">Заезд</th>
+                                <th style="width: 17%">Выезд</th>
+                                <th style="width: 17%">Дата брони</th>
+                                <th style="width: 31%">Сумма, грн</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var res in Model.ListUserArhiveReserved)
+                            {
+                                <tr style="width: 100%">
+                                    <td>@res.Id</td>
+                                    <td>@res.NumberOfRoom</td>
+                                    <td>@res.StartReserv</td>
+                                    <td>@res.EndReserv</td>
+                                    <td>@res.DateReserv</td>
+                                    <td>@res.SummReserv</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p id="noUserArhive">Ваш архив пока что пуст.</p>
+                }
+            </div>
+        }
+        else
+        {
+            <p id="noReseved">Вы пока не забронировали ни одного номера.</p>
+        }
+    </div>
+
+</form>
+
+<div class="col-md-12">
+    <div class="page-block">
+        <h2 id="allReserved">Все бронирования</h2>
+        <table id="allReserve" class="table tablesorter">
+            <thead>
+                <tr style="width: 100%; font-weight: bold">
+                    <th style="width: 8%">№ Брони</th>
+                    <th style="width: 8%">Номер</th>
+                    <th style="width: 16%">Заезд</th>
+                    <th style="width: 16%">Выезд</th>
+                    <th style="width: 16%">Дата брони</th>
+                    <th style="width: 18%">Имя гостя</th>
+                    <th style="width: 18%">Почтовый ящик</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var res in Model.ListAllReserved)
+                {
+                    <tr style="width: 100%">
+                        <td>@res.Id</td>
+                        <td>@res.NumberOfRoom</td>
+                        <td>@res.StartReserv</td>
+                        <td>@res.EndReserv</td>
+                        <td>@res.DateReserv</td>
+                        <td>@res.GuestName</td>
+                        <td>@res.GuestEmail</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <a id="allArhiveOpen"
+           class="defaultStyleButton"
+           style="padding: 0px 5px;">
+            <span class="glyphicon glyphicon-eye-open"></span>
+            <span>Показать архив</span>
+        </a>
+        <a id="allArhiveClose"
+           class="defaultStyleButton  display-none"
+           style="padding: 0px 5px;">
+            <span class="glyphicon glyphicon-eye-open"></span>
+            <span>Скрыть архив</span>
+        </a>
+        <div  id="allArhiveTable" class="display-none">
+            @if (Model.HasUserArhive)
+            {
+                <table class="table tablesorter">
+                    <thead>
+                        <tr style="width: 100%; font-weight: bold">
+                            <th style="width: 8%">№ Брони</th>
+                            <th style="width: 8%">Номер</th>
+                            <th style="width: 16%">Заезд</th>
+                            <th style="width: 16%">Выезд</th>
+                            <th style="width: 16%">Дата брони</th>
+                            <th style="width: 18%">Имя гостя</th>
+                            <th style="width: 18%">Почтовый ящик</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var res in Model.ListAllArhiveReserved)
+                        {
+                            <tr style="width: 100%">
+                                <td>@res.Id</td>
+                                <td>@res.NumberOfRoom</td>
+                                <td>@res.StartReserv</td>
+                                <td>@res.EndReserv</td>
+                                <td>@res.DateReserv</td>
+                                <td>@res.GuestName</td>
+                                <td>@res.GuestEmail</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p id="noArhive">Aрхив пока что пуст.</p>
+            }
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $('#numberOfRoom').each(function () {
+        $(this).siblings('p').text($(this).children('option:selected').text());
+    }).change(function () {
+        $(this).siblings('p').text($(this).children('option:selected').text());
+        });
+
+    $("#startDate").ejDatePicker({
+        locale: "ru-RU",
+        buttonText: "Сейчас",
+        dateFormat: "dd/MM/yyyy",
+        minDate: new Date(Date.now),
+        maxDate: new Date("3/5/2021"),
+        enablePersistence: false,
+        change: function () {
+            var dt = $("#startDate").val(),
+                arrayDT = dt.split(" "),
+                date = arrayDT[0],
+                arrayDate = date.split("/"),
+                dd = arrayDate[0],
+                mm = arrayDate[1],
+                yy = arrayDate[2];
+
+            var euroDate = yy + "-" + mm + "-" + dd + " " + " 14:00:00";
+            $("#StartReserv").val(euroDate);
+        }
+    });
+    $("#endDate").ejDatePicker({
+        locale: "ru-RU",
+        buttonText: "Сейчас",
+        dateFormat: "dd/MM/yyyy",
+        minDate: new Date(Date.now),
+        maxDate: new Date("3/5/2021"),
+        enablePersistence: false,
+        change: function () {
+            var dt = $("#endDate").val(),
+                arrayDT = dt.split(" "),
+                date = arrayDT[0],
+                arrayDate = date.split("/"),
+                dd = arrayDate[0],
+                mm = arrayDate[1],
+                yy = arrayDate[2];
+
+            var euroDate = yy + "-" + mm + "-" + dd + " " + " 12:00:00";
+            $("#EndReserv").val(euroDate);
+        }
+    });
+
+    $("#myArhiveOpen").on("click", function () {
+        $("#myArhiveTable").removeClass("display-none");
+        $(this).addClass("display-none");
+        $("#myArhiveClose").removeClass("display-none");
+    });
+    $("#myArhiveClose").on("click", function () {
+        $("#myArhiveTable").addClass("display-none");
+        $(this).addClass("display-none");
+        $("#myArhiveOpen").removeClass("display-none");
+    });
+
+    $("#allArhiveOpen").on("click", function () {
+        $("#allArhiveTable").removeClass("display-none");
+        $(this).addClass("display-none");
+        $("#allArhiveClose").removeClass("display-none");
+    });
+    $("#allArhiveClose").on("click", function () {
+        $("#allArhiveTable").addClass("display-none");
+        $(this).addClass("display-none");
+        $("#allArhiveOpen").removeClass("display-none");
+    });
+
+
+    setInterval(function () {
+        $("#alertReserved, #alertEngaged, #alertDeleteReserved").css("display", "none");
+    }, 5 * 1000);
+
+    function deleteReserved(idForDelete) {
+        var token = $('input[name="__RequestVerificationToken"]', $('#Hotel')).val();
+        var myData = { id: idForDelete };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/Widgets/DeleteReserved",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+                $("#alertDeleteReserved").css("display", "block");
+                setTimeout(function () {
+                    $("#alertDeleteReserved").css("display", "none");
+                }, 5000);
+                
+                location.reload();               
+            }
+        });
+    }
+
+    function checkIsFreeRoom() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#Hotel')).val();
+        var startValue = $("#StartReserv").val();
+        var endValue = $("#EndReserv").val();
+        console.log("startValue: ", startValue);
+        console.log("endValue: ", endValue);
+        var myData = { start: startValue, end: endValue };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/Widgets/CheckIsFreeRoom",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+
+                if (data.isCorrectDate == true) {
+                    // если свободные номера есть...
+                    if (data.listFreeRooms != 0 && data.listFreeRooms != null) {
+                        $("#freeRoom").css("display", "block");
+
+                        // вывожу в селектбокс всю инфу о свободных номерах
+                        $("#boxForFreeRooms").html("");
+                        for (i = 0; i < data.listInfoFreeRooms.length; i++) {
+                            $("#boxForFreeRooms").append('<option value = "' + data.listInfoFreeRooms[i].numberOfRoom + '" > Номер ' + data.listInfoFreeRooms[i].numberOfRoom + ', Тип номера: ' + data.listInfoFreeRooms[i].comfortableOfRoom + ', Цена: ' + data.listInfoFreeRooms[i].priceForRoom + ', Всего по оплате: ' + data.listInfoFreeRooms[i].priceForRoom * data.countDays + '</option >');
+                        }
+
+                        // стилизирую селектбокс
+                        $('#boxForFreeRooms').each(function () {
+                            $(this).siblings('p').text($(this).children('option:selected').text());
+                        }).change(function () {
+                            $(this).siblings('p').text($(this).children('option:selected').text());
+                        });
+
+                    } else {
+                        $("#alertEngaged").css("display", "block");
+                        setTimeout(function () {
+                            $("#alertEngaged").css("display", "none");
+                        }, 5000);
+                    }
+                } else {
+                    $("#freeRoom").html("<p>" + data.errorText + "</p>");
+                    $("#freeRoom").css("display", "block");
+                }
+            }
+        });
+    }
+
+    //sort table
+    $("#allReserve").tablesorter({
+        headers: {
+            0: { sorter: false }
+        }
+    });
+    $("#myReserve").tablesorter({
+        headers: {
+            0: { sorter: false }
+        }
+    });
+    $("#allArhiveTable").tablesorter({
+        headers: {
+            0: { sorter: false }
+        }
+    });
+    $("#myArhiveTable").tablesorter({
+        headers: {
+            0: { sorter: false }
+        }
+    });
+</script>

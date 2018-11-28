@@ -1,0 +1,15 @@
+﻿<li onclick="return getImgName('@dataFile.FileName', 'galleryImg')">
+    <div class="imgBoxBg" 
+            style="background-image: url('../gallery/galleryImg/@dataFile.FileName');"></div>
+    <div class="boxFooter">
+        <div class="boxFooter__FileName">@dataFile.FileName</div>
+        <div class="boxFooter__Panel">
+            <div class="size">@dataFile.Size</div>
+            <div class="zoomImgGallery">
+                <a href="../gallery/galleryImg/@dataFile.FileName" target="_blank">
+                    <span class="glyphicon glyphicon-zoom-in"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</li>

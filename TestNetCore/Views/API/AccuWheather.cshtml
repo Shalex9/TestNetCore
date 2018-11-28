@@ -1,0 +1,102 @@
+﻿@model TestNetCore.Models.API.AccuWheatherViewModel
+@{
+    ViewData["Title"] = "API AccuWheather";
+    Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/txt.wav.css">
+<script src="~/js/jquery.tablesorter.js"></script>
+
+
+<form asp-controller="API" asp-action="AccuWeather"
+      id="AccuWeather"
+      method="post" enctype="multipart/form-data"
+      class="col-md-12">
+    @Html.AntiForgeryToken()
+    <div class="page-block">
+
+        <h2 id="titleAPIAccuWeather">API AccuWeather</h2>
+
+        <h3 class="form-section" id="">Очень краткий прогноз погоды на 12 часов: </h3>
+        <div class="form-group">
+            <label class="col-md-2 control-label labelCity">Введите город:</label>
+            <div class="col-md-10">
+                <input type="text" id="inputCity12hours" value="" style="width: 300px;" />
+                <a onclick="return forecast12hours()"
+                   class="launch defaultStyleButton" id="forecast12hours">
+                    <span class="glyphicon glyphicon-search"></span> <span class="btnSearch">Поиск</span>
+                </a>
+                <p style="display: block; font-size: 12px;">
+                    <span class="title fa fa-exclamation-triangle"></span>
+                    <span id="triangleCity">
+                        API получаем на зарубежном сайте, поэтому название города ДОЛЖНО быть на латинском
+                        (или на украинском, он автоматически транслитерируется в латиницу)
+                    </span>
+                </p>
+            </div>
+        </div>
+        <div id="weather12hoursBox"></div>
+
+        <h3 class="form-section" id="">Очень краткий прогноз погоды на 5 дней: </h3>
+        <div class="form-group">
+            <label class="col-md-2 control-label labelCity">Введите город:</label>
+            <div class="col-md-10">
+                <input type="text" id="inputCity5days" value="" style="width: 300px;" />
+                <a onclick="return forecast5days()"
+                   class="launch defaultStyleButton" id="forecast5days">
+                    <span class="glyphicon glyphicon-search"></span> <span class="btnSearch">Поиск</span>
+                </a>
+                <p style="display: block; font-size: 12px;">
+                    <span class="title fa fa-exclamation-triangle"></span>
+                    <span id="triangleCity">
+                        API получаем на зарубежном сайте, поэтому название города ДОЛЖНО быть на латинском
+                        (или на украинском, он автоматически транслитерируется в латиницу)
+                    </span>
+                </p>
+            </div>
+        </div>
+        <div id="weather5daysBox"></div>
+
+    </div>
+</form>
+
+<script>
+    function forecast12hours() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#AccuWeather')).val();
+        var cityValue = $("#inputCity12hours").val();
+        var myData = { city: cityValue };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/API/GetForecast12hours",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+                $("#weather12hoursBox").html("");
+                for (var i = 0; i < data.length; i++) {
+                    $("#weather12hoursBox").append('<p>' + data[i].timeString + ' Температура: ' + data[i].temperatureValue + data[i].temperatureUnit + '. ' + data[i].iconPhrase + '. Вероятность осадков: ' + data[i].precipitationProbability + '%. </p>');
+                }
+            }
+        });
+    }
+
+
+    function forecast5days() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#AccuWeather')).val();
+        var cityValue = $("#inputCity5days").val();
+        var myData = { city: cityValue };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/API/GetForecast5days",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+                $("#weather5daysBox").html("");
+                for (var i = 0; i < data.length; i++) {
+                    $("#weather5daysBox").append('<p>' + data[i].dateString + ', ' + data[i].dayName +  '. Температура: ' + data[i].temperatureMinValue + data[i].temperatureMinUnit + ' - ' + data[i].temperatureMaxValue + data[i].temperatureMaxUnit + '. День: ' + data[i].iconPhraseDay + '; Ночь: ' + data[i].iconPhraseNight + '</p>');
+                }
+            }
+        });
+    }
+</script>

@@ -1,0 +1,60 @@
+﻿@using TestNetCore.Models.EFViewModels
+@using Newtonsoft.Json;
+@model TestNetCore.Models.EFViewModels.UsersListViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
+}
+<link href="~/lib/syncfusion-javascript/Content/ej/web/bootstrap-theme/ej.web.all.min.css" rel="stylesheet" />
+<link href="~/lib/syncfusion-javascript/Content/ej/web/responsive-css/ej.responsive.css" rel="stylesheet" />
+<script src="~/lib/jsrender/jsrender.min.js"></script>
+<script src="~/lib/syncfusion-javascript/Scripts/ej/web/ej.web.all.min.js"></script>
+<script type="text/javascript" src="~/js/Languages/localizer.js"></script>
+
+<div id="Settings2">
+    @Html.AntiForgeryToken()
+
+
+    <div class="col-md-12">
+        <div class="page-block">
+            <h2>Каталог пользователей</h2>
+
+            <form method="get">
+                <div class="form-inline form-group">
+                    <label class="control-label">Имя: </label>
+                    @Html.TextBox("name", Model.Name, htmlAttributes: new { @class = "form-control" })
+
+                    <label class="control-label">Компания: </label>
+                    @Html.DropDownList("company", Model.Companies as SelectList,
+                            htmlAttributes: new { @class = "form-control" })
+
+                    <input type="submit" value="Фильтр" class="btn btn-default" />
+                </div>
+            </form>
+
+            <table class="table table-striped">
+                <tr>
+                    <th>Имя</th>
+                    <th>Возраст</th>
+                    <th>Компания</th>
+                </tr>
+
+                @foreach (var item in Model.Users)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Age)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Company.Name)
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+
+</div>

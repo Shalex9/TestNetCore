@@ -1,0 +1,57 @@
+﻿@using TestNetCore.Models.EFViewModels
+@using Newtonsoft.Json;
+@addTagHelper "*, TestNetCore"
+
+@model TestNetCore.Models.EFViewModels.PaginationViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
+}
+<link href="~/lib/syncfusion-javascript/Content/ej/web/bootstrap-theme/ej.web.all.min.css" rel="stylesheet" />
+<link href="~/lib/syncfusion-javascript/Content/ej/web/responsive-css/ej.responsive.css" rel="stylesheet" />
+<script src="~/lib/jsrender/jsrender.min.js"></script>
+<script src="~/lib/syncfusion-javascript/Scripts/ej/web/ej.web.all.min.js"></script>
+<script type="text/javascript" src="~/js/Languages/localizer.js"></script>
+
+<div id="Settings3">
+    <div class="col-md-12">
+        <div class="page-block">
+            @*<h1>Список пользователей</h1>
+            <table class="table">
+                <tr><th>Имя</th><th>Возраст</th><th>Компания</th></tr>
+                @foreach (UserSort u in Model.UsersSort)
+                {
+                    <tr><td>@u.Name</td><td>@u.Age</td><td>@u.Company.Name</td></tr>
+                }
+            </table>
+            @if (Model.PageViewModel.HasPreviousPage)
+            {
+                <a asp-action="EntityPagination"
+                   asp-route-page="@(Model.PageViewModel.PageNumber - 1)"
+                   class="btn btn-default btn">
+                    <i class="glyphicon glyphicon-chevron-left"></i>
+                    Назад
+                </a>
+            }
+            @if (Model.PageViewModel.HasNextPage)
+            {
+                <a asp-action="EntityPagination"
+                   asp-route-page="@(Model.PageViewModel.PageNumber + 1)"
+                   class="btn btn-default btn">
+                    Вперед
+                    <i class="glyphicon glyphicon-chevron-right"></i>
+                </a>
+            }*@
+
+            <h1>Список пользователей</h1>
+            <table class="table">
+                <tr><th>Имя</th><th>Возраст</th><th>Компания</th></tr>
+                @foreach (UserSort u in Model.UsersSort)
+                {
+                    <tr><td>@u.Name</td><td>@u.Age</td><td>@u.Company.Name</td></tr>
+                }
+            </table>
+            <page-link page-model="Model.PageViewModel" page-action="EntityPagination"></page-link>
+        </div>
+    </div>
+</div>

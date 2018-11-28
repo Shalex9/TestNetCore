@@ -1,0 +1,711 @@
+﻿@model TestNetCore.Models.Files.GalleryViewModel
+@{
+    ViewData["Title"] = "Gallery";
+    Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/animate.min.css">
+<link rel="stylesheet" href="~/css/jquery-ui.min.css">
+<link rel="stylesheet" href="~/css/txt.wav.css">
+<script src="~/js/jquery-ui.min.js"></script>
+<script src="~/js/jscolor.js"></script>
+
+<script>
+    var galleryVisible = @Html.Raw(Model.GalleryVisible).ToString().ToLower(),
+        selectGalleryBox = "@Html.Raw(Model.SelectGalleryBox)",
+        imageGalleryCount = @Html.Raw(Model.ImageGalleryCount),
+        soundGalleryCount = @Html.Raw(Model.SoundGalleryCount),
+        imageUploadCount = @Html.Raw(Model.ImageUploadCount),
+        soundUploadCount = @Html.Raw(Model.SoundUploadCount),
+        imageName = "@Html.Raw(Model.NameImage)",
+        soundName = "@Html.Raw(Model.NameSound)",
+        pathSound = "@Html.Raw(Model.PathSound)",
+        animationDuration = @Model.AnimationDuration + "000",
+        soundVolume = @Html.Raw(Model.SoundVolume),
+        startEffectAnimationImg = "@Html.Raw(Model.StartEffectAnimation)",
+        finishEffectAnimationImg = "@Html.Raw(Model.FinishEffectAnimation)";
+</script>
+
+<form asp-controller="Files" asp-action="Gallery"
+      id="Gallery"
+      method="post" enctype="multipart/form-data"
+      class="col-md-12">
+    @Html.AntiForgeryToken()
+    <div class="page-block">
+        <h2>Моя галерея</h2>
+
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="bgColorBoxInput" id="bgcolor">Цвет фона:</label>
+            <div class="col-md-9">
+                <input asp-for="@Model.BgBox"
+                       value="@Model.BgBox"
+                       id="bgColorBoxInput"
+                       class="jscolor {position:'right',
+                            borderColor:'#FFF #666 #666 #FFF',
+                            insetColor:'#666 #FFF #FFF #666',
+                            backgroundColor:'#CCC'}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="animationDurationInput" id="duration">Продолжительность:</label>
+            <div class="col-md-9">
+                <div class="range-box line-h-26">
+                    <div id="animationDurationRange" class="range50"></div>
+                    <input asp-for="@Model.AnimationDuration"
+                           id="animationDurationInput"
+                           class="input-control mar-left10 width60" />
+                    <span class="mar-left5">сек.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" id="boxChooseImage">
+            <label class="col-md-3 control-label" for="chooseImg" id="labelChooseImg">Выбор изображения:</label>
+            <div class="col-md-9">
+                <a id="btnChooseImage" class="defaultColor styleMessageFont">
+                    <span class="glyphicon glyphicon-picture"></span>
+                    <span id="nameChoosenImage">@Model.NameImage</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="form-group" id="boxAnimateImage">
+            <label class="col-md-3 control-label" id="animpicture2">Анимация изображения:</label>
+            <div class="col-md-9">
+                <div class="flex">
+                    <div class="styleSelect">
+                        <p></p>
+                        <select asp-for="@Model.StartEffectAnimation"
+                                id="startEffectAnimation" class="input inputStartAnimation">
+                            <optgroup label="Bouncing Entrances">
+                                <option value="bounceIn">bounceIn</option>
+                                <option value="bounceInDown">bounceInDown</option>
+                                <option value="bounceInLeft">bounceInLeft</option>
+                                <option value="bounceInRight">bounceInRight</option>
+                                <option value="bounceInUp">bounceInUp</option>
+                            </optgroup>
+                            <optgroup label="Fading Entrances">
+                                <option value="fadeIn">fadeIn</option>
+                                <option value="fadeInDown">fadeInDown</option>
+                                <option value="fadeInDownBig">fadeInDownBig</option>
+                                <option value="fadeInLeft" selected>fadeInLeft</option>
+                                <option value="fadeInLeftBig">fadeInLeftBig</option>
+                                <option value="fadeInRight">fadeInRight</option>
+                                <option value="fadeInRightBig">fadeInRightBig</option>
+                                <option value="fadeInUp">fadeInUp</option>
+                                <option value="fadeInUpBig">fadeInUpBig</option>
+                            </optgroup>
+                            <optgroup label="Flippers">
+                                <option value="flipInX">flipInX</option>
+                                <option value="flipInY">flipInY</option>
+                            </optgroup>
+                            <optgroup label="Lightspeed">
+                                <option value="lightSpeedIn">lightSpeedIn</option>
+                            </optgroup>
+                            <optgroup label="Rotating Entrances">
+                                <option value="rotateIn">rotateIn</option>
+                                <option value="rotateInDownLeft">rotateInDownLeft</option>
+                                <option value="rotateInDownRight">rotateInDownRight</option>
+                                <option value="rotateInUpLeft">rotateInUpLeft</option>
+                                <option value="rotateInUpRight">rotateInUpRight</option>
+                            </optgroup>
+                            <optgroup label="Sliding Entrances">
+                                <option value="slideInUp">slideInUp</option>
+                                <option value="slideInDown">slideInDown</option>
+                                <option value="slideInLeft">slideInLeft</option>
+                                <option value="slideInRight">slideInRight</option>
+
+                            </optgroup>
+                            <optgroup label="Zoom Entrances">
+                                <option value="zoomIn">zoomIn</option>
+                                <option value="zoomInDown">zoomInDown</option>
+                                <option value="zoomInLeft">zoomInLeft</option>
+                                <option value="zoomInRight">zoomInRight</option>
+                                <option value="zoomInUp">zoomInUp</option>
+                            </optgroup>
+                            <optgroup label="Specials">
+                                <option value="hinge">hinge</option>
+                                <option value="jackInTheBox">jackInTheBox</option>
+                                <option value="rollIn">rollIn</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="styleSelect mar-left20">
+                        <p></p>
+                        <select asp-for="@Model.FinishEffectAnimation"
+                                id="finishEffectAnimation"
+                                class="input inputfinishAnimation">
+                            <optgroup label="Bouncing Exits">
+                                <option value="bounceOut">bounceOut</option>
+                                <option value="bounceOutDown">bounceOutDown</option>
+                                <option value="bounceOutLeft">bounceOutLeft</option>
+                                <option value="bounceOutRight">bounceOutRight</option>
+                                <option value="bounceOutUp">bounceOutUp</option>
+                            </optgroup>
+                            <optgroup label="Fading Exits">
+                                <option value="fadeOut">fadeOut</option>
+                                <option value="fadeOutDown">fadeOutDown</option>
+                                <option value="fadeOutDownBig">fadeOutDownBig</option>
+                                <option value="fadeOutLeft">fadeOutLeft</option>
+                                <option value="fadeOutLeftBig">fadeOutLeftBig</option>
+                                <option value="fadeOutRight" selected>fadeOutRight</option>
+                                <option value="fadeOutRightBig">fadeOutRightBig</option>
+                                <option value="fadeOutUp">fadeOutUp</option>
+                                <option value="fadeOutUpBig">fadeOutUpBig</option>
+                            </optgroup>
+                            <optgroup label="Flippers">
+                                <option value="flipOutX">flipOutX</option>
+                                <option value="flipOutY">flipOutY</option>
+                            </optgroup>
+                            <optgroup label="Lightspeed">
+                                <option value="lightSpeedOut">lightSpeedOut</option>
+                            </optgroup>
+                            <optgroup label="Rotating Exits">
+                                <option value="rotateOut">rotateOut</option>
+                                <option value="rotateOutDownLeft">rotateOutDownLeft</option>
+                                <option value="rotateOutDownRight">rotateOutDownRight</option>
+                                <option value="rotateOutUpLeft">rotateOutUpLeft</option>
+                                <option value="rotateOutUpRight">rotateOutUpRight</option>
+                            </optgroup>
+                            <optgroup label="Sliding Exits">
+                                <option value="slideOutUp">slideOutUp</option>
+                                <option value="slideOutDown">slideOutDown</option>
+                                <option value="slideOutLeft">slideOutLeft</option>
+                                <option value="slideOutRight">slideOutRight</option>
+                            </optgroup>
+                            <optgroup label="Zoom Exits">
+                                <option value="zoomOut">zoomOut</option>
+                                <option value="zoomOutDown">zoomOutDown</option>
+                                <option value="zoomOutLeft">zoomOutLeft</option>
+                                <option value="zoomOutRight">zoomOutRight</option>
+                                <option value="zoomOutUp">zoomOutUp</option>
+                            </optgroup>
+                            <optgroup label="Specials">
+                                <option value="hinge">hinge</option>
+                                <option value="jackInTheBox">jackInTheBox</option>
+                                <option value="rollOut">rollOut</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" id="boxChooseSound">
+            <label class="col-md-3 control-label" id="labelChooseMelody">Выберите мелодию:</label>
+            <div class="col-md-9">
+                <a id="btnChooseSound" class="defaultColor styleMessageFont">
+                    <span class="glyphicon glyphicon-volume-up" style="top: 3px;"></span>
+                    <span id="nameChoosenSound">@Model.NameSound</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="form-group" id="boxSoundVolume">
+            <label class="col-md-3 control-label" for="soundVolumeInput" id="loud">Громкость мелодии:</label>
+            <div class="col-md-9">
+                <div class="range-box line-h-26">
+                    <div id="soundVolumeRange" class="range50"></div>
+                    <input asp-for="@Model.SoundVolume"
+                           id="soundVolumeInput"
+                           class="input-control mar-left10 width60" />
+                    <span class="mar-left5">%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button id="saveSettingsAlertDonation"
+                    onclick="return saveSettings('saveSettings')"
+                    class="defaultStyleButton"
+                    style="margin-top: 25px;">
+                <i class="fa fa-floppy-o" aria-hidden="true" id="save"></i>
+                <span id="btnSaveSet">Сохранить настройки</span>
+            </button>
+            <button type="submit" class="display-none saveSettings"></button>
+            <a onclick="return runTestAnimation()"
+               class="launch defaultStyleButton" id="animationOn">
+                <span class="glyphicon glyphicon-play-circle"></span> <span id="runAnimation">Запуск анимации</span>
+            </a>
+        </div>
+
+        <h4>Превью:</h4>
+        <div class="form-group">
+            <button id="startTriggerAnimation" class="sm-btn ripple-top" style="display: none;">Появление</button>
+            <div id="previewBox" class="col-md-10 col-md-offset-1" style="background-color: #@Model.BgBox; height:500px;">
+                <img src="@Model.PathImage"
+                     id="animationExample"
+                     title="@Model.NameImage"
+                     style="display: none; width: 250px; height: 200px;" />
+            </div>
+            <button id="endTriggerAnimation" class="sm-btn ripple-top" style="display: none;">Исчезание</button>
+        </div>
+
+            @if (Model.VerifyChanges)
+            {
+                <div id="alertSave" class="alertMsg" style="display: block">
+                    Ваши настройки успешно сохранены.
+                </div>
+            }
+            <div id="overlay"></div>
+
+            <gallerytop gallery-img-items="@Model.GalleryItemImgs"
+                        gallery-sound-items="@Model.GalleryItemSounds"
+                        upload-img-items="@Model.UploadItemImgs"
+                        upload-sound-items="@Model.UploadItemSounds">
+            </gallerytop>
+
+            <input type="hidden" asp-for="LayoutMessage" id="LayoutMessage" />
+            <input type="hidden" asp-for="PostSaveSettings" id="PostSaveSettings" />
+            <input type="hidden" asp-for="PostUpload" id="PostUpload" />
+            <input type="hidden" asp-for="GalleryVisible" id="GalleryVisible" />
+            <input type="hidden" asp-for="SelectGalleryBox" id="SelectGalleryBox" />
+            <input type="hidden" asp-for="SelectImageSource" id="SelectImageSource" />
+            <input type="hidden" asp-for="SelectSoundSource" id="SelectSoundSource" />
+            <input type="hidden" asp-for="IdForDeletionImage" id="IdForDeletionImage" />
+            <input type="hidden" asp-for="IdForDeletionSound" id="IdForDeletionSound" />
+            <input type="hidden" asp-for="TypeUploadFile" id="TypeUploadFile" />
+            <input type="hidden" asp-for="NameImage" id="NameImageDon" />
+            <input type="hidden" asp-for="NameSound" id="NameSoundDon" />
+            <input type="hidden" asp-for="NewNameImage" id="NewNameImageDon" />
+            <input type="hidden" asp-for="NewNameSound" id="NewNameSoundDon" />
+            <input type="hidden" asp-for="PathImage" id="PathImageDon" />
+            <input type="hidden" asp-for="PathSound" id="PathSoundDon" />
+            <input type="hidden" asp-for="VerifyChanges" id="verify" />
+        </div>
+</form>
+
+<script>
+    //    // Animation Image&Text
+    //    function testAnim(x) {
+    //        $('#animationExample').removeClass().addClass(x + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+    //            $(this).removeClass();
+    //        });
+    //    };
+    //    $('#startTriggerAnimation').click(function (e) {
+    //        e.preventDefault();
+    //        var anim = $('#startEffectAnimation').val();
+    //        testAnim(anim);
+    //    });
+    //    $('#endTriggerAnimation').click(function (e) {
+    //        e.preventDefault();
+    //        var anim = $('#finishEffectAnimation').val();
+    //        testAnim(anim);
+    //});
+
+    function runTestAnimation() {
+        gifAnimation();
+        playSound(pathSound);
+    }
+
+        function playSound(pathSound) {
+            $("body").append(
+                '<audio class="sound-player" id="rington" autoplay="autoplay" style="display:none;" src="' + pathSound + '"></audio>');
+            var aud = document.getElementById("rington");
+            aud.volume = volumeAudio;
+            $('#rington').on('ended',
+                function () {
+                    $("#rington").remove();
+                });
+    }
+
+    function gifAnimation() {
+        function startGifAnimation() {
+            $("#animationExample").css({ display: "block", top: gifYBanner, left: gifXBanner });
+            $("#animationExample").animate({
+                //top: gifYBanner,
+                //left: gifXBanner
+                top: 100,
+                left:500
+            }, 2000);
+            
+            startImgAnim(startEffectAnimationImg);
+        }
+        function endGifAnimation() {
+            endImgAnim(finishEffectAnimationImg);
+        }
+
+        startGifAnimation();
+        setTimeout(endGifAnimation, animationDuration);
+    }
+
+    function startImgAnim(x) {
+        $('#animationExample').removeClass().addClass(x + ' animated').one(
+            'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
+            function () {
+                $(this).removeClass();
+            });
+    };
+
+    function endImgAnim(x) {
+        $('#animationExample').removeClass().addClass(x + ' animated').one(
+            'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
+            function () {
+                $(this).removeClass().css("display", "none");
+            });
+    };
+
+    // Animation
+    var widthBox = parseInt($("#previewBox").css("width")),
+        heightBox = parseInt($("#previewBox").css("height")),
+        centerX = widthBox / 2,
+        centerY = heightBox / 2,
+        widthGif = parseInt($("#animationExample").css("width")),
+        heightGif = parseInt($("#animationExample").css("height")),
+        gifXBanner = centerX - widthGif / 2,
+        gifYBanner = centerY - heightGif / 2;
+
+        function saveSettings(val) {
+            $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
+            $("#PostSaveSettings").val(val);
+            $("#SelectGalleryBox").val("");
+            $("#PostUpload").val("");
+            $("button.saveSettings").click();
+            return true;
+        }
+        function uploadFiles(val) {
+            $("#PostUpload").val(val);
+            $("#PostSaveSettings").val("");
+            $("button.uploadImg").click();
+            return true;
+        }
+
+        // for highlight the ACTIVE FILE in gallery
+        var divImageName = $(".images .boxFooter__FileName");
+        var divSoundName = $(".sounds .boxFooter__FileName");
+        for (var a = 0; a < divImageName.length; a++) {
+            var elemImg, elemImgLi,
+                w = divImageName[a].textContent;
+            if (w === imageName) {
+                elemImg = divImageName[a];
+                elemImg.style.cssText = "font-weight: bold; color: #eeeeee;";
+                elemImgLi = elemImg.parentNode.parentNode;
+                elemImgLi.style.cssText = "border-color: #eeeeee";
+            }
+        }
+        for (var a = 0; a < divSoundName.length; a++) {
+            var elemSound, elemSoundLi,
+                w = divSoundName[a].textContent;
+            if (w === soundName) {
+                elemSound = divSoundName[a];
+                elemSound.style.cssText = "font-weight: bold; color: #eeeeee;";
+                elemSoundLi = elemSound.parentNode.parentNode;
+                elemSoundLi.style.cssText = "border-color: #eeeeee";
+            }
+        }
+
+        // For PLAY/STOP ringtones
+        function playSound(fileName, self) {
+            stopSound();
+            $(".playSound").css("display", "inline-block");
+            $(".stopSound").css("display", "none");
+            $(self).css("display", "none");
+            $(self).siblings().css("display", "inline-block");
+            $("body").append(
+                '<audio class="sound-player" id="donatRington" autoplay="autoplay" style="display:none;">' +
+                '<source src="' + fileName + '" />' +
+                '<embed src="' + fileName + '" hidden="true" autostart="true" loop="false"/>' + '</audio>');
+            $('#donatRington').on('ended',
+                function () {
+                    stopSound();
+                });
+        }
+        function stopSound() {
+            $(".stopSound").css("display", "none");
+            $(".playSound").css("display", "inline-block");
+            $(".sound-player").remove();
+        }
+
+        // Save Name choosen Image and Sound
+        function getImgName(name, tab) {
+            $("#NewNameImageDon").val(name);
+            $("#SelectImageSource").val(tab);
+            return true;
+        }
+        function getSoundName(name, tab) {
+            $("#NewNameSoundDon").val(name);
+            $("#SelectSoundSource").val(tab);
+            return true;
+        }
+
+
+        // Border over choosen Image and Sound
+        $(".galleryList li").click(function () {
+            $(this).siblings().css({
+                "border-color": "rgb(240, 242, 242)",
+                "font-weight": "normal",
+                "color": "#333"
+            });
+            $(this).css({
+                "border-color": "#3297DB",
+                "font-weight": "bold",
+                "color": "#3297DB"
+            });
+        });
+
+        // for DELETE img
+        function deleteImageById(id) {
+            $("#IdForDeletionImage").val(id);
+            $("#PostUpload").val("uploadFiles");
+            $("#PostSaveSettings").val("");
+            $("#PostGenerateLink").val("");
+            $("#pushFile").click();
+        }
+        function deleteSoundById(id) {
+            $("#IdForDeletionSound").val(id);
+            $("#PostUpload").val("uploadFiles");
+            $("#PostSaveSettings").val("");
+            $("#PostGenerateLink").val("");
+            $("#pushFile").click();
+        }
+
+
+        // Switch tabs in gallery
+        $('#imgGallery').click(function () {
+            $('#SelectGalleryBox').val('galleryImg');
+            $("#modalGallery span.active").removeClass("active");
+            $(this).find("span").addClass("active");
+            $("#imgGalleryContainer").siblings().css("display", "none");
+            $("#imgGalleryContainer").css("display", "flex");
+        });
+        $('#soundGallery').click(function () {
+            $('#SelectGalleryBox').val('gallerySound');
+            $("#modalGallery span.active").removeClass("active");
+            $(this).find("span").addClass("active");
+            $("#soundGalleryContainer").siblings().css("display", "none");
+            $("#soundGalleryContainer").css("display", "flex");
+        });
+        $('#imgUpload').click(function () {
+            $('#SelectGalleryBox').val('uploadImg');
+            $("#modalGallery span.active").removeClass("active");
+            $(this).find("span").addClass("active");
+            $("#imgUploadContainer").siblings().css("display", "none");
+            $("#imgUploadContainer").css("display", "flex");
+        });
+        $('#soundUpload').click(function () {
+            $('#SelectGalleryBox').val('uploadSound');
+            $("#modalGallery span.active").removeClass("active");
+            $(this).find("span").addClass("active");
+            $("#soundUploadContainer").siblings().css("display", "none");
+            $("#soundUploadContainer").css("display", "flex");
+        });
+
+
+
+        // MODAL Window  Gallery IMG&SOUND
+        $('#btnChooseImage').click(function (event) {
+            event.preventDefault();
+            $('#overlay').fadeIn(400,
+                function () {
+                    $('#modalGallery')
+                        .css('display', 'block')
+                        .animate({ opacity: 1, top: '50%' }, 200);
+                });
+            $("#modalGallery span.active").removeClass("active");
+            $("#imgGallery span").addClass("active");
+            $("#imgUploadContainer").siblings().css("display", "none");
+            $("#imgGalleryContainer").css("display", "flex");
+        });
+        $('#btnChooseSound').click(function (event) {
+            event.preventDefault();
+            $('#overlay').fadeIn(400,
+                function () {
+                    $('#modalGallery')
+                        .css('display', 'block')
+                        .animate({ opacity: 1, top: '50%' }, 200);
+                });
+            $("#modalGallery span.active").removeClass("active");
+            $("#soundGallery span").addClass("active");
+            $("#soundUploadContainer").siblings().css("display", "none");
+            $("#soundGalleryContainer").css("display", "flex");
+        });
+        $('#modal_close, #overlay, #modal_cancel').click(function () {
+            $('#modalGallery')
+                .animate({ opacity: 0, top: '45%' }, 200,
+                    function () {
+                        $(this).css('display', 'none');
+                        $('#overlay').fadeOut(400);
+                    }
+                );
+            $("#NewNameImageDon").val("");
+            $("#NewNameSoundDon").val("");
+            $('#GalleryVisible').val("");
+            $('#SelectImageSource').val("");
+            $('#SelectSoundSource').val("");
+            $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
+        });
+
+        $('#modal_ok').click(function () {
+            $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
+            $('#modalGallery')
+                .animate({ opacity: 0, top: '45%' }, 200,
+                    function () {
+                        $(this).css('display', 'none');
+                        $('#overlay').fadeOut(400);
+                    }
+                );
+            $('#GalleryVisible').val("");
+            var newNameImage = $("#NewNameImageDon").val();
+            var newSourceImage = $("#SelectImageSource").val();
+            var newNameSound = $("#NewNameSoundDon").val();
+            if (newNameImage !== "") {
+                $("#NameImageDon").val(newNameImage);
+                $("#nameChoosenImage").text(newNameImage);
+                $("#animationExample").attr("src", function () {
+                    return "/gallery/" + newSourceImage + "/" + newNameImage;
+                });
+                $("#animationExample").attr("title", function () {
+                    return newNameImage;
+                });
+            } else {
+                $("#NameImageDon").val(imageName);
+                $("#nameChoosenImage").text(imageName);
+            }
+            if (newNameSound !== "") {
+                $("#NameSoundDon").val(newNameSound);
+                $("#nameChoosenSound").text(newNameSound);
+            } else {
+                $("#NameSoundDon").val(soundName);
+                $("#nameChoosenSound").text(soundName);
+            }
+        });
+
+
+        // select box in Modal Gallery after uploadFiles-POST
+        if (galleryVisible === true) {
+            $('#overlay').fadeIn(0,
+                function () {
+                    $('#modalGallery')
+                        .css('display', 'block')
+                        .animate({ opacity: 1, top: '50%' }, 0);
+                });
+        }
+        if (selectGalleryBox === "galleryImg") {
+            $('#imgGallery').click();
+        }
+        if (selectGalleryBox === "gallerySound") {
+            $('#soundGallery').click();
+        }
+        if (selectGalleryBox === "uploadImg") {
+            $('#imgUpload').click();
+        }
+        if (selectGalleryBox === "uploadSound") {
+            $('#soundUpload').click();
+        }
+
+
+
+        // ADD FILES
+        var wrapper = $(".file_upload"),
+            inp = wrapper.find("input"),
+            btn = wrapper.find("button#uploadBtn"),
+            push = wrapper.find("button#pushFile"),
+            lbl = wrapper.find("div#fileName");
+        btn.focus(function () {
+            wrapper.addClass("focus");
+        }).blur(function () {
+            wrapper.removeClass("focus");
+        });
+        btn.add(lbl).click(function () {
+            inp.click();
+        });
+        var file_api = (window.File && window.FileReader && window.FileList && window.Blob) ? true : false;
+        inp.change(function () {
+            var file_name;
+            if (file_api && inp[0].files[0])
+                file_name = inp[0].files[0].name;
+            else
+                file_name = inp.val().replace("C:\\somepath\\", '');
+            if (!file_name.length)
+                return;
+            if (lbl.is(":visible")) {
+                lbl.text(file_name);
+                btn.text("Загрузка файла");
+            } else
+                btn.text(file_name);
+            // for Get Type file
+            var file = $("#files")[0].files[0],
+                ext = "не определилось",
+                parts = file.type.split('/');
+            if (parts.length > 1) ext = parts.shift();
+            console.log("MIME тип: ", ext);
+            $("#TypeUploadFile").val(ext);
+
+            push.click();
+        }).change();
+
+
+
+        setInterval(function () {
+            $("#alertSave").css("display", "none");
+        }, 4 * 1000);
+
+
+
+
+        $('#startEffectAnimation').each(function () {
+            $(this).siblings('p').text($(this).children().children('option:selected').text());
+        }).change(function () {
+            $(this).siblings('p').text($(this).children().children('option:selected').text());
+        });
+
+        $('#finishEffectAnimation').each(function () {
+            $(this).siblings('p').text($(this).children().children('option:selected').text());
+        }).change(function () {
+            $(this).siblings('p').text($(this).children().children('option:selected').text());
+        });
+
+
+
+
+        $("#animationDurationRange").slider({
+            range: "min",
+            value: parseInt("@Model.AnimationDuration"),
+            step: 1,
+            min: 2,
+            max: 60,
+            slide: function( event, ui ) {
+                $( "#animationDurationInput" ).val( ui.value );
+                var value = $("#animationDurationInput").val();
+                $("#animationDurationRange").slider("value", value);
+            }
+        });
+        $("#animationDurationInput").change(function () {
+            var n=/\d{6}\s+~/g;
+            var value = this.value.replace(n, "");
+            $("#animationDurationRange").slider("value", parseInt(value));
+        });
+
+
+        $("#soundVolumeRange").slider({
+            range: "min",
+            value: parseInt("@Model.SoundVolume"),
+            step: 1,
+            min: 0,
+            max: 100,
+            slide: function( event, ui ) {
+                $( "#soundVolumeInput" ).val( ui.value );
+                var value = $("#soundVolumeInput").val();
+                $("#soundVolumeRange").slider("value", value);
+            }
+        });
+        $("#soundVolumeInput").change(function () {
+            var n=/\d{6}\s+~/g;
+            var value = this.value.replace(n, "");
+            $("#soundVolumeRange").slider("value", parseInt(value));
+        });
+
+
+
+
+        //$('#startEffectAnimation').change(function () {
+        //    var anim = $(this).val();
+        //    testAnim(anim);
+        //});
+        //$('#finishEffectAnimation').change(function () {
+        //    var anim = $(this).val();
+        //    testAnim(anim);
+        //});
+
+</script>

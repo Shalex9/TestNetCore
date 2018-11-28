@@ -1,0 +1,309 @@
+﻿@using TestNetCore.Models.Files
+@using TestNetCore.Models.WidgetsViewModels
+@using Newtonsoft.Json;
+@model TestNetCore.Models.Files.CrudViewModel
+@{
+    ViewData["Title"] = "CRUD";
+    Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
+}
+
+<link href="~/lib/syncfusion-javascript/Content/ej/web/bootstrap-theme/ej.web.all.min.css" rel="stylesheet" />
+<link href="~/lib/syncfusion-javascript/Content/ej/web/responsive-css/ej.responsive.css" rel="stylesheet" />
+<script src="~/lib/jsrender/jsrender.min.js"></script>
+<script src="~/lib/syncfusion-javascript/Scripts/ej/web/ej.web.all.min.js"></script>
+<script type="text/javascript" src="~/js/Languages/localizer.js"></script>
+
+<form asp-controller="Files" asp-action="Crud"
+      id="Crud"
+      method="post" enctype="multipart/form-data"
+      class="col-md-12">
+    @Html.AntiForgeryToken()
+        <h2 id="">Информация - 1</h2>
+
+        <p>Больше информации обо мне - в моем резюме</p>
+        <a asp-controller="Files" is-active-route asp-action="GetResume"
+           id="downloadResume"
+           class="defaultStyleButton"
+           style="margin-top: 25px;">
+            <i class="fa fa-floppy-o" aria-hidden="true" id="save"></i>
+            <span id="downloadResumeText">Загрузить моё резюме</span>
+        </a>
+
+        <hr />
+
+        @*<h3>Сменить аватар - зайдите в созданную мной галерею</h3>
+            <div class="form-group" id="boxChooseImage">
+                <label class="col-md-3 control-label" for="chooseImg" id="labelChooseImg">Выбор изображения:</label>
+                <div class="col-md-9">
+                    <a id="btnChooseImage" class="defaultColor styleMessageFont">
+                        <span class="glyphicon glyphicon-picture"></span>*@
+        @*<span id="nameChoosenImage">@Model.NameImageDon</span>*@
+        @*<span id="nameChoosenImage">Gallery</span>
+                            </a>
+                            <span class="title fa fa-question-circle" id="imtitle"></span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>*@
+
+        @*<div id="overlay"></div>
+
+            <gallerytop gallery-img-items="@Model.GalleryItemImgs"
+                        gallery-sound-items="@Model.GalleryItemSounds"
+                        upload-img-items="@Model.UploadItemImgs"
+                        upload-sound-items="@Model.UploadItemSounds">
+            </gallerytop>
+
+            <input type="hidden" asp-for="PostSaveSettings" id="PostSaveSettings" />
+            <input type="hidden" asp-for="PostUpload" id="PostUpload" />
+            <input type="hidden" asp-for="GalleryVisible" id="GalleryVisible" />
+            <input type="hidden" asp-for="SelectGalleryBox" id="SelectGalleryBox" />
+            <input type="hidden" asp-for="SelectImageSource" id="SelectImageSource" />
+            <input type="hidden" asp-for="SelectSoundSource" id="SelectSoundSource" />
+            <input type="hidden" asp-for="IdForDeletionImage" id="IdForDeletionImage" />
+            <input type="hidden" asp-for="IdForDeletionSound" id="IdForDeletionSound" />
+            <input type="hidden" asp-for="TypeUploadFile" id="TypeUploadFile" />*@
+        @*<input type="hidden" asp-for="PathImageDon" id="PathImageDon" />
+            <input type="hidden" asp-for="PathSoundDon" id="PathSoundDon" />*@
+    </form>
+
+
+    <script>
+        // For 3 different POST
+        function saveSettings(val) {
+            $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
+            $("#PostSaveSettings").val(val);
+            $("#PostGenerateLink").val("");
+            $("#SelectGalleryBox").val("");
+            $("#PostUpload").val("");
+            $("button.saveSettings").click();
+            return true;
+        }
+        function uploadFiles(val) {
+            $("#PostUpload").val(val);
+            $("#PostSaveSettings").val("");
+            $("#PostGenerateLink").val("");
+            $("button.uploadImg").click();
+            return true;
+        }
+
+        // for highlight the ACTIVE FILE in gallery
+        var divImageName = $(".images .boxFooter__FileName");
+        var divSoundName = $(".sounds .boxFooter__FileName");
+        for (var a = 0; a < divImageName.length; a++) {
+            var elemImg, elemImgLi,
+                w = divImageName[a].textContent;
+            if (w === imageName) {
+                elemImg = divImageName[a];
+                elemImg.style.cssText = "font-weight: bold; color: #3297DB;";
+                elemImgLi = elemImg.parentNode.parentNode;
+                elemImgLi.style.cssText = "border-color: #3297DB";
+            }
+        }
+        for (var a = 0; a < divSoundName.length; a++) {
+            var elemSound, elemSoundLi,
+                w = divSoundName[a].textContent;
+            if (w === soundName) {
+                elemSound = divSoundName[a];
+                elemSound.style.cssText = "font-weight: bold; color: #3297DB;";
+                elemSoundLi = elemSound.parentNode.parentNode;
+                elemSoundLi.style.cssText = "border-color: #3297DB";
+            }
+        }
+
+        // For PLAY/STOP ringtones
+        function playSound(fileName, self) {
+            stopSound();
+            $(".playSound").css("display", "inline-block");
+            $(".stopSound").css("display", "none");
+            $(self).css("display", "none");
+            $(self).siblings().css("display", "inline-block");
+            $("body").append(
+                '<audio class="sound-player" id="donatRington" autoplay="autoplay" style="display:none;">' +
+                '<source src="' + fileName + '" />' +
+                '<embed src="' + fileName + '" hidden="true" autostart="true" loop="false"/>' + '</audio>');
+            $('#donatRington').on('ended',
+                function () {
+                    stopSound();
+                });
+        }
+        function stopSound() {
+            $(".stopSound").css("display", "none");
+            $(".playSound").css("display", "inline-block");
+            $(".sound-player").remove();
+        }
+
+        // Save Name choosen Image and Sound
+        function getImgName(name, tab) {
+            $("#NewNameImageDon").val(name);
+            $("#SelectImageSource").val(tab);
+            return true;
+        }
+        function getSoundName(name, tab) {
+            $("#NewNameSoundDon").val(name);
+            $("#SelectSoundSource").val(tab);
+            return true;
+        }
+
+
+        // Border over choosen Image and Sound
+        $(".galleryList li").click(function () {
+            $(this).siblings().css({
+                "border-color": "rgb(240, 242, 242)",
+                "font-weight": "normal",
+                "color": "#333"
+            });
+            $(this).css({
+                "border-color": "#3297DB",
+                "font-weight": "bold",
+                "color": "#3297DB"
+            });
+        });
+
+        // for DELETE img
+        function deleteImageById(id) {
+            $("#IdForDeletionImage").val(id);
+            $("#PostUpload").val("uploadFiles");
+            $("#PostSaveSettings").val("");
+            $("#PostGenerateLink").val("");
+            $("#pushFile").click();
+        }
+        function deleteSoundById(id) {
+            $("#IdForDeletionSound").val(id);
+            $("#PostUpload").val("uploadFiles");
+            $("#PostSaveSettings").val("");
+            $("#PostGenerateLink").val("");
+            $("#pushFile").click();
+        }
+
+
+        // Switch tabs in gallery
+        $('#imgGallery').click(function () {
+            $('#SelectGalleryBox').val('galleryImg');
+            $("#modalGallery span.active").removeClass("active");
+            $(this).find("span").addClass("active");
+            $("#imgGalleryContainer").siblings().css("display", "none");
+            $("#imgGalleryContainer").css("display", "flex");
+        });
+        $('#soundGallery').click(function () {
+            $('#SelectGalleryBox').val('gallerySound');
+            $("#modalGallery span.active").removeClass("active");
+            $(this).find("span").addClass("active");
+            $("#soundGalleryContainer").siblings().css("display", "none");
+            $("#soundGalleryContainer").css("display", "flex");
+        });
+        $('#imgUpload').click(function () {
+            $('#SelectGalleryBox').val('uploadImg');
+            $("#modalGallery span.active").removeClass("active");
+            $(this).find("span").addClass("active");
+            $("#imgUploadContainer").siblings().css("display", "none");
+            $("#imgUploadContainer").css("display", "flex");
+        });
+        $('#soundUpload').click(function () {
+            $('#SelectGalleryBox').val('uploadSound');
+            $("#modalGallery span.active").removeClass("active");
+            $(this).find("span").addClass("active");
+            $("#soundUploadContainer").siblings().css("display", "none");
+            $("#soundUploadContainer").css("display", "flex");
+        });
+
+        $('#btnChooseImage').click(function (event) {
+            event.preventDefault();
+            $('#overlay').fadeIn(400,
+                function () {
+                    $('#modalGallery')
+                        .css('display', 'block')
+                        .animate({ opacity: 1, top: '50%' }, 200);
+                });
+            $("#modalGallery span.active").removeClass("active");
+            $("#imgGallery span").addClass("active");
+            $("#imgUploadContainer").siblings().css("display", "none");
+            $("#imgGalleryContainer").css("display", "flex");
+        });
+        $('#modal_close, #overlay, #modal_cancel').click(function () {
+            $('#modalStyleTitle')
+                .animate({ opacity: 0, top: '45%' }, 200,
+                    function () {
+                        $(this).css('display', 'none');
+                        $('#overlay').fadeOut(400);
+                    }
+                );
+            $('#modalStyleText')
+                .animate({ opacity: 0, top: '45%' }, 200,
+                    function () {
+                        $(this).css('display', 'none');
+                        $('#overlay').fadeOut(400);
+                    }
+                );
+            $('#modalGallery')
+                .animate({ opacity: 0, top: '45%' }, 200,
+                    function () {
+                        $(this).css('display', 'none');
+                        $('#overlay').fadeOut(400);
+                    }
+                );
+            $("#NewNameImageDon").val("");
+            $("#NewNameSoundDon").val("");
+            $('#GalleryVisible').val("");
+            $('#SelectImageSource').val("");
+            $('#SelectSoundSource').val("");
+            $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
+        });
+        $('#modal_ok').click(function () {
+            $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
+            $('#modalGallery')
+                .animate({ opacity: 0, top: '45%' }, 200,
+                    function () {
+                        $(this).css('display', 'none');
+                        $('#overlay').fadeOut(400);
+                    }
+                );
+            $('#GalleryVisible').val("");
+            var newNameImage = $("#NewNameImageDon").val();
+            var newSourceImage = $("#SelectImageSource").val();
+            var newNameSound = $("#NewNameSoundDon").val();
+            if (newNameImage !== "") {
+                $("#NameImageDon").val(newNameImage);
+                $("#nameChoosenImage").text(newNameImage);
+                $("#animationExample").attr("src", function () {
+                    return "/gallery/" + newSourceImage + "/" + newNameImage;
+                });
+                $("#animationExample").attr("title", function () {
+                    return newNameImage;
+                });
+            } else {
+                $("#NameImageDon").val(imageName);
+                $("#nameChoosenImage").text(imageName);
+            }
+            if (newNameSound !== "") {
+                $("#NameSoundDon").val(newNameSound);
+                $("#nameChoosenSound").text(newNameSound);
+            } else {
+                $("#NameSoundDon").val(soundName);
+                $("#nameChoosenSound").text(soundName);
+            }
+        });
+
+        // select box in Modal Gallery after uploadFiles-POST
+        if (galleryVisible === true) {
+            $('#overlay').fadeIn(0,
+                function () {
+                    $('#modalGallery')
+                        .css('display', 'block')
+                        .animate({ opacity: 1, top: '50%' }, 0);
+                });
+        }
+        if (selectGalleryBox === "galleryImg") {
+            $('#imgGallery').click();
+        }
+        if (selectGalleryBox === "gallerySound") {
+            $('#soundGallery').click();
+        }
+        if (selectGalleryBox === "uploadImg") {
+            $('#imgUpload').click();
+        }
+        if (selectGalleryBox === "uploadSound") {
+            $('#soundUpload').click();
+        }
+    </script>

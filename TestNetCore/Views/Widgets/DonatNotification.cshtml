@@ -1,0 +1,2099 @@
+﻿@using TestNetCore.Controllers
+@using TestNetCore.Models.WidgetsViewModels
+@using Newtonsoft.Json;
+
+@model TestNetCore.Models.WidgetsViewModels.DonatViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
+}
+<script src="https://cdn.syncfusion.com/js/assets/i18n/ej.culture.ru-RU.min.js"></script>
+<link rel="stylesheet" href="~/css/animate.min.css">
+<link rel="stylesheet" href="~/css/jquery-ui.min.css">
+<link rel="stylesheet" href="~/css/txt.wav.css">
+<script src="~/js/jquery-ui.min.js"></script>
+<script src="~/js/jscolor.js"></script>
+@*<script type="text/javascript" src="~/js/Languages/localizer.js"></script>*@
+
+<script>
+    var runAnim = @Html.Raw(Model.RunTestMessage).ToString().ToLower(),
+        animVisible = @Html.Raw(Model.AnimationVisibleDon).ToString().ToLower(),
+        layoutMsg = "@Html.Raw(Model.LayoutMessageDon)",
+        animImgVisible = @Html.Raw(Model.AnimationImageVisibleDon).ToString().ToLower(),
+        soundVisible = @Html.Raw(Model.SoundVisibleDon).ToString().ToLower(),
+        weightTitle = "@Html.Raw(Model.FontWeightTitleDon)",
+        italicTitle = "@Html.Raw(Model.FontItalicTitleDon)",
+        underlineTitle = "@Html.Raw(Model.FontUnderlineTitleDon)",
+        weightText = "@Html.Raw(Model.FontWeightTextDon)",
+        italicText  = "@Html.Raw(Model.FontItalicTextDon)",
+        underlineText  = "@Html.Raw(Model.FontUnderlineTextDon)",
+        animationDuration = @Html.Raw(Model.AnimationDurationDon),
+        animationDelay = @Html.Raw(Model.AnimationDelayDon),
+        soundVolume = @Html.Raw(Model.SoundVolumeDon),
+        textDelay = @Html.Raw(Model.TextDelayDon),
+        fontSizeTitle = "@Html.Raw(Model.FontSizeTitleDon)",
+        letterSpacingTitle = "@Html.Raw(Model.LetterSpacingTitleDon)",
+        wordSpacingTitle = "@Html.Raw(Model.WordSpacingTitleDon)",
+        shadowTitle = "@Html.Raw(Model.ShadowTitleDon)",
+        opacityTitle = "@Model.FontColorTitleOpacityDon" / 100,
+        opacityText = "@Model.FontColorTextOpacityDon" / 100,
+        fontSizeText = "@Html.Raw(Model.FontSizeTextDon)",
+        letterSpacingText = "@Html.Raw(Model.LetterSpacingTextDon)",
+        wordSpacingText = "@Html.Raw(Model.WordSpacingTextDon)",
+        shadowText = "@Html.Raw(Model.ShadowTextDon)",
+        galleryVisible = @Html.Raw(Model.GalleryVisible).ToString().ToLower(),
+        selectGalleryBox = "@Html.Raw(Model.SelectGalleryBox)",
+        imageGalleryCount = @Html.Raw(Model.ImageGalleryCount),
+        soundGalleryCount = @Html.Raw(Model.SoundGalleryCount),
+        imageUploadCount = @Html.Raw(Model.ImageUploadCount),
+        soundUploadCount = @Html.Raw(Model.SoundUploadCount),
+        imageName = "@Html.Raw(Model.NameImageDon)",
+        soundName = "@Html.Raw(Model.NameSoundDon)",
+        token = "@Model.Token";
+</script>
+
+<form asp-controller="Widgets" asp-action="DonatNotification" 
+      id="DonatNotification"
+      method="post" enctype="multipart/form-data" 
+      class="col-md-12">
+    @Html.AntiForgeryToken()
+    <div class="page-block">
+
+        <h2 id="donatNotifId">Тестовый бокс с анимацией</h2>
+        
+        @if (Model.LinkDonation != null)
+        {
+        <div class="margin-t-b-30" id="linkBox">
+            <input id="linkBox" type="hidden" readonly="readonly" name="linkBox"
+                   value="@Model.LinkDonation" style="width: 550px;" />
+            <div class="margin-t-b-30">
+                <a onclick="window.open($('#linkBox').val(), $('#linkBox').val(), 'menubar=0,resizable=1,width=1000,height=600').focus(); return false;"
+                   class="launch defaultStyleButton" id="boxOn">
+                    <span class="glyphicon glyphicon-play-circle"></span> <span id="runAlertBox">Запуск бокса</span>
+                </a>
+                <a onclick="return runTestAnimation()"
+                   class="launch defaultStyleButton" id="animationOn">
+                    <span class="glyphicon glyphicon-play-circle"></span> <span id="runAnimation">Запуск анимации</span>
+                </a>
+            </div>
+            <div id="alertAnim" class="alertMsg" style="display: none">
+                Анимация запустится в течении трех секунд.
+            </div>
+            <div id="animIsRun" class="alertMsg" style="display: none">
+                Анимация уже запущена. Подождите завершения текущей анимации и повторите запуск.
+            </div>
+        </div>
+        }
+        
+        <h3 class="form-section" id="settings">Настройки оповещения</h3>
+        <div class="settingsDonation">
+            <h4 id="main">Основные:</h4>
+            <div class="form-group">
+                <label class="col-md-3 control-label" id="animOn">Включить анимацию:</label>
+                <div class="col-md-9">
+                    <div class="groupRadio">
+                        <div class="radio checkbox-wrapper" onclick="return animationVisible(true)">
+                            <input id="AnimationVisibleOn" type="radio" name="donation_enabled" value="true" />
+                            <label for="AnimationVisibleOn" class="turnOn">Включить</label>
+                        </div>
+                    </div>
+                    <div class="groupRadio">
+                        <div class="radio checkbox-wrapper"  onclick="return animationVisible(false)">
+                            <input id="AnimationVisibleOff" type="radio" name="donation_enabled" value="false" />
+                            <label for="AnimationVisibleOff" class="turnOff">Отключить</label>
+                        </div>
+                    </div>
+                    <span class="title fa fa-question-circle" id="titleAn" 
+                          @*title="Если установлено значение «Включить», уведомления будут отображаться как обычно. 
+                          Если установлено значение «Отключить», уведомления не появятся. Это может быть полезно, 
+                          если Вы - МЕГА СТРИМЕР, и Вы не хотите, чтобы Вас заливали уведомлениями."*@></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="minAmount" id="minpayam">Минимальная сумма платежа:</label>
+                <div class="col-md-9">
+                    <input asp-for="@Model.MinAmountDon" type="text" 
+                           id="minAmount" value="@Model.MinAmountDon" style="width: 50px;" />
+                    <span class="mar-left5">@Model.Currency</span>
+                    <span class="title fa fa-question-circle" id="dontitle"
+                          @*title="Минимальное пожертвование, о котором будет сообщено в уведомлении. Это полезно, если Вы хотите 
+                          чтобы уведомления срабатывали только для пожертвований больших объемов. Установка этого значения на 0 приведет 
+                          к тому, что Вы будете получать абсолютно все уведомления,  независимо от суммы пожертвования."*@></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="bgColorBoxInput" id="bgcolor">Цвет фона:</label>
+                <div class="col-md-9">
+                    <input asp-for="@Model.BgBoxDon"
+                           value="@Model.BgBoxDon" 
+                           id="bgColorBoxInput" 
+                           class="jscolor {position:'right',
+                            borderColor:'#FFF #666 #666 #FFF',
+                            insetColor:'#666 #FFF #FFF #666',
+                            backgroundColor:'#CCC'}">
+                    <span class="title fa fa-question-circle" id="bgtitle"
+                          @*title="Этот фоновый цвет предназначен только для предварительного просмотра. 
+                          Он не будет показан в вашем потоковом программном обеспечении."*@></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="bgColorMessageInput" id="bgcolmes">Цвет фона сообщения:</label>
+                <div class="col-md-9">
+                    <input asp-for="@Model.BgMessageDon"
+                           value="@Model.BgMessageDon" 
+                           id="bgColorMessageInput" 
+                           class="jscolor {position:'right',
+                                borderColor:'#FFF #666 #666 #FFF',
+                                insetColor:'#666 #FFF #FFF #666',
+                                backgroundColor:'#CCC'}">
+                    <span class="title fa fa-question-circle" id="bgcoltitle"
+                          @*title="Этот фоновый цвет предназначен только для предварительного просмотра. 
+                          Он не будет показан в вашем потоковом программном обеспечении."*@></span>
+                </div>
+            </div>
+            <div class="form-group" id="boxBgMessageOpacity">
+                <label class="col-md-3 control-label" for="bgMessageOpacityInput" id="opacity">Прозрачность фона текста:</label>
+                <div class="col-md-9">
+                    <div class="range-box line-h-26">
+                        <div id="bgMessageOpacityRange" class="range50"></div>
+                        <input asp-for="@Model.BgMessageOpacityDon"  
+                               id="bgMessageOpacityInput" 
+                               class="input-control mar-left10 width60"/>
+                        <span class="mar-left5">%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="animationDurationInput" id="duration">Продолжительность:</label>
+                <div class="col-md-9">
+                    <div class="range-box line-h-26">
+                        <div id="animationDurationRange" class="range50"></div>
+                        <input asp-for="@Model.AnimationDurationDon"  
+                               id="animationDurationInput" 
+                               class="input-control mar-left10 width60"/>
+                        <span class="mar-left5">сек.</span>
+                        <span class="title fa fa-question-circle" id="sec" 
+                              @*title="Продолжетельность уведомления в секундах"*@></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" id="place">Расположение:</label>
+                <div class="col-md-9">
+                    <div class="layout-select">
+                        <input type="radio" name="layout" id="layoutMessageAbove" value="above" />
+                        <label for="layoutMessageAbove" data-value="above" onclick="return layoutMessage('above')">
+                            <img src="~/img/layoutAbove.png" />
+                        </label>
+                    </div>
+                    <div class="layout-select">
+                        <input type="radio" name="layout" id="layoutMessageBanner" value="banner" />
+                        <label for="layoutMessageBanner" data-value="banner" onclick="return layoutMessage('banner')">
+                            <img src="~/img/layoutBanner.png" />
+                        </label>
+                    </div>
+                    <div class="layout-select">
+                        <input type="radio" name="layout" id="layoutMessageRight" value="right" />
+                        <label for="layoutMessageRight" data-value="right" onclick="return layoutMessage('right')">
+                            <img src="~/img/layoutTextRight.png" />
+                        </label>
+                    </div>
+                    <div class="layout-select">
+                        <input type="radio" name="layout" id="layoutMessageLeft" value="left" />
+                        <label for="layoutMessageLeft" data-value="left" onclick="return layoutMessage('left')">
+                            <img src="~/img/layoutTextLeft.png" />
+                        </label>
+                    </div>
+                </div>
+            </div>
+           
+            
+            <h4 id="picture">Изображение:</h4>
+            <div class="form-group" id="boxEnableAnimateImage">
+                <label class="col-md-3 control-label" id="animpicture">Анимация изображения:</label>
+                <div class="col-md-9">
+                    <div class="groupRadio">
+                        <div class="radio checkbox-wrapper" onclick="return animationImageVisible(true)">
+                            <input id="AnimationImageVisibleOn" type="radio" name="imgAnimation_enabled" value="true" />
+                            <label for="AnimationVisibleOn" class="turnOn">Включить</label>
+                        </div>
+                    </div>
+                    <div class="groupRadio">
+                        <div class="radio checkbox-wrapper" onclick="return animationImageVisible(false)">
+                            <input id="AnimationImageVisibleOff" type="radio" name="imgAnimation_enabled" value="false" />
+                            <label for="AnimationVisibleOff" class="turnOff">Отключить</label>
+                        </div>
+                    </div>
+                    <span class="title fa fa-question-circle" id="pictitle"
+                          @*title="Если установлено значение «Включить», изображения уведомлений будут отображаться как обычно. 
+                          Если установлено значение «Отключить», изображения уведомлений появляться не будут. 
+                          Это может быть полезно, если Вам не интересно наблюдать за анимацией картинок, 
+                          и Вы хотите видеть только сами уведомления."*@></span>
+                </div>
+            </div>
+            <div class="form-group" id="boxChooseImage">
+                <label class="col-md-3 control-label" for="chooseImg" id="labelChooseImg">Выбор изображения:</label>
+                <div class="col-md-9">
+                    <a id="btnChooseImage" class="defaultColor styleMessageFont">
+                        <span class="glyphicon glyphicon-picture"></span>
+                        <span id="nameChoosenImage">@Model.NameImageDon</span>
+                    </a>                    
+                    <span class="title fa fa-question-circle" id="imtitle"
+                          @*title="Здесь Вы можете выбрать изображение из стоковой галереи или загрузить своё. 
+                                После выбора изображения не забудьте нажать кнопку «Принять»."*@></span>
+                </div>
+            </div>
+            <div class="form-group" id="boxAnimateImage">
+                <label class="col-md-3 control-label" id="animpicture2">Анимация изображения:</label>
+                <div class="col-md-9">
+                    <div class="flex">
+                        <div class="styleSelect">
+                            <p></p>
+                            <select asp-for="@Model.StartEffectAnimationDon"
+                                    id="startEffectAnimation" class="input inputStartAnimation">
+                                <optgroup label="Bouncing Entrances">
+                                    <option value="bounceIn">bounceIn</option>
+                                    <option value="bounceInDown">bounceInDown</option>
+                                    <option value="bounceInLeft">bounceInLeft</option>
+                                    <option value="bounceInRight">bounceInRight</option>
+                                    <option value="bounceInUp">bounceInUp</option>
+                                </optgroup>
+                                <optgroup label="Fading Entrances">
+                                    <option value="fadeIn">fadeIn</option>
+                                    <option value="fadeInDown">fadeInDown</option>
+                                    <option value="fadeInDownBig">fadeInDownBig</option>
+                                    <option value="fadeInLeft" selected>fadeInLeft</option>
+                                    <option value="fadeInLeftBig">fadeInLeftBig</option>
+                                    <option value="fadeInRight">fadeInRight</option>
+                                    <option value="fadeInRightBig">fadeInRightBig</option>
+                                    <option value="fadeInUp">fadeInUp</option>
+                                    <option value="fadeInUpBig">fadeInUpBig</option>
+                                </optgroup>
+                                <optgroup label="Flippers">
+                                    <option value="flipInX">flipInX</option>
+                                    <option value="flipInY">flipInY</option>
+                                </optgroup>
+                                <optgroup label="Lightspeed">
+                                    <option value="lightSpeedIn">lightSpeedIn</option>
+                                </optgroup>
+                                <optgroup label="Rotating Entrances">
+                                    <option value="rotateIn">rotateIn</option>
+                                    <option value="rotateInDownLeft">rotateInDownLeft</option>
+                                    <option value="rotateInDownRight">rotateInDownRight</option>
+                                    <option value="rotateInUpLeft">rotateInUpLeft</option>
+                                    <option value="rotateInUpRight">rotateInUpRight</option>
+                                </optgroup>
+                                <optgroup label="Sliding Entrances">
+                                    <option value="slideInUp">slideInUp</option>
+                                    <option value="slideInDown">slideInDown</option>
+                                    <option value="slideInLeft">slideInLeft</option>
+                                    <option value="slideInRight">slideInRight</option>
+
+                                </optgroup>
+                                <optgroup label="Zoom Entrances">
+                                    <option value="zoomIn">zoomIn</option>
+                                    <option value="zoomInDown">zoomInDown</option>
+                                    <option value="zoomInLeft">zoomInLeft</option>
+                                    <option value="zoomInRight">zoomInRight</option>
+                                    <option value="zoomInUp">zoomInUp</option>
+                                </optgroup>
+                                <optgroup label="Specials">
+                                    <option value="hinge">hinge</option>
+                                    <option value="jackInTheBox">jackInTheBox</option>
+                                    <option value="rollIn">rollIn</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="styleSelect mar-left20">
+                            <p></p>
+                            <select asp-for="@Model.FinishEffectAnimationDon"
+                                    id="finishEffectAnimation"
+                                    class="input inputfinishAnimation">
+                                <optgroup label="Bouncing Exits">
+                                    <option value="bounceOut">bounceOut</option>
+                                    <option value="bounceOutDown">bounceOutDown</option>
+                                    <option value="bounceOutLeft">bounceOutLeft</option>
+                                    <option value="bounceOutRight">bounceOutRight</option>
+                                    <option value="bounceOutUp">bounceOutUp</option>
+                                </optgroup>
+                                <optgroup label="Fading Exits">
+                                    <option value="fadeOut">fadeOut</option>
+                                    <option value="fadeOutDown">fadeOutDown</option>
+                                    <option value="fadeOutDownBig">fadeOutDownBig</option>
+                                    <option value="fadeOutLeft">fadeOutLeft</option>
+                                    <option value="fadeOutLeftBig">fadeOutLeftBig</option>
+                                    <option value="fadeOutRight" selected>fadeOutRight</option>
+                                    <option value="fadeOutRightBig">fadeOutRightBig</option>
+                                    <option value="fadeOutUp">fadeOutUp</option>
+                                    <option value="fadeOutUpBig">fadeOutUpBig</option>
+                                </optgroup>
+                                <optgroup label="Flippers">
+                                    <option value="flipOutX">flipOutX</option>
+                                    <option value="flipOutY">flipOutY</option>
+                                </optgroup>
+                                <optgroup label="Lightspeed">
+                                    <option value="lightSpeedOut">lightSpeedOut</option>
+                                </optgroup>
+                                <optgroup label="Rotating Exits">
+                                    <option value="rotateOut">rotateOut</option>
+                                    <option value="rotateOutDownLeft">rotateOutDownLeft</option>
+                                    <option value="rotateOutDownRight">rotateOutDownRight</option>
+                                    <option value="rotateOutUpLeft">rotateOutUpLeft</option>
+                                    <option value="rotateOutUpRight">rotateOutUpRight</option>
+                                </optgroup>
+                                <optgroup label="Sliding Exits">
+                                    <option value="slideOutUp">slideOutUp</option>
+                                    <option value="slideOutDown">slideOutDown</option>
+                                    <option value="slideOutLeft">slideOutLeft</option>
+                                    <option value="slideOutRight">slideOutRight</option>
+                                </optgroup>
+                                <optgroup label="Zoom Exits">
+                                    <option value="zoomOut">zoomOut</option>
+                                    <option value="zoomOutDown">zoomOutDown</option>
+                                    <option value="zoomOutLeft">zoomOutLeft</option>
+                                    <option value="zoomOutRight">zoomOutRight</option>
+                                    <option value="zoomOutUp">zoomOutUp</option>
+                                </optgroup>
+                                <optgroup label="Specials">
+                                    <option value="hinge">hinge</option>
+                                    <option value="jackInTheBox">jackInTheBox</option>
+                                    <option value="rollOut">rollOut</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <span class="title fa fa-question-circle" id="showtitle"
+                              style="margin-top: 8px;"></span>
+                    </div>
+                    <div class="flex" style="align-items: center; margin: 20px 0;">
+                        <button id="startTriggerAnimation" class="sm-btn ripple-top">Появление</button>
+                        <img src="@Model.PathImageDon" 
+                             id="animationExample" 
+                             title="@Model.NameImageDon"
+                             style="display: block; width: 250px; height: 200px;"/>
+                        <button id="endTriggerAnimation" class="sm-btn ripple-top">Исчезание</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" id="boxImageCaliber">
+                <label class="col-md-3 control-label" for="imageCaliberInput" id="magn">Увеличение изображения:</label>
+                <div class="col-md-9">
+                    <div class="range-box line-h-26">
+                        <div id="imageCaliberRange" class="range50"></div>
+                        <input asp-for="@Model.CaliberImageDon"  
+                               id="imageCaliberInput" 
+                               class="input-control mar-left10 width60"/>
+                        <span class="title fa fa-question-circle" id="scaletitle"></span>
+                    </div>
+                </div>
+            </div>
+
+
+            <h4>Звук:</h4>
+            <div class="form-group" id="boxEnableAnimateSound">
+                <label class="col-md-3 control-label">Звук:</label>
+                <div class="col-md-9">
+                    <div class="groupRadio">
+                        <div class="radio checkbox-wrapper" onclick="return soundEnabled(true)">
+                            <input id="AnimationSoundVisibleOn" type="radio" name="sound_enabled" value="true" />
+                            <label for="AnimationSoundVisibleOn" class="turnOn">Включить</label>
+                        </div>
+                    </div>
+                    <div class="groupRadio">
+                        <div class="radio checkbox-wrapper" onclick="return soundEnabled(false)">
+                            <input id="AnimationSoundVisibleOff" type="radio" name="sound_enabled" value="false" />
+                            <label for="AnimationSoundVisibleOff" class="turnOff">Отключить</label>
+                        </div>
+                    </div>
+                    <span class="title fa fa-question-circle" id="titleon"
+                          @*title="Если установлено значение «Включить», звуковой сигнал уведомлений будут проигрываться как обычно. 
+                          Если установлено значение «Отключить», звукового сигнала уведомлений не будет. 
+                          Это может быть полезно, если Вам не интересно слушать или Вам мешают аудио сигналы, 
+                          и Вы хотите видеть только анимацию и текст уведомлений."*@></span>
+                </div>
+            </div>
+            <div class="form-group" id="boxChooseSound">
+                <label class="col-md-3 control-label" id="labelChooseMelody">Выберите мелодию:</label>
+                <div class="col-md-9">
+                    <a id="btnChooseSound" class="defaultColor styleMessageFont">
+                        <span class="glyphicon glyphicon-volume-up" style="top: 3px;"></span>
+                        <span id="nameChoosenSound">@Model.NameSoundDon</span>
+                    </a>
+                    <span class="title fa fa-question-circle" id="titleaudio"
+                          @*title="Здесь Вы можете выбрать аудио сигнал для уведомления из стоковой галереи или загрузить свой.
+                                После выбора мелодии не забудьте нажать кнопку «Принять»."*@></span>
+                </div>
+            </div>
+            <div class="form-group" id="boxSoundVolume">
+                <label class="col-md-3 control-label" for="soundVolumeInput"id="loud">Громкость мелодии:</label>
+                <div class="col-md-9">
+                    <div class="range-box line-h-26">
+                        <div id="soundVolumeRange" class="range50"></div>
+                        <input asp-for="@Model.SoundVolumeDon"  
+                               id="soundVolumeInput" 
+                               class="input-control mar-left10 width60"/>
+                        <span class="mar-left5">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <h4>Текст:</h4>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="animationDelayTextInput" id="animtext">Задержка анимации текста:</label>
+                <div class="col-md-9">
+                    <div class="range-box line-h-26">
+                        <div id="animationDelayTextRange" class="range50"></div>
+                        <input asp-for="@Model.TextDelayDon"  
+                               id="animationDelayTextInput" 
+                               class="input-control mar-left10 width60"/>
+                        <span class="mar-left5">сек.</span>
+                        <span class="title fa fa-question-circle" id="delaytitle"
+                              @*title="Задержка текста уведомления. Это полезно, если Вы хотите немного отложить появления текста, 
+                              пока не начнется/закончится анимация уведомления."*@></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="templateTitle" id="snip">Шаблон заголовка:</label>
+                <div class="col-md-9">
+                    <input asp-for="@Model.TemplateTextDon" type="text" 
+                           id="templateTitle" value="@Model.TemplateTextDon" style="width: 300px;" />
+                    <span class="title fa fa-question-circle" id="holdertitle"
+                          @*title="Когда появится уведомление о пожертвовании, это будет формат заголовка сообщения. 
+                                {name} - Имя донатора, {amount}  - Сумма, которая была пожертвована. 
+                                В стилях заглавия эти теги можно будет выделить другим цветом, однако чтобы вместе с именем и суммой 
+                                не захватывать выделением лишние слова или символы - всегда отделяйте эти теги пробелами с двух сторон!"*@></span>
+                    <p style="display: block; font-size: 12px;">
+                        <span class="title fa fa-exclamation-triangle"></span>
+                        <span id="tag">Теги {name} и {amount} - обязательны! Их не следует менять!</span>
+                    </p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" id="anmes">Анимация сообщения:</label>
+                <div class="col-md-9">
+                    <div class="flex">
+                        <div class="styleSelect">
+                            <p></p>
+                            <select asp-for="@Model.StartEffectAnimationTextDon"
+                                    id="startEffectAnimationText" class="input inputStartDropdownText">
+                                <optgroup label="Bouncing Entrances">
+                                    <option value="bounceIn">bounceIn</option>
+                                    <option value="bounceInDown">bounceInDown</option>
+                                    <option value="bounceInLeft">bounceInLeft</option>
+                                    <option value="bounceInRight">bounceInRight</option>
+                                    <option value="bounceInUp">bounceInUp</option>
+                                </optgroup>
+                                <optgroup label="Fading Entrances">
+                                    <option value="fadeIn">fadeIn</option>
+                                    <option value="fadeInDown">fadeInDown</option>
+                                    <option value="fadeInDownBig">fadeInDownBig</option>
+                                    <option value="fadeInLeft" selected>fadeInLeft</option>
+                                    <option value="fadeInLeftBig">fadeInLeftBig</option>
+                                    <option value="fadeInRight">fadeInRight</option>
+                                    <option value="fadeInRightBig">fadeInRightBig</option>
+                                    <option value="fadeInUp">fadeInUp</option>
+                                    <option value="fadeInUpBig">fadeInUpBig</option>
+                                </optgroup>
+                                <optgroup label="Flippers">
+                                    <option value="flipInX">flipInX</option>
+                                    <option value="flipInY">flipInY</option>
+                                </optgroup>
+                                <optgroup label="Lightspeed">
+                                    <option value="lightSpeedIn">lightSpeedIn</option>
+                                </optgroup>
+                                <optgroup label="Rotating Entrances">
+                                    <option value="rotateIn">rotateIn</option>
+                                    <option value="rotateInDownLeft">rotateInDownLeft</option>
+                                    <option value="rotateInDownRight">rotateInDownRight</option>
+                                    <option value="rotateInUpLeft">rotateInUpLeft</option>
+                                    <option value="rotateInUpRight">rotateInUpRight</option>
+                                </optgroup>
+                                <optgroup label="Sliding Entrances">
+                                    <option value="slideInUp">slideInUp</option>
+                                    <option value="slideInDown">slideInDown</option>
+                                    <option value="slideInLeft">slideInLeft</option>
+                                    <option value="slideInRight">slideInRight</option>
+
+                                </optgroup>
+                                <optgroup label="Zoom Entrances">
+                                    <option value="zoomIn">zoomIn</option>
+                                    <option value="zoomInDown">zoomInDown</option>
+                                    <option value="zoomInLeft">zoomInLeft</option>
+                                    <option value="zoomInRight">zoomInRight</option>
+                                    <option value="zoomInUp">zoomInUp</option>
+                                </optgroup>
+                                <optgroup label="Specials">
+                                    <option value="hinge">hinge</option>
+                                    <option value="jackInTheBox">jackInTheBox</option>
+                                    <option value="rollIn">rollIn</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="styleSelect mar-left20">
+                            <p></p>
+                            <select asp-for="@Model.FinishEffectAnimationTextDon"
+                                    id="finishEffectAnimationText"
+                                    class="input inputEndDropdownText">
+                                <optgroup label="Bouncing Exits">
+                                    <option value="bounceOut">bounceOut</option>
+                                    <option value="bounceOutDown">bounceOutDown</option>
+                                    <option value="bounceOutLeft">bounceOutLeft</option>
+                                    <option value="bounceOutRight">bounceOutRight</option>
+                                    <option value="bounceOutUp">bounceOutUp</option>
+                                </optgroup>
+                                <optgroup label="Fading Exits">
+                                    <option value="fadeOut">fadeOut</option>
+                                    <option value="fadeOutDown">fadeOutDown</option>
+                                    <option value="fadeOutDownBig">fadeOutDownBig</option>
+                                    <option value="fadeOutLeft">fadeOutLeft</option>
+                                    <option value="fadeOutLeftBig">fadeOutLeftBig</option>
+                                    <option value="fadeOutRight" selected>fadeOutRight</option>
+                                    <option value="fadeOutRightBig">fadeOutRightBig</option>
+                                    <option value="fadeOutUp">fadeOutUp</option>
+                                    <option value="fadeOutUpBig">fadeOutUpBig</option>
+                                </optgroup>
+                                <optgroup label="Flippers">
+                                    <option value="flipOutX">flipOutX</option>
+                                    <option value="flipOutY">flipOutY</option>
+                                </optgroup>
+                                <optgroup label="Lightspeed">
+                                    <option value="lightSpeedOut">lightSpeedOut</option>
+                                </optgroup>
+                                <optgroup label="Rotating Exits">
+                                    <option value="rotateOut">rotateOut</option>
+                                    <option value="rotateOutDownLeft">rotateOutDownLeft</option>
+                                    <option value="rotateOutDownRight">rotateOutDownRight</option>
+                                    <option value="rotateOutUpLeft">rotateOutUpLeft</option>
+                                    <option value="rotateOutUpRight">rotateOutUpRight</option>
+                                </optgroup>
+                                <optgroup label="Sliding Exits">
+                                    <option value="slideOutUp">slideOutUp</option>
+                                    <option value="slideOutDown">slideOutDown</option>
+                                    <option value="slideOutLeft">slideOutLeft</option>
+                                    <option value="slideOutRight">slideOutRight</option>
+                                </optgroup>
+                                <optgroup label="Zoom Exits">
+                                    <option value="zoomOut">zoomOut</option>
+                                    <option value="zoomOutDown">zoomOutDown</option>
+                                    <option value="zoomOutLeft">zoomOutLeft</option>
+                                    <option value="zoomOutRight">zoomOutRight</option>
+                                    <option value="zoomOutUp">zoomOutUp</option>
+                                </optgroup>
+                                <optgroup label="Specials">
+                                    <option value="hinge">hinge</option>
+                                    <option value="jackInTheBox">jackInTheBox</option>
+                                    <option value="rollOut">rollOut</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <span class="title fa fa-question-circle" id="titleText"
+                              style="margin-top: 8px;"
+                              @*title="Это анимации, которые используются для отображения и скрытия текста уведомлений."*@></span>
+                    </div>
+                    <div class="flex" style="align-items: center; margin: 20px 0;">
+                        <button id="startTriggerAnimationText" class="sm-btn ripple-top">Появление</button>
+                        <h1 id="animationExampleText" style="margin: 0 25px;" class="">Тестовый текст</h1>
+                        <button id="endTriggerAnimationText" class="sm-btn ripple-top">Исчезание</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" id="Tlstyle">Стиль заголовка:</label>
+                <div class="col-md-9">
+                    <a id="btnStyleTitle" class="defaultColor styleMessageFont">
+                        <span class="glyphicon glyphicon-font"></span>
+                        Стилизировать заголовок
+                    </a>
+                    <span class="title fa fa-question-circle" id="titleheader"
+                          @*title="Используется при выводе имени пользователя и суммы платного сообщения."*@></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label" for="styleText" id="styletext">Стиль сообщения:</label>
+                <div class="col-md-9">
+                    <a id="btnStyleText" class="defaultColor styleMessageFont">
+                        <span class="glyphicon glyphicon-font"></span>
+                        Стилизировать текст сообщения
+                    </a>
+                    <span class="title fa fa-question-circle" id="titletext"
+                          @*title="Используется в тексте сообщений."*@></span>
+                </div>
+            </div>
+        </div>
+       
+        <div id="modalStyleTitle">
+            <span id="modal_close" class="glyphicon glyphicon-remove"></span>
+            <h3 id="change">Редактор стиля текста заглавия</h3>
+            <div id="boxPreviewTitle">
+                <div class="previewTitle txtwav @Model.FontAnimationTitleDon"
+                     id="textHeader"
+                     style="font-family: @Model.FontFamilyTitleDon;
+                            color: #@Model.FontColorTitleDon;
+                            opacity: @Model.FontColorTitleOpacityDon/100;
+                            font-size: @Model.FontSizeTitleDon;
+                            font-weight: @Model.FontWeightTitleDon;
+                            font-style: @Model.FontItalicTitleDon;
+                            text-decoration: @Model.FontUnderlineTitleDon;
+                            letter-spacing: @Model.LetterSpacingTitleDon;
+                            word-spacing: @Model.WordSpacingTitleDon;
+                            text-shadow: 0px 0px @Model.ShadowTitleDon rgb(0, 0, 0), 0px 0px 2px rgb(0, 0, 0), 0px 0px 3px rgb(0, 0, 0), 0px 0px 4px #000, 0px 0px 5px rgb(0, 0, 0);">                             
+                    Текст заглавия
+                </div>
+            </div>
+            <div id="boxStyleTitle">
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="titleAnimation" id="anim">Анимация:</label>
+                    <div class="col-md-8">
+                        <div class="styleSelect">
+                            <p></p>
+                            <select asp-for="@Model.FontAnimationTitleDon"
+                                    id="titleAnimation" class="col-md-3"
+                                    onchange="return titleAnimationChanged(this);">
+                                <option id="noneTitle" value="none">Нет</option>
+                                <option id="slowTitle" value="slow">Плавно</option>
+                                <option id="vibeTitle" value="vibe">Дрожание</option>
+                                <option id="bounceTitle" value="bounce">Прыжки</option>
+                                <option id="flipTitle" value="flip">Переворот</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="fontFamilyTitle" >Шрифт:</label>
+                    <div class="col-md-8">
+                        <div class="styleSelect">
+                            <p></p>
+                            <select asp-for="@Model.FontFamilyTitleDon"
+                                    id="fontFamilyTitle"
+                                    onchange="return fontFamilyTitleChanged(this);">
+                                <option value="arial">Arial</option>	
+                                <option value="segoe-regular">Segoe</option>
+                                <option value="open-sans">Open Sans</option>
+                                <option value="helvetica-roman">Helvetica</option>
+                                <option value="roboto">Roboto</option>
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" id="fontcol">Цвет шрифта:</label>
+                    <div class="col-md-8 flex">
+                        <input value="@Model.FontColorTitleDon" 
+                               asp-for="@Model.FontColorTitleDon" 
+                               id="fontColorTitleInput" 
+                               onchange="return colorTitleChanged();"
+                               class="jscolor {position:'right',
+                                borderColor:'#FFF #666 #666 #FFF',
+                                insetColor:'#666 #FFF #FFF #666',
+                                backgroundColor:'#CCC'}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" id="highlightColor" for="fontHighlightColorTitleInput">Цвет имени и суммы:</label>
+                    <div class="col-md-8 flex">
+                        <input value="@Model.FontHighlightColorTitleDon" 
+                               asp-for="@Model.FontHighlightColorTitleDon" 
+                               id="fontHighlightColorTitleInput" 
+                               class="jscolor {position:'right',
+                                borderColor:'#FFF #666 #666 #FFF',
+                                insetColor:'#666 #FFF #FFF #666',
+                                backgroundColor:'#CCC'}">
+                    </div>
+                </div>
+                <div class="form-group" id="boxTitleOpacity">
+                    <label class="col-md-4 control-label" for="titleOpacityInput" id="optitle">Прозрачность заглавия:</label>
+                    <div class="col-md-8">
+                        <div class="range-box line-h-26">
+                            <div id="titleOpacityRange" class="range"></div>
+                            <input asp-for="@Model.FontColorTitleOpacityDon"  
+                                   id="titleOpacityInput" 
+                                   class="input-control mar-left10 width60"/>
+                            @*<span class="mar-left5">%</span>*@
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="sizeTitleInput" id="size">Размер заглавия:</label>
+                    <div class="col-md-8">
+                        <div class="range-box line-h-26">
+                            <div id="sizeTitleRange" class="range"></div>
+                            <input asp-for="@Model.FontSizeTitleDon"  
+                                   id="sizeTitleInput" 
+                                   class="input-control mar-left10 width60"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="sizeTitleInput" id="dist">Расстояние между буквами:</label>
+                    <div class="col-md-8">
+                        <div class="range-box line-h-26">
+                            <div id="letterSpacingTitleRange" class="range"></div>
+                            <input asp-for="@Model.LetterSpacingTitleDon"  
+                                   id="letterSpacingTitleInput" 
+                                   class="input-control mar-left10 width60"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="sizeTitleInput" id="distword">Расстояние между словами:</label>
+                    <div class="col-md-8">
+                        <div class="range-box line-h-26">
+                            <div id="wordSpacingTitleRange" class="range"></div>
+                            <input asp-for="@Model.WordSpacingTitleDon"  
+                                   id="wordSpacingTitleInput" 
+                                   class="input-control mar-left10 width60"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="sizeTitleInput" id="shad">Размер тени:</label>
+                    <div class="col-md-8">
+                        <div class="range-box line-h-26">
+                            <div id="shadowTitleRange" class="range"></div>
+                            <input asp-for="@Model.ShadowTitleDon"  
+                                   id="shadowTitleInput" 
+                                   class="input-control mar-left10 width60"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" id="bold">Жирный текст:</label>
+                    <div class="col-md-8 flex">
+                        <div class="groupRadio">
+                            <div class="radio checkbox-wrapper" onclick="return fontWeightTitle('bold')">
+                                <input type="radio" name="boldTitle_enabled" value="bold" />
+                                <label class="turnOn">Включить</label>
+                            </div>
+                        </div>
+                        <div class="groupRadio mar-left20">
+                            <div class="radio checkbox-wrapper" onclick="return fontWeightTitle('normal')">
+                                <input type="radio" name="boldTitle_enabled" value="normal" />
+                                <label class="turnOff">Отключить</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" id="kurs">Курсив:</label>
+                    <div class="col-md-8 flex">
+                        <div class="groupRadio">
+                            <div class="radio checkbox-wrapper" onclick="return fontItalicTitle('italic')">
+                                <input type="radio" name="italicTitle_enabled" value="italic" />
+                                <label class="turnOn">Включить</label>
+                            </div>
+                        </div>
+                        <div class="groupRadio mar-left20">
+                            <div class="radio checkbox-wrapper" onclick="return fontItalicTitle('normal')">
+                                <input type="radio" name="italicTitle_enabled" value="normal" />
+                                <label class="turnOff">Отключить</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" id="under">Подчеркнутый:</label>
+                    <div class="col-md-8 flex">
+                        <div class="groupRadio">
+                            <div class="radio checkbox-wrapper" onclick="return fontUnderlineTitle('underline')">
+                                <input type="radio" name="underlineTitle_enabled" value="underline" />
+                                <label class="turnOn">Включить</label>
+                            </div>
+                        </div>
+                        <div class="groupRadio mar-left20">
+                            <div class="radio checkbox-wrapper" onclick="return fontUnderlineTitle('none')">
+                                <input type="radio" name="underlineTitle_enabled" value="none" />
+                                <label class="turnOff">Отключить</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="modalStyleText">
+            <span id="modal_close" class="glyphicon glyphicon-remove"></span>
+            <h3 id="editor">Редактор стиля текста сообщения</h3>
+            <div id="boxPreviewText">
+                <div class="previewText txtwav @Model.FontAnimationTextDon"
+                     id="textmess"
+                     style="font-family: @Model.FontFamilyTextDon;
+                            color: #@Model.FontColorTextDon !important;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                            font-size: @Model.FontSizeTextDon;
+                            font-weight: @Model.FontWeightTextDon;
+                            font-style: @Model.FontItalicTextDon;
+                            text-decoration: @Model.FontUnderlineTextDon;
+                            letter-spacing: @Model.LetterSpacingTextDon;
+                            word-spacing: @Model.WordSpacingTextDon;
+                            text-shadow: 0px 0px @Model.ShadowTextDon rgb(0, 0, 0), 0px 0px 2px rgb(0, 0, 0), 0px 0px 3px rgb(0, 0, 0), 0px 0px 4px #000, 0px 0px 5px rgb(0, 0, 0);"> 
+                    Текст сообщения
+                </div>
+            </div>
+            <div id="boxStyleText">
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="textAnimation" id="textAnim">Анимация текста:</label>
+                    <div class="col-md-8">
+                        <div class="styleSelect">
+                            <p></p>
+                            <select id="textAnimation" 
+                                    class="col-md-3" 
+                                    onchange="return textAnimationChanged(this);"
+                                    asp-for="@Model.FontAnimationTextDon">
+                                <option id="noneText" value="none">Нет</option>
+                                <option id="slowText" value="slow">Плавно</option>
+                                <option id="vibeText" value="vibe">Дрожание</option>
+                                <option id="bounceText" value="bounce">Прыжки</option>
+                                <option id="flipText" value="flip">Переворот</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="fontFamilyText">Шрифт:</label>
+                    <div class="col-md-8">
+                        <div class="styleSelect">
+                            <p></p>
+                            <select id="fontFamilyText"
+                                    onchange="return fontFamilyTextChanged(this);"
+                                    asp-for="@Model.FontFamilyTextDon">
+                                <option value="arial">Arial</option>
+                                <option value="segoe-regular">Segoe</option>
+                                <option value="open-sans">Open Sans</option>
+                                <option value="helvetica-roman">Helvetica</option>
+                                <option value="roboto">Roboto</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="fontColorTextInput" id="fontColor">Цвет шрифта:</label>
+                    <div class="col-md-8 flex">
+                        <input value="@Model.FontColorTextDon"
+                               asp-for="@Model.FontColorTextDon"
+                               id="fontColorTextInput"
+                               onchange="return colorTextChanged();"
+                               class="jscolor {position:'right',
+                                borderColor:'#FFF #666 #666 #FFF',
+                                insetColor:'#666 #FFF #FFF #666',
+                                backgroundColor:'#CCC'}">
+                    </div>
+                </div>
+                <div class="form-group" id="boxTextOpacity">
+                    <label class="col-md-4 control-label" for="textOpacityInput" id="optext">Прозрачность текста:</label>
+                    <div class="col-md-8">
+                        <div class="range-box line-h-26">
+                            <div id="textOpacityRange" class="range"></div>
+                            <input asp-for="@Model.FontColorTextOpacityDon"
+                                   id="textOpacityInput"
+                                   class="input-control mar-left10 width60"/>
+                            @*<span class="mar-left5">%</span>*@
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="sizeTextInput" id="textsize">Размер текста:</label>
+                    <div class="col-md-8">
+                        <div class="range-box line-h-26">
+                            <div id="sizeTextRange" class="range"></div>
+                            <input asp-for="@Model.FontSizeTextDon"
+                                   id="sizeTextInput"
+                                   class="input-control mar-left10 width60"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="sizeTextInput" id="distance">Расстояние между буквами:</label>
+                    <div class="col-md-8">
+                        <div class="range-box line-h-26">
+                            <div id="letterSpacingTextRange" class="range"></div>
+                            <input asp-for="@Model.LetterSpacingTextDon"
+                                   id="letterSpacingTextInput"
+                                   class="input-control mar-left10 width60"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="sizeTextInput" id="distwords">Расстояние между словами:</label>
+                    <div class="col-md-8">
+                        <div class="range-box line-h-26">
+                            <div id="wordSpacingTextRange" class="range"></div>
+                            <input asp-for="@Model.WordSpacingTextDon"
+                                   id="wordSpacingTextInput"
+                                   class="input-control mar-left10 width60"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="sizeTextInput" id="shadsize">Размер тени:</label>
+                    <div class="col-md-8">
+                        <div class="range-box line-h-26">
+                            <div id="shadowTextRange" class="range"></div>
+                            <input asp-for="@Model.ShadowTextDon"
+                                   id="shadowTextInput"
+                                   class="input-control mar-left10 width60"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" id="boldtext">Жирный текст:</label>
+                    <div class="col-md-8 flex">
+                        <div class="groupRadio">
+                            <div class="radio checkbox-wrapper" onclick="return fontWeightText('bold')">
+                                <input type="radio" name="boldText_enabled" value="bold"/>
+                                <label class="turnOn">Включить</label>
+                            </div>
+                        </div>
+                        <div class="groupRadio mar-left20">
+                            <div class="radio checkbox-wrapper" onclick="return fontWeightText('normal')">
+                                <input type="radio" name="boldText_enabled" value="normal"/>
+                                <label class="turnOff">Отключить</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">Курсив:</label>
+                    <div class="col-md-8 flex">
+                        <div class="groupRadio">
+                            <div class="radio checkbox-wrapper" onclick="return fontItalicText('italic')">
+                                <input type="radio" name="italicText_enabled" value="italic"/>
+                                <label class="turnOn">Включить</label>
+                            </div>
+                        </div>
+                        <div class="groupRadio mar-left20">
+                            <div class="radio checkbox-wrapper" onclick="return fontItalicText('normal')">
+                                <input type="radio" name="italicText_enabled" value="normal"/>
+                                <label class="turnOff">Отключить</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" id="underlined">Подчеркнутый:</label>
+                    <div class="col-md-8 flex">
+                        <div class="groupRadio">
+                            <div class="radio checkbox-wrapper" onclick="return fontUnderlineText('underline')">
+                                <input type="radio" name="underlineText_enabled" value="underline"/>
+                                <label class="turnOn">Включить</label>
+                            </div>
+                        </div>
+                        <div class="groupRadio mar-left20">
+                            <div class="radio checkbox-wrapper" onclick="return fontUnderlineText('none')">
+                                <input type="radio" name="underlineText_enabled" value="none"/>
+                                <label class="turnOff">Отключить</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    <div class="text-center">
+        <button id="saveSettingsAlertDonation"
+                onclick="return saveSettings('saveSettings')"
+                class="defaultStyleButton"
+                style="margin-top: 25px;">
+            <i class="fa fa-floppy-o" aria-hidden="true" id="save"></i>
+            <span id="btnSaveSet">Сохранить настройки</span>
+        </button>
+        <button type="submit" class="display-none saveSettings"></button>
+    </div>
+        @if (Model.VerifyChanges)
+        {
+            <div id="alertSave" class="alertMsg" style="display: block">      
+                Ваши настройки успешно сохранены.
+            </div>
+        }
+        <div id="overlay"></div>
+        
+        <gallerytop
+            gallery-img-items="@Model.GalleryItemImgs"
+            gallery-sound-items="@Model.GalleryItemSounds"
+            upload-img-items="@Model.UploadItemImgs"
+            upload-sound-items="@Model.UploadItemSounds">
+        </gallerytop>
+
+        <input type="hidden" asp-for="RunTestMessage" id="RunTestMessage" />
+        <input type="hidden" asp-for="AnimationVisibleDon" id="AnimationVisibleDon" />
+        <input type="hidden" asp-for="LayoutMessageDon" id="LayoutMessageDon" />
+        <input type="hidden" asp-for="AnimationImageVisibleDon" id="AnimationImageVisibleDon" />
+        <input type="hidden" asp-for="SoundVisibleDon" id="SoundVisibleDon" />
+        <input type="hidden" asp-for="FontWeightTitleDon" id="FontWeightTitleDon" />
+        <input type="hidden" asp-for="FontItalicTitleDon" id="FontItalicTitleDon" />
+        <input type="hidden" asp-for="FontUnderlineTitleDon" id="FontUnderlineTitleDon" />
+        <input type="hidden" asp-for="FontWeightTextDon" id="FontWeightTextDon" />
+        <input type="hidden" asp-for="FontItalicTextDon" id="FontItalicTextDon" />
+        <input type="hidden" asp-for="FontUnderlineTextDon" id="FontUnderlineTextDon" />
+        <input type="hidden" asp-for="PostGenerateLink" id="PostGenerateLink" />
+        <input type="hidden" asp-for="PostSaveSettings" id="PostSaveSettings" />
+        <input type="hidden" asp-for="PostUpload" id="PostUpload" />
+        <input type="hidden" asp-for="GalleryVisible" id="GalleryVisible" />
+        <input type="hidden" asp-for="SelectGalleryBox" id="SelectGalleryBox" />
+        <input type="hidden" asp-for="SelectImageSource" id="SelectImageSource" />
+        <input type="hidden" asp-for="SelectSoundSource" id="SelectSoundSource" />
+        <input type="hidden" asp-for="IdForDeletionImage" id="IdForDeletionImage" />
+        <input type="hidden" asp-for="IdForDeletionSound" id="IdForDeletionSound" />
+        <input type="hidden" asp-for="TypeUploadFile" id="TypeUploadFile" />
+        <input type="hidden" asp-for="NameImageDon" id="NameImageDon" />
+        <input type="hidden" asp-for="NameSoundDon" id="NameSoundDon" />
+        <input type="hidden" asp-for="NewNameImageDon" id="NewNameImageDon" />
+        <input type="hidden" asp-for="NewNameSoundDon" id="NewNameSoundDon" />
+        <input type="hidden" asp-for="PathImageDon" id="PathImageDon" />
+        <input type="hidden" asp-for="PathSoundDon" id="PathSoundDon" />
+        <input type="hidden" asp-for="VerifyChanges" id="verify" />
+    </div>
+</form>
+
+<script>
+    // Stylization  all  SelectBox
+    var lang;
+    lang = getCookie("language");
+    $(document).ready(function() {
+        lang = getCookie("language");
+        if (lang == null) {
+            lang = 'ru';
+        }
+        if (lang === "ru") {
+            $("head title").text("Оповещение о донате - Donation Platform");
+        } else if (lang === "uk") {
+            $("head title").text("Сповіщення про донат - Donation Platform");
+        }
+        SetLanguage(lang);
+    });
+
+    $('#fontFamilyTitle, #fontFamilyText, #titleAnimation, #textAnimation').each(function () {
+        $(this).siblings('p').text($(this).children('option:selected').text());
+    }).change(function () {
+        $(this).siblings('p').text($(this).children('option:selected').text());
+    });
+
+    $('#startEffectAnimation').each(function () {
+        $(this).siblings('p').text($(this).children().children('option:selected').text());
+    }).change(function () {
+        $(this).siblings('p').text($(this).children().children('option:selected').text());
+    });
+
+    $('#finishEffectAnimation').each(function () {
+        $(this).siblings('p').text($(this).children().children('option:selected').text());
+    }).change(function () {
+        $(this).siblings('p').text($(this).children().children('option:selected').text());
+    });
+
+    $('#startEffectAnimationText').each(function () {
+        $(this).siblings('p').text($(this).children().children('option:selected').text());
+    }).change(function () {
+        $(this).siblings('p').text($(this).children().children('option:selected').text());
+    });
+
+    $('#finishEffectAnimationText').each(function () {
+        $(this).siblings('p').text($(this).children().children('option:selected').text());
+    }).change(function () {
+        $(this).siblings('p').text($(this).children().children('option:selected').text());
+    });
+
+
+    // For 3 different POST
+    function saveSettings(val) {
+        $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
+        $("#PostSaveSettings").val(val);
+        $("#PostGenerateLink").val("");
+        $("#SelectGalleryBox").val("");
+        $("#PostUpload").val("");     
+        $("button.saveSettings").click();
+        return true;
+    }
+    function uploadFiles(val) {
+        $("#PostUpload").val(val);
+        $("#PostSaveSettings").val("");
+        $("#PostGenerateLink").val("");
+        $("button.uploadImg").click();
+        return true;
+    }
+
+
+    // AJAX-request for run animation === true
+    function runTestAnimation() {
+        $("#RunTestMessage").val(true);
+        var token = $('input[name="__RequestVerificationToken"]', $('#DonatNotification')).val();
+        var myData = { run: true };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/Widgets/CheckIsRun",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                if (data === false) {
+                    $("#alertAnim").css("display", "block");
+                    startAnim();
+                } else {
+                    $("#alertAnim").css("display", "none");
+                    $("#animIsRun").css("display", "block");
+                    setTimeout('$("#animIsRun").css("display", "none")', 3000);
+                }
+            }
+        });
+    }
+
+    function startAnim() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#DonatNotification')).val();
+        var myData = { runAnimation: true};
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/Widgets/StartAnimation",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                setTimeout('$("#alertAnim").css("display", "none")', 3000);
+            }
+        });
+    }
+
+
+    // for highlight the ACTIVE FILE in gallery
+    var divImageName = $(".images .boxFooter__FileName");
+    var divSoundName = $(".sounds .boxFooter__FileName");
+    for (var a = 0; a < divImageName.length; a++) {
+        var elemImg, elemImgLi,
+            w = divImageName[a].textContent;
+        if (w === imageName) {
+            elemImg = divImageName[a];
+            elemImg.style.cssText = "font-weight: bold; color: #eeeeee;";
+            elemImgLi = elemImg.parentNode.parentNode;
+            elemImgLi.style.cssText = "border-color: #eeeeee";
+        }
+    }
+    for (var a = 0; a < divSoundName.length; a++) {
+        var elemSound, elemSoundLi,
+            w = divSoundName[a].textContent;
+        if (w === soundName) {
+            elemSound = divSoundName[a];
+            elemSound.style.cssText = "font-weight: bold; color: #eeeeee;";
+            elemSoundLi = elemSound.parentNode.parentNode;
+            elemSoundLi.style.cssText = "border-color: #eeeeee";
+        }
+    }
+
+    // For PLAY/STOP ringtones
+    function playSound (fileName, self) {
+        stopSound();
+        $(".playSound").css("display", "inline-block");
+        $(".stopSound").css("display", "none");
+        $(self).css("display", "none");
+        $(self).siblings().css("display", "inline-block");
+        $("body").append(
+            '<audio class="sound-player" id="donatRington" autoplay="autoplay" style="display:none;">' +
+            '<source src="' + fileName + '" />' +
+            '<embed src="' + fileName + '" hidden="true" autostart="true" loop="false"/>' + '</audio>');
+        //var aud = document.getElementById("donatRington");
+        //aud.volume = 0.2;
+        $('#donatRington').on('ended',
+            function() {
+                stopSound();
+            });
+    }
+    function stopSound() {
+        $(".stopSound").css("display", "none");
+        $(".playSound").css("display", "inline-block");
+        $(".sound-player").remove();
+    }
+
+    // Save Name choosen Image and Sound
+    function getImgName(name, tab) {
+        $("#NewNameImageDon").val(name);
+        $("#SelectImageSource").val(tab);
+        return true;
+    }
+    function getSoundName(name, tab) {
+        $("#NewNameSoundDon").val(name);
+        $("#SelectSoundSource").val(tab);
+        return true;
+    }
+
+
+    // Border over choosen Image and Sound
+    $(".galleryList li").click(function() {
+        $(this).siblings().css({
+            "border-color": "rgb(240, 242, 242)",
+            "font-weight":"normal",
+            "color": "#333"
+        });
+        $(this).css({
+            "border-color": "#3297DB",
+            "font-weight":"bold",
+            "color": "#3297DB"
+        });
+    });
+
+    // for DELETE img
+    function deleteImageById(id) {
+        $("#IdForDeletionImage").val(id);
+        $("#PostUpload").val("uploadFiles");
+        $("#PostSaveSettings").val("");
+        $("#PostGenerateLink").val("");
+        $("#pushFile").click();
+    }
+    function deleteSoundById(id) {
+        $("#IdForDeletionSound").val(id);
+        $("#PostUpload").val("uploadFiles");
+        $("#PostSaveSettings").val("");
+        $("#PostGenerateLink").val("");
+        $("#pushFile").click();
+    }
+
+
+    // Switch tabs in gallery
+    $('#imgGallery').click(function() {
+        $('#SelectGalleryBox').val('galleryImg');
+        //$('#SelectImageSource').val('galleryImg');
+        $("#modalGallery span.active").removeClass("active");
+        $(this).find("span").addClass("active");
+        $("#imgGalleryContainer").siblings().css("display", "none");
+        $("#imgGalleryContainer").css("display", "flex");
+    });
+    $('#soundGallery').click(function() {
+        $('#SelectGalleryBox').val('gallerySound');
+        //$('#SelectSoundSource').val('gallerySound');
+        $("#modalGallery span.active").removeClass("active");
+        $(this).find("span").addClass("active");
+        $("#soundGalleryContainer").siblings().css("display", "none");
+        $("#soundGalleryContainer").css("display", "flex");
+    });
+    $('#imgUpload').click(function() {
+        $('#SelectGalleryBox').val('uploadImg');
+        //$('#SelectImageSource').val('uploadImg');
+        $("#modalGallery span.active").removeClass("active");
+        $(this).find("span").addClass("active");
+        $("#imgUploadContainer").siblings().css("display", "none");
+        $("#imgUploadContainer").css("display", "flex");
+    });
+    $('#soundUpload').click(function() {
+        $('#SelectGalleryBox').val('uploadSound');
+        //$('#SelectSoundSource').val('uploadSound');
+        $("#modalGallery span.active").removeClass("active");
+        $(this).find("span").addClass("active");
+        $("#soundUploadContainer").siblings().css("display", "none");
+        $("#soundUploadContainer").css("display", "flex");
+    });
+
+
+    // MODAL Window setting FONT TITLE&TEXT  &  Gallery IMG&SOUND
+    $('#btnStyleTitle').click(function (event) {
+        event.preventDefault();
+        $('#overlay').fadeIn(400,
+            function () {
+                $('#modalStyleTitle')
+                    .css('display', 'block')
+                    .animate({ opacity: 1, top: '50%' }, 200);
+            });
+    });
+    $('#btnStyleText').click(function (event) {
+        event.preventDefault();
+        $('#overlay').fadeIn(400,
+            function () {
+                $('#modalStyleText')
+                    .css('display', 'block')
+                    .animate({ opacity: 1, top: '50%' }, 200);
+            });
+    });
+    $('#btnChooseImage').click(function (event) {
+        event.preventDefault();
+        $('#overlay').fadeIn(400,
+            function () {
+                $('#modalGallery')
+                    .css('display', 'block')
+                    .animate({ opacity: 1, top: '50%' }, 200);
+            });
+        $("#modalGallery span.active").removeClass("active");
+        $("#imgGallery span").addClass("active");
+        $("#imgUploadContainer").siblings().css("display", "none");
+        $("#imgGalleryContainer").css("display", "flex");
+    });
+    $('#btnChooseSound').click(function (event) {
+        event.preventDefault();
+        $('#overlay').fadeIn(400,
+            function () {
+                $('#modalGallery')
+                    .css('display', 'block')
+                    .animate({ opacity: 1, top: '50%' }, 200);
+            });
+        $("#modalGallery span.active").removeClass("active");
+        $("#soundGallery span").addClass("active");
+        $("#soundUploadContainer").siblings().css("display", "none");
+        $("#soundGalleryContainer").css("display", "flex");
+    });
+    $('#modal_close, #overlay, #modal_cancel').click(function () {
+        $('#modalStyleTitle')
+            .animate({ opacity: 0, top: '45%' }, 200,
+                function () {
+                    $(this).css('display', 'none');
+                    $('#overlay').fadeOut(400);
+                }
+            );
+        $('#modalStyleText')
+            .animate({ opacity: 0, top: '45%' }, 200,
+                function () {
+                    $(this).css('display', 'none');
+                    $('#overlay').fadeOut(400);
+                }
+            );
+        $('#modalGallery')
+            .animate({ opacity: 0, top: '45%' }, 200,
+                function () {
+                    $(this).css('display', 'none');
+                    $('#overlay').fadeOut(400);
+                }
+            );
+        $("#NewNameImageDon").val("");
+        $("#NewNameSoundDon").val("");
+        $('#GalleryVisible').val("");
+        $('#SelectImageSource').val("");
+        $('#SelectSoundSource').val("");
+        $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
+    });
+    $('#modal_ok').click(function () {
+        $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
+        $('#modalGallery')
+            .animate({ opacity: 0, top: '45%' }, 200,
+                function () {
+                    $(this).css('display', 'none');
+                    $('#overlay').fadeOut(400);
+                }
+            );
+        $('#GalleryVisible').val("");
+        var newNameImage = $("#NewNameImageDon").val();
+        var newSourceImage = $("#SelectImageSource").val();
+        var newNameSound = $("#NewNameSoundDon").val();
+        if (newNameImage !== "") {
+            $("#NameImageDon").val(newNameImage);
+            $("#nameChoosenImage").text(newNameImage);
+            $("#animationExample").attr("src", function() {
+                return "/gallery/" + newSourceImage +"/" + newNameImage;
+            });
+            $("#animationExample").attr("title", function() {
+                return newNameImage;
+            });
+        } else {
+            $("#NameImageDon").val(imageName);
+            $("#nameChoosenImage").text(imageName);
+        }
+        if (newNameSound !== "") {
+            $("#NameSoundDon").val(newNameSound);
+            $("#nameChoosenSound").text(newNameSound);
+        } else {
+            $("#NameSoundDon").val(soundName);
+            $("#nameChoosenSound").text(soundName);
+        }
+    });
+
+
+    // select box in Modal Gallery after uploadFiles-POST
+    if (galleryVisible === true) {
+        $('#overlay').fadeIn(0,
+            function () {
+                $('#modalGallery')
+                    .css('display', 'block')
+                    .animate({ opacity: 1, top: '50%' }, 0);
+            });
+    }
+    if (selectGalleryBox === "galleryImg") {
+        $('#imgGallery').click();
+    }
+    if (selectGalleryBox === "gallerySound") {
+        $('#soundGallery').click();
+    }
+    if (selectGalleryBox === "uploadImg") {
+        $('#imgUpload').click();
+    }
+    if (selectGalleryBox === "uploadSound") {
+        $('#soundUpload').click();
+    }
+
+
+    // for Show or Hide block Image & Sound for Init Page
+    if (animImgVisible === false) {
+        $("#boxChooseImage, #boxAnimateImage, #boxImageCaliber").css("display", "none");
+    }
+    if (animImgVisible === true) {
+        $("#boxChooseImage, #boxAnimateImage, #boxImageCaliber").css("display", "inline-block");
+    }
+    if (soundVisible === false) {
+        $("#boxChooseSound, #boxSoundVolume").css("display", "none");
+    }
+    if (soundVisible === true) {
+        $("#boxChooseSound, #boxSoundVolume").css("display", "inline-block");
+    }
+
+
+    // RANGE
+    $("#bgMessageOpacityRange").slider({
+        range: "min",
+        value: parseInt("@Model.BgMessageOpacityDon"),
+        step: 1,
+        min: 0,
+        max: 100,
+        slide: function( event, ui ) {
+            $( "#bgMessageOpacityInput" ).val( ui.value );
+            var value = $("#bgMessageOpacityInput").val();
+            $("#bgMessageOpacityRange").slider("value", value);
+        }
+    });
+    $("#bgMessageOpacityInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#bgMessageOpacityRange").slider("value", parseInt(value));
+    });
+
+    $("#animationDurationRange").slider({
+        range: "min",
+        value: parseInt("@Model.AnimationDurationDon"),
+        step: 1,
+        min: 2,
+        max: 60,
+        slide: function( event, ui ) {
+            $( "#animationDurationInput" ).val( ui.value );
+            var value = $("#animationDurationInput").val();
+            $("#animationDurationRange").slider("value", value);
+        }
+    });
+    $("#animationDurationInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#animationDurationRange").slider("value", parseInt(value));
+    });
+
+    $("#animationDelayRange").slider({
+        range: "min",
+        value: parseInt("@Model.AnimationDelayDon"),
+        step: 1,
+        min: 0,
+        max: 60,
+        slide: function( event, ui ) {
+            $( "#animationDelayInput" ).val( ui.value);
+            var value = $("#animationDelayInput").val();
+            $("#animationDelayRange").slider("value", value);
+        }
+    });
+    $("#animationDelayInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#animationDelayRange").slider("value", parseInt(value));
+    });
+
+
+    $("#imageCaliberRange").slider({
+        range: "min",
+        value: parseInt("@Model.CaliberImageDon"),
+        step: 1,
+        min: 1,
+        max: 5,
+        slide: function( event, ui ) {
+            $( "#imageCaliberInput" ).val( ui.value );
+            var value = $("#imageCaliberInput").val();
+            $("#imageCaliberRange").slider("value", value);
+        }
+    });
+    $("#imageCaliberInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#imageCaliberRange").slider("value", parseInt(value));
+    });
+
+
+    $("#soundVolumeRange").slider({
+        range: "min",
+        value: parseInt("@Model.SoundVolumeDon"),
+        step: 1,
+        min: 0,
+        max: 100,
+        slide: function( event, ui ) {
+            $( "#soundVolumeInput" ).val( ui.value );
+            var value = $("#soundVolumeInput").val();
+            $("#soundVolumeRange").slider("value", value);
+        }
+    });
+    $("#soundVolumeInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#soundVolumeRange").slider("value", parseInt(value));
+    });
+
+    $("#animationDelayTextRange").slider({
+        range: "min",
+        value: parseInt("@Model.TextDelayDon"),
+        step: 1,
+        min: 0,
+        max: 60,
+        slide: function( event, ui ) {
+            $( "#animationDelayTextInput" ).val( ui.value);
+            var value = $("#animationDelayTextInput").val();
+            $("#animationDelayTextRange").slider("value", value);
+        }
+    });
+    $("#animationDelayTextInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#animationDelayTextRange").slider("value", parseInt(value));
+    });
+
+    $("#titleOpacityRange").slider({
+        range: "min",
+        value: parseInt("@Model.FontColorTitleOpacityDon"),
+        step: 1,
+        min: 0,
+        max: 100,
+        slide: function( event, ui ) {
+            $( "#titleOpacityInput" ).val( ui.value );
+            var value = $("#titleOpacityInput").val();
+            $("#titleOpacityRange").slider("value", value);
+            $(".previewTitle span").css("opacity", value/100);
+        }
+    });
+    $("#titleOpacityInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#titleOpacityRange").slider("value", parseInt(value));
+        $(".previewTitle span").css("opacity", value/100);
+    });
+
+    $("#sizeTitleRange").slider({
+        range: "min",
+        value: parseInt("@Model.FontSizeTitleDon"),
+        step: 1,
+        min: 8,
+        max: 100,
+        slide: function( event, ui ) {
+            $( "#sizeTitleInput" ).val( ui.value + "px");
+            var n=/\d{6}\s+~/g;
+            var value = $("#sizeTitleInput").val().replace(n, "");
+            $("#sizeTitleRange").slider("value", parseInt(value));
+            $(".previewTitle").css("font-size", value);
+        }
+    });
+    $("#sizeTitleInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#sizeTitleRange").slider("value", parseInt(value));
+        $(".previewTitle").css("font-size", value);
+    });
+
+    $("#letterSpacingTitleRange").slider({
+        range: "min",
+        value: parseInt("@Model.LetterSpacingTitleDon"),
+        step: 1,
+        min: 0,
+        max: 50,
+        slide: function( event, ui ) {
+            $( "#letterSpacingTitleInput" ).val( ui.value + "px");
+            var n=/\d{6}\s+~/g;
+            var value = $("#letterSpacingTitleInput").val().replace(n, "");
+            $("#letterSpacingTitleRange").slider("value", parseInt(value));
+            $(".previewTitle").css("letter-spacing", value);
+        }
+    });
+    $("#letterSpacingTitleInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#letterSpacingTitleRange").slider("value", parseInt(value));
+        $(".previewTitle").css("letter-spacing", value);
+    });
+
+    $("#wordSpacingTitleRange").slider({
+        range: "min",
+        value: parseInt("@Model.WordSpacingTitleDon"),
+        step: 1,
+        min: 0,
+        max: 50,
+        slide: function( event, ui ) {
+            $( "#wordSpacingTitleInput" ).val( ui.value + "px");
+            var n=/\d{6}\s+~/g;
+            var value = $("#wordSpacingTitleInput").val().replace(n, "");
+            $("#wordSpacingTitleRange").slider("value", parseInt(value));
+            $(".previewTitle").css("word-spacing", value);
+        }
+    });
+    $("#wordSpacingTitleInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#wordSpacingTitleRange").slider("value", parseInt(value));
+        $(".previewTitle").css("word-spacing", value);
+    });
+
+    var shadow1 = "0px 0px";
+    var shadow2 = "rgb(0, 0, 0), 0px 0px 2px rgb(0, 0, 0), 0px 0px 3px rgb(0, 0, 0), 0px 0px 4px #000, 0px 0px 5px rgb(0, 0, 0);";
+    $("#shadowTitleRange").slider({
+        range: "min",
+        value: parseInt("@Model.ShadowTitleDon"),
+        step: 1,
+        min: 0,
+        max: 40,
+        slide: function( event, ui ) {
+            //debugger;
+            $( "#shadowTitleInput" ).val( ui.value + "px");
+            var n=/\d{6}\s+~/g;
+            var value = $("#shadowTitleInput").val().replace(n, "");
+            var longValue = shadow1 + " " + value + " " + shadow2;
+            $("#shadowTitleRange").slider("value", parseInt(value));
+            $(".previewTitle").css("text-shadow", longValue);
+        }
+    });
+    $("#shadowTitleInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        var longValue = shadow1 + " " + value + " " + shadow2;
+        $("#shadowTitleRange").slider("value", parseInt(value));
+        $(".previewTitle").css("text-shadow", longValue);
+    });
+
+    $("#textOpacityRange").slider({
+        range: "min",
+        value: parseInt("@Model.FontColorTextOpacityDon"),
+        step: 1,
+        min: 0,
+        max: 100,
+        slide: function( event, ui ) {
+            $( "#textOpacityInput" ).val( ui.value );
+            var value = $("#textOpacityInput").val();
+            $("#textOpacityRange").slider("value", value);
+            $(".previewText span").css("opacity", value/100);
+        }
+    });
+    $("#textOpacityInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#textOpacityRange").slider("value", parseInt(value));
+        $(".previewText span").css("opacity", value/100);
+    });
+
+    $("#sizeTextRange").slider({
+        range: "min",
+        value: parseInt("@Model.FontSizeTextDon"),
+        step: 1,
+        min: 6,
+        max: 100,
+        slide: function( event, ui ) {
+            $( "#sizeTextInput" ).val( ui.value + "px");
+            var n=/\d{6}\s+~/g;
+            var value = $("#sizeTextInput").val().replace(n, "");
+            $("#sizeTextRange").slider("value", parseInt(value));
+            $(".previewText").css("font-size", value);
+        }
+    });
+    $("#sizeTextInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#sizeTextRange").slider("value", parseInt(value));
+        $(".previewText").css("font-size", value);
+    });
+
+    $("#letterSpacingTextRange").slider({
+        range: "min",
+        value: parseInt("@Model.LetterSpacingTextDon"),
+        step: 1,
+        min: 0,
+        max: 50,
+        slide: function( event, ui ) {
+            $( "#letterSpacingTextInput" ).val( ui.value + "px");
+            var n=/\d{6}\s+~/g;
+            var value = $("#letterSpacingTextInput").val().replace(n, "");
+            $("#letterSpacingTextRange").slider("value", parseInt(value));
+            $(".previewText").css("letter-spacing", value);
+        }
+    });
+    $("#letterSpacingTextInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#letterSpacingTextRange").slider("value", parseInt(value));
+        $(".previewText").css("letter-spacing", value);
+    });
+
+    $("#wordSpacingTextRange").slider({
+        range: "min",
+        value: parseInt("@Model.WordSpacingTextDon"),
+        step: 1,
+        min: 0,
+        max: 50,
+        slide: function( event, ui ) {
+            $( "#wordSpacingTextInput" ).val( ui.value + "px");
+            var n=/\d{6}\s+~/g;
+            var value = $("#wordSpacingTextInput").val().replace(n, "");
+            $("#wordSpacingTextRange").slider("value", parseInt(value));
+            $(".previewText").css("word-spacing", value);
+        }
+    });
+    $("#wordSpacingTextInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#wordSpacingTextRange").slider("value", parseInt(value));
+        $(".previewText").css("word-spacing", value);
+    });
+
+    $("#shadowTextRange").slider({
+        range: "min",
+        value: parseInt("@Model.ShadowTextDon"),
+        step: 1,
+        min: 0,
+        max: 40,
+        slide: function( event, ui ) {
+            $( "#shadowTextInput" ).val( ui.value + "px");
+            var n=/\d{6}\s+~/g;
+            var value = $("#shadowTextInput").val().replace(n, "");
+            $("#shadowTextRange").slider("value", parseInt(value));
+            $(".previewText").css(shadow1 +value+ shadow2);
+        }
+    });
+    $("#shadowTextInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#shadowTextRange").slider("value", parseInt(value));
+        $(".previewText").css("text-shadow", shadow1 +value+ shadow2);
+    });
+
+
+    // Radio Button  - set Value to Input type=hidden
+    function initAnimationVisible(animVisible) {
+        var animVisibleRadio = $("input:radio[name=donation_enabled]");
+        for (var i = 0; i < animVisibleRadio.length; i++) {
+            if (animVisibleRadio[i].value.toString() === animVisible.toString()) {
+                $(animVisibleRadio[i]).prop("checked", true);
+            }
+        }
+        return true;
+    }
+    function initlayoutMessage(layoutMsg) {
+        //$("#LayoutMessageDon").attr("value", layoutMsg);
+        var inputRadio = $("input:radio[name=layout]");
+        for (var i = 0; i < inputRadio.length; i++) {
+            if (inputRadio[i].value === layoutMsg) {
+                $(inputRadio[i]).prop("checked", true);
+            }
+        }
+        return true;
+    }
+    function initAnimationImgVisible(animImgVisible) {
+        var animVisibleImgRadio = $("input:radio[name=imgAnimation_enabled]");
+        for (var i = 0; i < animVisibleImgRadio.length; i++) {
+            if (animVisibleImgRadio[i].value.toString() === animImgVisible.toString()) {
+                $(animVisibleImgRadio[i]).prop("checked", true);
+            }
+        }
+        return true;
+    }
+    function initSoundEnabled(soundVisible) {
+        var visibleSoundRadio = $("input:radio[name=sound_enabled]");
+        for (var i = 0; i < visibleSoundRadio.length; i++) {
+            if (visibleSoundRadio[i].value.toString() === soundVisible.toString()) {
+                $(visibleSoundRadio[i]).prop("checked", true);
+            }
+        }
+        return true;
+    }
+    function initWeightTitle(weightTitle) {
+        var weightTitleRadio = $("input:radio[name=boldTitle_enabled]");
+        for (var i = 0; i < weightTitleRadio.length; i++) {
+            if (weightTitleRadio[i].value === weightTitle) {
+                $(weightTitleRadio[i]).prop("checked", true);
+            }
+        }
+        return true;
+    }
+    function initItalicTitle(italicTitle) {
+        var italicTitleRadio = $("input:radio[name=italicTitle_enabled]");
+        for (var i = 0; i < italicTitleRadio.length; i++) {
+            if (italicTitleRadio[i].value === italicTitle) {
+                $(italicTitleRadio[i]).prop("checked", true);
+            }
+        }
+        return true;
+    }
+    function initUnderlineTitle(underlineTitle) {
+        var underlineTitleRadio = $("input:radio[name=underlineTitle_enabled]");
+        for (var i = 0; i < underlineTitleRadio.length; i++) {
+            if (underlineTitleRadio[i].value === underlineTitle.toString()) {
+                $(underlineTitleRadio[i]).prop("checked", true);
+            }
+        }
+        return true;
+    }
+    function initWeightText(weightText) {
+        var weightTextRadio = $("input:radio[name=boldText_enabled]");
+        for (var i = 0; i < weightTextRadio.length; i++) {
+            if (weightTextRadio[i].value.toString() === weightText.toString()) {
+                $(weightTextRadio[i]).prop("checked", true);
+            }
+        }
+        return true;
+    }
+    function initItalicText(italicText) {
+        var italicTextRadio = $("input:radio[name=italicText_enabled]");
+        for (var i = 0; i < italicTextRadio.length; i++) {
+            if (italicTextRadio[i].value.toString() === italicText.toString()) {
+                $(italicTextRadio[i]).prop("checked", true);
+            }
+        }
+        return true;
+    }
+    function initUnderlineText(underlineText) {
+        var underlineTextRadio = $("input:radio[name=underlineText_enabled]");
+        for (var i = 0; i < underlineTextRadio.length; i++) {
+            if (underlineTextRadio[i].value.toString() === underlineText.toString()) {
+                $(underlineTextRadio[i]).prop("checked", true);
+            }
+        }
+        return true;
+    }
+
+    function animationVisible(val) {
+        $("#AnimationVisibleDon").val(val);
+        return true;
+    }
+    function layoutMessage(val) {
+        $("#LayoutMessageDon").val(val);
+        return true;
+    }
+    function animationImageVisible(val) {
+        $("#AnimationImageVisibleDon").val(val);
+        if (val === false) {
+            $("#boxChooseImage, #boxAnimateImage, #boxImageCaliber").css("display", "none");
+        }
+        if (val === true) {
+            $("#boxChooseImage, #boxAnimateImage, #boxImageCaliber").css("display", "inline-block");
+        }
+        return true;
+    }
+    function soundEnabled(val) {
+        $("#SoundVisibleDon").val(val);
+        if (val === false) {
+            $("#boxChooseSound, #boxSoundVolume").css("display", "none");
+        }
+        if (val === true) {
+            $("#boxChooseSound, #boxSoundVolume").css("display", "inline-block");
+        }
+        return true;
+    }
+    function fontWeightTitle(val) {
+        $("#FontWeightTitleDon").val(val);
+        $(".previewTitle").css("font-weight", val);
+        return true;
+    }
+    function fontItalicTitle(val) {
+        $("#FontItalicTitleDon").val(val);
+        $(".previewTitle").css("font-style", val);
+        return true;
+    }
+    function fontUnderlineTitle(val) {
+        $("#FontUnderlineTitleDon").val(val);
+        $(".previewTitle span").css("text-decoration", val);
+        return true;
+    }
+    function fontWeightText(val) {
+        $("#FontWeightTextDon").val(val);
+        $(".previewText").css("font-weight", val);
+        return true;
+    }
+    function fontItalicText(val) {
+        $("#FontItalicTextDon").val(val);
+        $(".previewText").css("font-style", val);
+        return true;
+    }
+    function fontUnderlineText(val) {
+        $("#FontUnderlineTextDon").val(val);
+        $(".previewText span").css("text-decoration", val);
+        return true;
+    }
+
+    initlayoutMessage(layoutMsg);
+    initAnimationVisible(animVisible);
+    initAnimationImgVisible(animImgVisible);
+    initSoundEnabled(soundVisible);
+    initWeightTitle(weightTitle);
+    initItalicTitle(italicTitle);
+    initUnderlineTitle(underlineTitle);
+    initWeightText(weightText);
+    initItalicText(italicText);
+    initUnderlineText(underlineText);
+
+
+    // For dynamical change PREVIEW text
+    function colorTitleChanged() {
+        var colorTitle = getComputedStyle(document.getElementById("fontColorTitleInput"));
+        $(".previewTitle").css("color", colorTitle.backgroundColor);
+    }
+    function colorTextChanged() {
+        var colorText = getComputedStyle(document.getElementById("fontColorTextInput"));
+        $(".previewText").css("color", colorText.backgroundColor);
+    }
+
+    function fontFamilyTitleChanged(selector) {
+        if (selector.value === "segoe-regular") {
+            $(".previewTitle").css("font-family", selector.value);
+        }
+        if (selector.value === "open-sans") {
+            $(".previewTitle").css("font-family", selector.value);
+        }
+        if (selector.value === "roboto") {
+            $(".previewTitle").css("font-family", selector.value);
+        }
+        if (selector.value === "helvetica-roman") {
+            $(".previewTitle").css("font-family", selector.value);
+        }
+        if (selector.value === "arial") {
+            $(".previewTitle").css("font-family", selector.value);
+        }
+    }
+    function fontFamilyTextChanged(selector) {
+        if (selector.value === "segoe-regular") {
+            $(".previewText").css("font-family", selector.value);
+        }
+        if (selector.value === "open-sans") {
+            $(".previewText").css("font-family", selector.value);
+        }
+        if (selector.value === "roboto") {
+            $(".previewText").css("font-family", selector.value);
+        }
+        if (selector.value === "helvetica-roman") {
+            $(".previewText").css("font-family", selector.value);
+        }
+        if (selector.value === "arial") {
+            $(".previewText").css("font-family", selector.value);
+        }
+    }
+
+
+    // Animation Image&Text
+    function testAnim(x) {
+        $('#animationExample').removeClass().addClass(x + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+            $(this).removeClass();
+        });
+    };
+    $('#startTriggerAnimation').click(function (e) {
+        e.preventDefault();
+        var anim = $('#startEffectAnimation').val();
+        testAnim(anim);
+    });
+    $('#endTriggerAnimation').click(function (e) {
+        e.preventDefault();
+        var anim = $('#finishEffectAnimation').val();
+        testAnim(anim);
+    });
+    $('#startEffectAnimation').change(function () {
+        var anim = $(this).val();
+        testAnim(anim);
+    });
+    $('#finishEffectAnimation').change(function () {
+        var anim = $(this).val();
+        testAnim(anim);
+    });
+
+    function testAnimText(x) {
+        $('#animationExampleText').removeClass().addClass(x + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+            $(this).removeClass();
+        });
+    };
+    $('#startTriggerAnimationText').click(function (e) {
+        e.preventDefault();
+        var anim = $('#startEffectAnimationText').val();
+        testAnimText(anim);
+    });
+    $('#endTriggerAnimationText').click(function (e) {
+        e.preventDefault();
+        var anim = $('#finishEffectAnimationText').val();
+        testAnimText(anim);
+    });
+    $('#startEffectAnimationText').change(function () {
+        var anim = $(this).val();
+        testAnimText(anim);
+    });
+    $('#finishEffectAnimationText').change(function () {
+        var anim = $(this).val();
+        testAnimText(anim);
+    });
+
+
+    // ADD FILES
+    var wrapper = $(".file_upload"),
+        inp = wrapper.find("input"),
+        btn = wrapper.find("button#uploadBtn"),
+        push = wrapper.find("button#pushFile"),
+        lbl = wrapper.find("div#fileName");
+    btn.focus(function () {
+        wrapper.addClass("focus");
+    }).blur(function () {
+        wrapper.removeClass("focus");
+    });
+    btn.add(lbl).click(function () {
+        inp.click();
+    });
+    var file_api = (window.File && window.FileReader && window.FileList && window.Blob) ? true : false;
+    inp.change(function () {
+        var file_name;
+        if (file_api && inp[0].files[0])
+            file_name = inp[0].files[0].name;
+        else
+            file_name = inp.val().replace("C:\\somepath\\", '');
+        if (!file_name.length)
+            return;
+        if (lbl.is(":visible")) {
+            lbl.text(file_name);
+            btn.text("Загрузка файла");
+        } else
+            btn.text(file_name);
+        // for Get Type file
+        var file = $("#files")[0].files[0],
+            ext = "не определилось",
+            parts = file.type.split('/');
+        if (parts.length > 1) ext = parts.shift();
+        console.log("MIME тип: ", ext);
+        $("#TypeUploadFile").val(ext);
+
+        push.click();
+    }).change();
+
+
+    // for Hide/Show secretUrl
+    $("#urlAlert").hide();
+    $(".hide-show").click(function() {
+        $("#urlAlert").slideToggle();
+        $(".hide-show__img").toggleClass("glyphicon-eye-open").toggleClass("glyphicon-eye-close");
+        $(".hide-show__text").toggleClass("off").toggleClass("on");
+    });
+
+
+    // TEXT animation
+    function titleAnimationChanged(selector) {
+        if (selector.value === "none") {
+            $(".previewTitle").removeClass("vibe bounce flip slow");
+        }
+        if (selector.value === "slow") {
+            $(".previewTitle").removeClass("vibe bounce flip").addClass("slow");
+        }
+        if (selector.value === "vibe") {
+            $(".previewTitle").removeClass("slow bounce flip").addClass("vibe");
+        }
+        if (selector.value === "bounce") {
+            $(".previewTitle").removeClass("slow vibe flip").addClass("bounce");
+        }
+        if (selector.value === "flip") {
+            $(".previewTitle").removeClass("slow vibe bounce").addClass("flip");
+        }
+    }
+    function textAnimationChanged(selector) {
+        if (selector.value === "none") {
+            $(".previewText").removeClass("vibe bounce flip slow");
+        }
+        if (selector.value === "slow") {
+            $(".previewText").removeClass("vibe bounce flip").addClass("slow");
+        }
+        if (selector.value === "vibe") {
+            $(".previewText").removeClass("slow bounce flip").addClass("vibe");
+        }
+        if (selector.value === "bounce") {
+            $(".previewText").removeClass("slow vibe flip").addClass("bounce");
+        }
+        if (selector.value === "flip") {
+            $(".previewText").removeClass("slow vibe bounce").addClass("flip");
+        }
+    }
+    setInterval(function() {
+        $("#alertSave").css("display", "none");
+    },4*1000);
+</script>
+<script src="~/js/txt.wav.js"></script>

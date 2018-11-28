@@ -1,0 +1,14 @@
+﻿<li onclick="return getSoundName('@dataFile.FileName', 'gallerySound')">
+    <div class="soundBoxBg">
+        <i class="fa fa-play-circle-o playSound"
+            onclick="playSound('../gallery/gallerySound/@dataFile.FileName', this);"></i>
+        <i class="fa fa-stop-circle-o stopSound" 
+            onclick="stopSound();"></i>
+    </div>
+    <div class="boxFooter">
+        <div class="boxFooter__FileName">@dataFile.FileName</div>
+        <div class="boxFooter__Panel">
+            <div class="size">@dataFile.Size</div>
+        </div>
+    </div>
+</li>

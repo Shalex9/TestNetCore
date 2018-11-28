@@ -1,0 +1,202 @@
+﻿@model TestNetCore.Models.API.PrivatBankViewModel
+@{
+    ViewData["Title"] = "API PrivatBank";
+    Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
+}
+
+<script src="~/js/jquery.tablesorter.js"></script>
+@*<script type="text/javascript" src="~/js/Languages/localizer.js"></script>*@
+
+<form asp-controller="API" asp-action="PrivatBank"
+      id="PrivatBank"
+      method="post" enctype="multipart/form-data"
+      class="col-md-12">
+    @Html.AntiForgeryToken()
+    <div class="page-block">
+
+        <h2 id="titleAPIPB">API ПриватБанка</h2>
+
+        @*COURSE*@
+        <h3 class="form-section" id="currentCourse">Курс валют на сегодня: </h3>
+        <table class="table">
+            <thead>
+                <tr style="width: 100%; font-weight: bold">
+                    <th style="width: 25%">Основная валюта</th>
+                    <th style="width: 25%">Валюта</th>
+                    <th style="width: 25%">Продажа</th>
+                    <th style="width: 25%">Покупка</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var v in Model.ListCoursePB)
+                {
+                    <tr style="width: 100%">
+                        <td>@v.BaseCurrency</td>
+                        <td>@v.Currency</td>
+                        <td>@v.Buy</td>
+                        <td>@v.Sale</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @*OFFICE*@
+        <h3 class="form-section" id="officeForCity">Информация об офисах: </h3>
+        <div class="form-group">
+            <label class="col-md-4 control-label" id="labelCityOffice">Введите город:</label>
+            <div class="col-md-8">
+                <input type="text" id="inputCityOffice" value="" style="width: 300px;" />
+                <a onclick="return searchOffice()"
+                   class="launch defaultStyleButton" id="searchOffice">
+                    <span class="glyphicon glyphicon-search"></span> <span class="btnSearch">Поиск</span>
+                </a>
+                <a onclick="return closeOffice()"
+                   class="launch defaultStyleButton" id="closeOffice" style="display: none;">
+                    <span class="glyphicon glyphicon-remove"></span> <span class="btnClose">Закрыть</span>
+                </a>
+            </div>
+        </div>
+        <div id="listOfficeBox"></div>
+
+        @*ATM*@
+        <h3 class="form-section" id="atmForCity">Информация о банкоматах: </h3>
+        <div class="form-group">
+            <label class="col-md-4 control-label" id="labelCityAtm">Введите город:</label>
+            <div class="col-md-8">
+                <input type="text" id="inputCityAtm" value="" style="width: 300px;" />
+                <a onclick="return searchAtm()"
+                   class="launch defaultStyleButton" id="searchOffice">
+                    <span class="glyphicon glyphicon-search"></span> <span class="btnSearch">Поиск</span>
+                </a>
+                <a onclick="return closeAtm()"
+                   class="launch defaultStyleButton" id="closeAtm" style="display: none;">
+                    <span class="glyphicon glyphicon-remove"></span> <span class="btnClose">Закрыть</span>
+                </a>
+            </div>
+        </div>
+        <div id="listAtmBox"></div>
+
+
+        @*TSO*@
+        <h3 class="form-section" id="tsoForCity">Информация о терминалах самообслуживания: </h3>
+        <div class="form-group">
+            <label class="col-md-4 control-label" id="labelCityTso">Введите город:</label>
+            <div class="col-md-8">
+                <input type="text" id="inputCityTso" value="" style="width: 300px;" />
+                <a onclick="return searchTso()"
+                   class="launch defaultStyleButton" id="searchTso">
+                    <span class="glyphicon glyphicon-search"></span> <span class="btnSearch">Поиск</span>
+                </a>
+                <a onclick="return closeTso()"
+                   class="launch defaultStyleButton" id="closeTso" style="display: none;">
+                    <span class="glyphicon glyphicon-remove"></span> <span class="btnClose">Закрыть</span>
+                </a>
+            </div>
+        </div>
+        <div id="listTsoBox"></div>
+
+    </div>
+</form>
+
+        @*<p>
+            <br />
+            Email: @Model.UserEmail
+        </p>*@
+
+<script>
+    function searchOffice() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#PrivatBank')).val();
+        var cityValue = $("#inputCityOffice").val();
+        var myData = { city: cityValue };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/API/GetOfficePB",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+                if (data.length != 0 || data.length != []) {
+                    $("#listOfficeBox").html('<table class="table"><thead><tr style="width: 100%; font-weight: bold"><th style="width: 8%">Id</th><th style="width: 28%">Название</th><th style="width: 27%">Адрес</th><th style="width: 18%">Телефон</th><th style="width: 19%">Почта</th></tr></thead><tbody></tbody></table> ');
+                    for (var i = 0; i < data.length; i++) {
+                        $("#listOfficeBox tbody").append('<tr><td>' + data[i].id + '</td><td>' + data[i].name + '</td><td>' + data[i].address + '</td><td>' + data[i].phone + '</td><td>' + data[i].email + '</td></tr>');
+                    }
+                    $("#closeOffice").css("display", "inline-block");
+                    $("#listOfficeBox .table").tablesorter();
+                }
+                else {
+                    console.log("data: ", data);
+                    $("#listOfficeBox").html('<h4>Неккоректно введен город или по введенному городу данных нет.</h4>');
+                }
+            }
+        });
+    }
+
+    function searchAtm() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#PrivatBank')).val();
+        var cityValue = $("#inputCityAtm").val();
+        var myData = { city: cityValue };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/API/GetAtmPB",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+                console.log("data.devices: ", data.devices);
+                if (data.devices.length != 0 || data.devices.length != []) {
+                    $("#listAtmBox").html('<table class="table"><thead><tr style="width: 100%; font-weight: bold"><th class="header" style="width: 12%">Город</th><th class="header" style="width: 63%">Полный адрес</th><th class="header" style="width: 25%">Место</th></tr></thead><tbody></tbody></table> ');
+                    for (var i = 0; i < data.devices.length; i++) {
+                        $("#listAtmBox tbody").append('<tr><td>' + data.devices[i].cityRU + '</td><td>' + data.devices[i].fullAddressRu + '</td><td>' + data.devices[i].placeRu + '</td>');
+                    }
+                    $("#closeAtm").css("display", "inline-block");
+                    $("#listAtmBox .table").tablesorter();
+                }
+                else {
+                    console.log("data: ", data);
+                    $("#listAtmBox").html('<h4>Неккоректно введен город или по введенному городу данных нет.</h4>');
+                }
+            }
+        });
+    }
+
+    function searchTso() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#PrivatBank')).val();
+        var cityValue = $("#inputCityTso").val();
+        var myData = { city: cityValue };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/API/GetTsoPB",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+                if (data.devices.length != 0 || data.devices.length != []) {
+                    $("#listTsoBox").html('<table class="table"><thead><tr style="width: 100%; font-weight: bold"><th style="width: 12%">Город</th><th style="width: 63%">Полный адрес</th><th style="width: 25%">Место</th></tr></thead><tbody></tbody></table> ');
+                    for (var i = 0; i < data.devices.length; i++) {
+                        $("#listTsoBox tbody").append('<tr><td>' + data.devices[i].cityRU + '</td><td>' + data.devices[i].fullAddressRu + '</td><td>' + data.devices[i].placeRu + '</td>');
+                    }
+                    $("#closeTso").css("display", "inline-block");
+                    $("#listTsoBox .table").tablesorter();
+                }
+                else {
+                    console.log("data: ", data);
+                    $("#listTsoBox").html('<h4>Неккоректно введен город или по введенному городу данных нет.</h4>');
+                }
+            }
+        });
+    }
+
+    function closeOffice() {
+        $("#listOfficeBox").html('');
+        $("#closeOffice").css("display", "none");
+    }
+    function closeAtm() {
+        $("#listAtmBox").html('');
+        $("#closeAtm").css("display", "none");
+    }
+    function closeTso() {
+        $("#listTsoBox").html('');
+        $("#closeTso").css("display", "none");
+    }
+    
+</script>
