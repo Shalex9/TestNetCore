@@ -28,7 +28,7 @@
         <script src="~/lib/syncfusion-javascript/Scripts/ej/web/ej.web.all.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="~/assets/smoothScroll/SmoothScroll.js"></script>
-        <script type="text/javascript" src="~/js/Languages/localizer.js"></script>
+        @*<script type="text/javascript" src="~/js/Languages/localizer.js"></script>*@
 
         @*<link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/material.css" />
         <script src="https://cdn.syncfusion.com/ej2/dist/ej2.min.js"></script>*@
@@ -49,7 +49,7 @@
         <script src="~/lib/syncfusion-javascript/Scripts/ej/web/ej.web.all.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="~/assets/smoothScroll/SmoothScroll.js"></script>
-        <script type="text/javascript" src="~/js/Languages/localizer.js"></script>
+        @*<script type="text/javascript" src="~/js/Languages/localizer.js"></script>*@
 
         @*<link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/material.css" />
         <script src="https://cdn.syncfusion.com/ej2/dist/ej2.min.js"></script>*@
@@ -126,6 +126,9 @@
             <li>
                 <a asp-controller="Files" is-active-route asp-action="Crud" id="crudFile">CRUD операции</a>
             </li>
+            <li>
+                <a asp-controller="Files" is-active-route asp-action="Dictionary" id="dictionary">Словарь</a>
+            </li>
 
             <li class="title">
                 <i class="fa fa-bullhorn" aria-hidden="true"> </i>
@@ -135,8 +138,8 @@
                 <a asp-controller="Widgets" is-active-route asp-action="Hotel" id="hotel">Бронь отеля</a>
             </li>
             @*<li>
-                <a asp-controller="Widgets" is-active-route asp-action="DonatNotification" id="donat">Уведомление о донате</a>
-            </li>*@
+            <a asp-controller="Widgets" is-active-route asp-action="DonatNotification" id="donat">Уведомление о донате</a>
+        </li>*@
 
             <li class="title">
                 <i class="fa fa-bullhorn" aria-hidden="true"> </i>

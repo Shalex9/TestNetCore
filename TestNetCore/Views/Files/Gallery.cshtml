@@ -33,7 +33,6 @@
     @Html.AntiForgeryToken()
     <div class="page-block">
         <h2>Моя галерея</h2>
-
         <div class="form-group">
             <label class="col-md-3 control-label" for="bgColorBoxInput" id="bgcolor">Цвет фона:</label>
             <div class="col-md-9">
@@ -277,37 +276,20 @@
 </form>
 
 <script>
-    //    // Animation Image&Text
-    //    function testAnim(x) {
-    //        $('#animationExample').removeClass().addClass(x + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
-    //            $(this).removeClass();
-    //        });
-    //    };
-    //    $('#startTriggerAnimation').click(function (e) {
-    //        e.preventDefault();
-    //        var anim = $('#startEffectAnimation').val();
-    //        testAnim(anim);
-    //    });
-    //    $('#endTriggerAnimation').click(function (e) {
-    //        e.preventDefault();
-    //        var anim = $('#finishEffectAnimation').val();
-    //        testAnim(anim);
-    //});
-
     function runTestAnimation() {
         gifAnimation();
         playSound(pathSound);
     }
 
-        function playSound(pathSound) {
-            $("body").append(
-                '<audio class="sound-player" id="rington" autoplay="autoplay" style="display:none;" src="' + pathSound + '"></audio>');
-            var aud = document.getElementById("rington");
-            aud.volume = volumeAudio;
-            $('#rington').on('ended',
-                function () {
-                    $("#rington").remove();
-                });
+    function playSound(pathSound) {
+        $("body").append(
+            '<audio class="sound-player" id="rington" autoplay="autoplay" style="display:none;" src="' + pathSound + '"></audio>');
+        var aud = document.getElementById("rington");
+        aud.volume = volumeAudio;
+        $('#rington').on('ended',
+            function () {
+                $("#rington").remove();
+            });
     }
 
     function gifAnimation() {

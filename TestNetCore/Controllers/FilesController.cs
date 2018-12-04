@@ -360,5 +360,37 @@ namespace TestNetCore.Controllers
             string file_name = "CV - Alexander Shevchuk.pdf";
             return File(fs, file_type, file_name);
         }
+
+
+
+        [HttpGet]
+        public IActionResult Dictionary()
+        {
+            var viewModel = new DictionaryViewModel();
+            viewModel = ModelForDictionary(viewModel);
+
+            return View(viewModel);
+        }
+
+        public DictionaryViewModel ModelForDictionary(DictionaryViewModel viewModel)
+        {
+            viewModel.UserName = CurrentUserName;
+            viewModel.AvatarPath = CurrentAvatarPath;
+
+            return viewModel;
+        }
+
+        [HttpPost]
+        public IActionResult Dictionary(DictionaryViewModel viewModel)
+        {
+            // FOR READ FROM TXT FILE AND WRITE TO DATABASE
+            //WordSeeder seed = new WordSeeder(_dbContext);
+            //seed.SeedWord();
+            //seed.SeedDictionary();
+            //seed.SeedForbidden();
+
+            var vm = ModelForDictionary(viewModel);
+            return View(vm);
+        }
     }
 }

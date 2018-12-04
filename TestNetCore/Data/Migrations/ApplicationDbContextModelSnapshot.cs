@@ -281,6 +281,62 @@ namespace TestNetCore.Data.Migrations
                     b.ToTable("UsersSort");
                 });
 
+            modelBuilder.Entity("TestNetCore.Models.Files.ForbiddenWord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Word");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ForbiddenWords");
+                });
+
+            modelBuilder.Entity("TestNetCore.Models.Files.ForbiddenWordUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("UserId");
+
+                    b.Property<string>("Word");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ForbiddenWordUsers");
+                });
+
+            modelBuilder.Entity("TestNetCore.Models.Files.RussianDictionary", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Definition");
+
+                    b.Property<string>("Word");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RussianDictionaries");
+                });
+
+            modelBuilder.Entity("TestNetCore.Models.Files.RussianWord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Word");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RussianWords");
+                });
+
             modelBuilder.Entity("TestNetCore.Models.Files.SettingsPageGallery", b =>
                 {
                     b.Property<int>("Id")

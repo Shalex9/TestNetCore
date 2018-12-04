@@ -1,0 +1,25 @@
+﻿@using TestNetCore.Models.Files
+@using Newtonsoft.Json;
+@model TestNetCore.Models.Files.DictionaryViewModel
+@{
+    ViewData["Title"] = "CRUD";
+    Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
+}
+
+<form asp-controller="Files" asp-action="Dictionary"
+    id="Dictionary"
+    method="post" enctype="multipart/form-data"
+    class="col-md-12">
+        @Html.AntiForgeryToken()
+        <h2 id="">Поиск слова по словарю: </h2>
+        <p id="" onclick="return saveSettings('saveSettings')">(ПС: здeсь представлены только имена существительные) </p>
+        <button type="submit" class="display-none saveSettings"></button>
+
+</form>
+
+<script type="text/javascript">
+    function saveSettings(val) {
+        $("button.saveSettings").click();
+        return true;
+    }
+</script>
