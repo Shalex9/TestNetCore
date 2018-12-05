@@ -28,7 +28,8 @@
     </div>
 
     <div class="page-block">
-        <h2 id="">Подбор ассоциаций к звучанию иностранного слова</h2>
+        <h2>Подбор ассоциаций к звучанию иностранного слова</h2>
+        <h4>Страница в стадии разработки</h4>
         <div class="row asRow">
             <div class="col-md-1"><div class="asNumber">1</div></div>
             <div class="col-md-5 boxInput">
@@ -51,12 +52,36 @@
         </div>*@
 
         <div class="row asRow">
-            <div class="col-md-1"><div class="asNumber">3</div></div>
+            <div class="col-md-1"><div class="asNumber">2</div></div>
             <div class="col-md-5 boxResult">
                 <div id="boxResult"></div>
-                <img id="loading" src="~/img/loading.gif" />
+                <img id="loading" src="~/img/loadingCube.gif" />
             </div>
             <div class="col-md-6">Здесь появятся похожие по звучанию слова. Составьте из наиболее интересных из них яркий обрах и запомните его!</div>
+        </div>
+
+        <div class="row asRow">
+            <div class="col-md-1"><div class="asNumber">3</div></div>
+            <div class="col-md-5">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Слово</th>
+                            <th>Ассоциации</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var i in Model.ListAssociation)
+                        {
+                            <tr>
+                                <td>@i.Word</td>
+                                <td>@i.AllWordsAss</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">Здесь будет отображаться таблица всех сохраненных ранее ассоциаций</div>
         </div>
     </div>
 </form>
@@ -117,10 +142,54 @@
             data: dataWithAntiforgeryToken,
             success: function (data) {
                 console.log("data: ", data);
+                var box = $("#boxResult");
                 $("#loading").css("display", "none");
-                $("#boxResult").text(data);
+                if (data.category1 != []) {
+                    var len = data.category1.length;
+                    for (var i = 0; i < len; i++) {
+                        box.append("<p title='" + data.category1[i].definition + "'>" + data.category1[i].word + "<span class='glyphicon glyphicon-plus-sign' onclick='return saveAssociation(\"" + data.category1[i].word + "\")'></span></p>");
+                    }
+                }
+                if (data.category3 != []) {
+                    var len = data.category3.length;
+                    for (var i = 0; i < len; i++) {
+                        box.append("<p title='" + data.category3[i].definition + "'>" + data.category3[i].word + "<span class='glyphicon glyphicon-plus-sign' onclick='return saveAssociation(\"" + data.category3[i].word + "\")'></span></p>");
+                    }
+                }
+                if (data.category5 != []) {
+                    var len = data.category5.length;
+                    for (var i = 0; i < len; i++) {
+                        box.append("<p title='" + data.category5[i].definition + "'>" + data.category5[i].word + "<span class='glyphicon glyphicon-plus-sign' onclick='return saveAssociation\"" + data.category5[i].word + "\")'></span></p>");
+                    }
+                }
+                if (data.category2 != []) {
+                    var len = data.category2.length;
+                    for (var i = 0; i < len; i++) {
+                        box.append("<p title='" + data.category2[i].definition + "'>" + data.category2[i].word + "<span class='glyphicon glyphicon-plus-sign' onclick='return saveAssociation(\"" + data.category2[i].word + "\")'></span></p>");
+                    }
+                }
+                if (data.category4 != []) {
+                    var len = data.category4.length;
+                    for (var i = 0; i < len; i++) {
+                        box.append("<p title='" + data.category4[i].definition + "'>" + data.category4[i].word + "<span class='glyphicon glyphicon-plus-sign' onclick='return saveAssociation(\"" + data.category4[i].word + "\")'></span></p>");
+                    }
+                }
             }
         });
     }
 
+    function saveAssociation(assWord) {
+        var token = $('input[name="__RequestVerificationToken"]', $('#Dictionary')).val();
+        var wordValue = $("#currentWord").val();
+        var myData = { word: wordValue, wordAssociation: assWord };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/Files/SaveAssociation",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+            }
+        });
+    }
 </script>

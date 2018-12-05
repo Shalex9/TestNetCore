@@ -16,25 +16,6 @@ namespace TestNetCore.Models.Files
             _dbContext = db;
         }
 
-        public void SeedWord()
-        {
-            if (!_dbContext.RussianWords.Any())
-            {
-                var filePath = "Files/russian_words.txt";
-                var words = File.ReadAllLines(filePath);
-
-                foreach (var word in words)
-                {
-                    RussianWord w = new RussianWord();
-                    w.Word = word;
-
-                    _dbContext.RussianWords.Add(w);
-                }
-                _dbContext.SaveChanges();
-            }
-        }
-
-
         public void SeedDictionary()
         {
             if (!_dbContext.RussianDictionaries.Any())

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TestNetCore.Data;
 
 namespace TestNetCore.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181205114614_create_savedUserAssociations_and_CRUDfilesUsers")]
+    partial class create_savedUserAssociations_and_CRUDfilesUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -349,6 +351,19 @@ namespace TestNetCore.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("RussianDictionaries");
+                });
+
+            modelBuilder.Entity("TestNetCore.Models.Files.RussianWord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Word");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RussianWords");
                 });
 
             modelBuilder.Entity("TestNetCore.Models.Files.SavedUserAssociation", b =>

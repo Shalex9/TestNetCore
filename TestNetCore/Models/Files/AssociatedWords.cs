@@ -12,5 +12,7 @@ namespace TestNetCore.Models.Files
         public IQueryable<RussianDictionary> Category3 { get; set; }
         public IQueryable<RussianDictionary> Category4 { get; set; }
         public IQueryable<RussianDictionary> Category5 { get; set; }
+        public IQueryable<RussianDictionary> Category6 { get; set; }
+        public IQueryable<RussianDictionary> Category7 { get; set; }
     }
 }

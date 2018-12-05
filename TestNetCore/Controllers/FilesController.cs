@@ -417,13 +417,8 @@ namespace TestNetCore.Controllers
         {
             try
             {
-                //string[] listAssociation;
-                //string[] listAllWord;
-                //string[] listCategory1;
-                //string[] listCategory2;
-                //string[] listCategory3;
-
-                //string[] letters;
+                int wLen = word.Length;
+                char lastSymbol = word[wLen - 1];
                 string wordСonsonants =word.Trim().ToLower().Replace("а", "")
                                                             .Replace("о", "")
                                                             .Replace("у", "")
@@ -432,23 +427,29 @@ namespace TestNetCore.Controllers
                                                             .Replace("э", "")
                                                             .Replace("ю", "")
                                                             .Replace("я", "")
+                                                            //.Replace("й", "")
                                                             .Replace("ы", "");
                 string f3consL = String.Concat(wordСonsonants[0], wordСonsonants[1], wordСonsonants[2]);
-                string f2consL = String.Concat(wordСonsonants[0], wordСonsonants[1]);
                 string f3l = word.Substring(0, 3);
-                string f2l = word.Substring(0, 2);
 
-                IQueryable<RussianDictionary> listCategory1 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f3consL + "%"));
-                IQueryable<RussianDictionary> listCategory2 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f3l + "%"));
-                IQueryable<RussianDictionary> listCategory3 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f2consL + "%"));
-                IQueryable<RussianDictionary> listCategory4 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, word + "%"));
-                IQueryable<RussianDictionary> listCategory5 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f2l + "%"));
+                IQueryable<RussianDictionary> list3letters = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f3l + "%"));
+                IQueryable<RussianDictionary> list3lettersAndLastSymbol = list3letters.Where(a => EF.Functions.Like(a.Word, "%["+ lastSymbol + "]"));
+                IQueryable<RussianDictionary> list3ConsLetters = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f3consL + "%"));
+
+                IQueryable<RussianDictionary> listCategory1 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, word + "%"));
+                IQueryable<RussianDictionary> listCategory2 = list3letters.Where(a => a.Word.Length == wLen || a.Word.Length == wLen - 1 || a.Word.Length == wLen + 1);
+                IQueryable<RussianDictionary> listCategory3 = listCategory2.Where(a => EF.Functions.Like(a.Word, "%[" + lastSymbol + "]"));
+                IQueryable<RussianDictionary> listCategory4 = list3ConsLetters.Where(a => a.Word.Length == wLen || a.Word.Length == wLen - 1 || a.Word.Length == wLen + 1);
+                IQueryable<RussianDictionary> listCategory5 = listCategory4.Where(a => EF.Functions.Like(a.Word, "%[" + lastSymbol + "]"));
+
                 AssociatedWords listAssociation = new AssociatedWords();
                 listAssociation.Category1 = listCategory1;
                 listAssociation.Category2 = listCategory2;
                 listAssociation.Category3 = listCategory3;
                 listAssociation.Category4 = listCategory4;
                 listAssociation.Category5 = listCategory5;
+                //listAssociation.Category6 = listCategory6;
+                //listAssociation.Category7 = listCategory7;
 
                 return Json(listAssociation);
             }
@@ -456,6 +457,35 @@ namespace TestNetCore.Controllers
             {
                 return Json("Неккоректно введено слово, или по введенному слову данных нет.");
             }
+        }
+
+
+        // Сохранение слов-ассоциаций
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveAssociation(string word, string wordAssociation)
+        {
+            IQueryable<SavedUserAssociation> userAss = _dbContext.SavedUserAssociations.Where(a => a.UserId == UserID);
+            SavedUserAssociation isWord = userAss.FirstOrDefault(a => a.Word == word);
+            SavedUserAssociation newAss;
+
+            if (isWord != null)
+            {
+                newAss = isWord;
+                newAss.AllWordsAss = String.Concat(newAss.AllWordsAss, "; ", wordAssociation);
+                _dbContext.SavedUserAssociations.Update(newAss);
+            }
+            else
+            {
+                newAss = new SavedUserAssociation();
+                newAss.UserId = UserID;
+                newAss.Word = word;
+                newAss.AllWordsAss = wordAssociation;
+                _dbContext.SavedUserAssociations.Add(newAss);
+            }
+
+            _dbContext.SaveChanges();
+            return Json("Success");
         }
 
     }
