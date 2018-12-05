@@ -2,24 +2,125 @@
 @using Newtonsoft.Json;
 @model TestNetCore.Models.Files.DictionaryViewModel
 @{
-    ViewData["Title"] = "CRUD";
+    ViewData["Title"] = "Dictionary";
     Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
 }
 
 <form asp-controller="Files" asp-action="Dictionary"
-    id="Dictionary"
-    method="post" enctype="multipart/form-data"
-    class="col-md-12">
-        @Html.AntiForgeryToken()
-        <h2 id="">Поиск слова по словарю: </h2>
-        <p id="" onclick="return saveSettings('saveSettings')">(ПС: здeсь представлены только имена существительные) </p>
-        <button type="submit" class="display-none saveSettings"></button>
+      id="Dictionary"
+      method="post" enctype="multipart/form-data"
+      class="col-md-12">
+    @Html.AntiForgeryToken()
+    <div class="page-block">
+        <h2 id="">Поиск значения слова по словарю</h2>
+        <p>ПС: только имена существительные, слов в словаре: @Model.CountWord</p>
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="bgColorBoxInput" id="bgcolor">Введите искомое слово:</label>
+            <div class="col-md-9">
+                @*<input type="text" id="searchWord" asp-for="@Model.SearchWord" style="width: 300px;">*@
+                <div class="input-group" style="width: 300px;">
+                    <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-pencil"></span></span>
+                    <input type="text" id="searchWord" class="form-control" placeholder="Введите слово" aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-md-12" id="wordDefinition"></div>
+        </div>
+    </div>
 
+    <div class="page-block">
+        <h2 id="">Подбор ассоциаций к звучанию иностранного слова</h2>
+        <div class="row asRow">
+            <div class="col-md-1"><div class="asNumber">1</div></div>
+            <div class="col-md-5 boxInput">
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-pencil"></span></span>
+                    <input type="text" id="currentWord" class="form-control" placeholder="Введите слово" aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-md-6">Введите "звучание" слова русскими буквами</div>
+        </div>
+
+        @*<div class="row asRow">
+            <div class="col-md-1"><div class="asNumber">2</div></div>
+            <div class="col-md-5 boxSettings">
+                <input type="checkbox" aria-label="1">
+                <input type="checkbox" aria-label="2">
+                <input type="checkbox" aria-label="3">
+            </div>
+            <div class="col-md-6">Выберите, как будут составляться ассоциации</div>
+        </div>*@
+
+        <div class="row asRow">
+            <div class="col-md-1"><div class="asNumber">3</div></div>
+            <div class="col-md-5 boxResult">
+                <div id="boxResult"></div>
+                <img id="loading" src="~/img/loading.gif" />
+            </div>
+            <div class="col-md-6">Здесь появятся похожие по звучанию слова. Составьте из наиболее интересных из них яркий обрах и запомните его!</div>
+        </div>
+    </div>
 </form>
 
 <script type="text/javascript">
-    function saveSettings(val) {
-        $("button.saveSettings").click();
-        return true;
+    $("#loading").css("display", "none");
+
+    $('#searchWord').keydown(function (event) {        
+        if (event.which == 13) {
+            if ($("#searchWord").val() != "") {
+                searchWord();
+            } else {
+                $("#wordDefinition").text("");
+            }
+            
+            event.preventDefault();
+        }
+    });
+
+    $('#currentWord').keydown(function (event) {
+        if (event.which == 13) {
+            if ($("#currentWord").val() != "") {
+                searchAssotiation();
+            } else {
+                $("#boxResult").text("");
+            }
+            event.preventDefault();
+        }
+    });
+
+    function searchWord() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#Dictionary')).val();
+        $("#wordDefinition").text("");
+        var wordValue = $("#searchWord").val();
+        var myData = { word: wordValue };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/Files/SearchWord",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+                $("#wordDefinition").text(data);
+            }
+        });
     }
+
+    function searchAssotiation() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#Dictionary')).val();
+        $("#boxResult").text("");
+        $("#loading").css("display", "block");
+        var wordValue = $("#currentWord").val();
+        var myData = { word: wordValue };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/Files/SearchAssotiation",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+                $("#loading").css("display", "none");
+                $("#boxResult").text(data);
+            }
+        });
+    }
+
 </script>

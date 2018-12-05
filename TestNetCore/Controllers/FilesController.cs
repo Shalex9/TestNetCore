@@ -377,6 +377,7 @@ namespace TestNetCore.Controllers
             viewModel.UserName = CurrentUserName;
             viewModel.AvatarPath = CurrentAvatarPath;
 
+            viewModel.CountWord = _dbContext.RussianDictionaries.Count();
             return viewModel;
         }
 
@@ -392,5 +393,70 @@ namespace TestNetCore.Controllers
             var vm = ModelForDictionary(viewModel);
             return View(vm);
         }
+
+        // Получение искомого слова
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SearchWord(string word)
+        {
+            try
+            {
+                RussianDictionary w = _dbContext.RussianDictionaries.FirstOrDefault(a => a.Word == word);
+                return Json(w.Definition);
+            }
+            catch (Exception)
+            {
+                return Json("Неккоректно введено слово, или по введенному слову данных нет.");
+            }
+        }
+
+        // Получение ассоциации
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SearchAssotiation(string word)
+        {
+            try
+            {
+                //string[] listAssociation;
+                //string[] listAllWord;
+                //string[] listCategory1;
+                //string[] listCategory2;
+                //string[] listCategory3;
+
+                //string[] letters;
+                string wordСonsonants =word.Trim().ToLower().Replace("а", "")
+                                                            .Replace("о", "")
+                                                            .Replace("у", "")
+                                                            .Replace("и", "")
+                                                            .Replace("е", "")
+                                                            .Replace("э", "")
+                                                            .Replace("ю", "")
+                                                            .Replace("я", "")
+                                                            .Replace("ы", "");
+                string f3consL = String.Concat(wordСonsonants[0], wordСonsonants[1], wordСonsonants[2]);
+                string f2consL = String.Concat(wordСonsonants[0], wordСonsonants[1]);
+                string f3l = word.Substring(0, 3);
+                string f2l = word.Substring(0, 2);
+
+                IQueryable<RussianDictionary> listCategory1 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f3consL + "%"));
+                IQueryable<RussianDictionary> listCategory2 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f3l + "%"));
+                IQueryable<RussianDictionary> listCategory3 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f2consL + "%"));
+                IQueryable<RussianDictionary> listCategory4 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, word + "%"));
+                IQueryable<RussianDictionary> listCategory5 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f2l + "%"));
+                AssociatedWords listAssociation = new AssociatedWords();
+                listAssociation.Category1 = listCategory1;
+                listAssociation.Category2 = listCategory2;
+                listAssociation.Category3 = listCategory3;
+                listAssociation.Category4 = listCategory4;
+                listAssociation.Category5 = listCategory5;
+
+                return Json(listAssociation);
+            }
+            catch (Exception)
+            {
+                return Json("Неккоректно введено слово, или по введенному слову данных нет.");
+            }
+        }
+
     }
 }
