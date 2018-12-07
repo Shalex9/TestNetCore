@@ -1,8 +1,8 @@
 ﻿@using TestNetCore.Controllers
-@using TestNetCore.Models.WidgetsViewModels
+@using TestNetCore.Models.Widgets.Hotel
 @using Newtonsoft.Json;
 
-@model TestNetCore.Models.WidgetsViewModels.HotelViewModel
+@model TestNetCore.Models.Widgets.Hotel.HotelViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -22,8 +22,7 @@
     var hasToilet = @Html.Raw(Model.HasToilet).ToString().ToLower(),
         hasTv = @Html.Raw(Model.HasTV).ToString().ToLower(),
         hasBigBed = @Html.Raw(Model.HasBigBed).ToString().ToLower(),
-        isFreeNow = @Html.Raw(Model.IsFreeNow).ToString().ToLower(),
-        chosenLanguage = "@Html.Raw(Model.ChosenLanguage)";
+        isFreeNow = @Html.Raw(Model.IsFreeNow).ToString().ToLower();
 </script>
 
 <div class="col-md-12">
@@ -81,7 +80,7 @@
 </div>
 
 <form class="form-inline col-md-12"
-      asp-controller="Widgets" asp-action="Hotel"
+      asp-controller="Hotel" asp-action="Hotel"
       id="Hotel"
       method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
@@ -413,7 +412,7 @@
         var myData = { id: idForDelete };
         var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
         $.ajax({
-            url: "/Widgets/DeleteReserved",
+            url: "/Hotel/DeleteReserved",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
@@ -437,7 +436,7 @@
         var myData = { start: startValue, end: endValue };
         var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
         $.ajax({
-            url: "/Widgets/CheckIsFreeRoom",
+            url: "/Hotel/CheckIsFreeRoom",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {

@@ -1,4 +1,4 @@
-﻿@model TestNetCore.Models.API.AccuWheatherViewModel
+﻿@model TestNetCore.Models.API.AccuWheather.AccuWheatherViewModel
 @{
     ViewData["Title"] = "API AccuWheather";
     Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
@@ -8,7 +8,7 @@
 <script src="~/js/jquery.tablesorter.js"></script>
 
 
-<form asp-controller="API" asp-action="AccuWeather"
+<form asp-controller="AccuWeather" asp-action="AccuWeather"
       id="AccuWeather"
       method="post" enctype="multipart/form-data"
       class="col-md-12">
@@ -67,7 +67,7 @@
         var myData = { city: cityValue };
         var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
         $.ajax({
-            url: "/API/GetForecast12hours",
+            url: "/AccuWheather/GetForecast12hours",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
@@ -87,7 +87,7 @@
         var myData = { city: cityValue };
         var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
         $.ajax({
-            url: "/API/GetForecast5days",
+            url: "/AccuWheather/GetForecast5days",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {

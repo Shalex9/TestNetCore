@@ -1,4 +1,4 @@
-﻿@model TestNetCore.Models.Files.GalleryViewModel
+﻿@model TestNetCore.Models.Files.Gallery.GalleryViewModel
 @{
     ViewData["Title"] = "Gallery";
     Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
@@ -26,7 +26,7 @@
         finishEffectAnimationImg = "@Html.Raw(Model.FinishEffectAnimation)";
 </script>
 
-<form asp-controller="Files" asp-action="Gallery"
+<form asp-controller="Gallery" asp-action="Gallery"
       id="Gallery"
       method="post" enctype="multipart/form-data"
       class="col-md-12">

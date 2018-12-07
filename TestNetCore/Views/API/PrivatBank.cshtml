@@ -1,13 +1,12 @@
-﻿@model TestNetCore.Models.API.PrivatBankViewModel
+﻿@model TestNetCore.Models.API.PrivatBank.PrivatBankViewModel
 @{
     ViewData["Title"] = "API PrivatBank";
     Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
 }
 
 <script src="~/js/jquery.tablesorter.js"></script>
-@*<script type="text/javascript" src="~/js/Languages/localizer.js"></script>*@
 
-<form asp-controller="API" asp-action="PrivatBank"
+<form asp-controller="PrivatBank" asp-action="PrivatBank"
       id="PrivatBank"
       method="post" enctype="multipart/form-data"
       class="col-md-12">
@@ -110,7 +109,7 @@
         var myData = { city: cityValue };
         var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
         $.ajax({
-            url: "/API/GetOfficePB",
+            url: "/PrivatBank/GetOfficePB",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
@@ -137,7 +136,7 @@
         var myData = { city: cityValue };
         var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
         $.ajax({
-            url: "/API/GetAtmPB",
+            url: "/PrivatBank/GetAtmPB",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
@@ -165,7 +164,7 @@
         var myData = { city: cityValue };
         var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
         $.ajax({
-            url: "/API/GetTsoPB",
+            url: "/PrivatBank/GetTsoPB",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {

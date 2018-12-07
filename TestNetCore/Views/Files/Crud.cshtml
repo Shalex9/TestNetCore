@@ -1,7 +1,5 @@
-﻿@using TestNetCore.Models.Files
-@using TestNetCore.Models.WidgetsViewModels
-@using Newtonsoft.Json;
-@model TestNetCore.Models.Files.CrudViewModel
+﻿@using Newtonsoft.Json;
+@model TestNetCore.Models.Files.Crud.CrudViewModel
 @{
     ViewData["Title"] = "CRUD";
     Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
@@ -13,7 +11,7 @@
 <script src="~/lib/syncfusion-javascript/Scripts/ej/web/ej.web.all.min.js"></script>
 <script type="text/javascript" src="~/js/Languages/localizer.js"></script>
 
-<form asp-controller="Files" asp-action="Crud"
+<form asp-controller="Crud" asp-action="Crud"
       id="Crud"
       method="post" enctype="multipart/form-data"
       class="col-md-12">
@@ -21,7 +19,7 @@
         <h2 id="">Информация - 1</h2>
 
         <p>Больше информации обо мне - в моем резюме</p>
-        <a asp-controller="Files" is-active-route asp-action="GetResume"
+        <a asp-controller="Crud" is-active-route asp-action="GetResume"
            id="downloadResume"
            class="defaultStyleButton"
            style="margin-top: 25px;">

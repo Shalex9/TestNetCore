@@ -88,46 +88,52 @@
     <div class="sidebar">
         <ul>
             <li class="title">
+                <i class="fa fa-bullhorn" aria-hidden="true"> </i>
+                <span class="label-menu" id="">Виджеты</span>
+            </li>
+            <li>
+                <a asp-controller="Hotel" is-active-route asp-action="Hotel" id="hotel">Бронь отеля</a>
+            </li>
+            <li>
+                <a asp-controller="Dictionary" is-active-route asp-action="Dictionary" id="dictionary">Словарь</a>
+                @*@Html.ActionLink("Словарь", "Dictionary", "Dictionary")*@
+            </li>
+
+
+            <li class="title">
                 <i class="fa fa-bar-chart" aria-hidden="true"></i>
-                <span class="label-menu" id="api">API</span>
+                <span class="label-menu" id="api">Работа с API</span>
             </li>
             <li>
-                <a asp-controller="API" is-active-route asp-action="PrivatBank" id="privatBank">ПриватБанк</a>
+                <a asp-controller="PrivatBank" is-active-route asp-action="PrivatBank" id="privatBank">ПриватБанк</a>
+                @*@Html.ActionLink("ПриватБанк", "PrivatBank", "PrivatBank")*@
             </li>
             <li>
-                <a asp-controller="API" is-active-route asp-action="AccuWheather" id="accuWheather">Прогноз погоды</a>
+                <a asp-controller="AccuWheather" is-active-route asp-action="AccuWheather" id="accuWheather">Прогноз погоды</a>
+                @*@Html.ActionLink("Прогноз погоды", "AccuWheather", "AccuWheather")*@
             </li>
-            <li>
-                <a asp-controller="API" is-active-route asp-action="TheMovieDB" id="theMovieDB">Поиск фильмов</a>
-            </li>
+
 
             <li class="title">
                 <i class="fa fa-cog" aria-hidden="true"> </i>
                 <span class="label-menu" id="file">Работа с файлами</span>
             </li>
             <li>
-                @Html.ActionLink("Моя галерея", "Gallery", "Files")
+                <a asp-controller="Gallery" is-active-route asp-action="Gallery">Моя галерея</a>
+                @*@Html.ActionLink("Моя галерея", "Gallery", "Gallery")*@
             </li>
             <li>
-                @Html.ActionLink("CRUD операции", "Crud", "Files")
-            </li>
-            <li>
-                @Html.ActionLink("Словарь", "Dictionary", "Dictionary")
+                <a asp-controller="Crud" is-active-route asp-action="Crud">CRUD операции</a>
+                @*@Html.ActionLink("CRUD операции", "Crud", "Crud")*@
             </li>
 
+            
             <li class="title">
                 <i class="fa fa-bullhorn" aria-hidden="true"> </i>
-                <span class="label-menu" id="">Виджеты</span>
+                <span class="label-menu" id="">Другое</span>
             </li>
             <li>
-                <a asp-controller="Widgets" is-active-route asp-action="Hotel" id="hotel">Бронь отеля</a>
-            </li>
-
-            <li class="title">
-                <i class="fa fa-bullhorn" aria-hidden="true"> </i>
-                <span class="label-menu" id="">EntityFramework</span>
-            </li>
-            <li>
+                @*@Html.ActionLink("Sort/Filter/Pagination", "EntityFSP", "EF")*@
                 <a asp-controller="EF" is-active-route asp-action="EntityFSP" id="">Sort/Filter/Pagination</a>
             </li>
         </ul>
