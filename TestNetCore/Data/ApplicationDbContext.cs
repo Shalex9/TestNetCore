@@ -33,6 +33,7 @@ namespace TestNetCore.Data
         public DbSet<SavedUserAssociation> SavedUserAssociations { get; set; }
         public DbSet<CRUDfileUser> CRUDfileUsers { get; set; }
 
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
