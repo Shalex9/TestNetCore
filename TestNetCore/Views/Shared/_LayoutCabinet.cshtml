@@ -2,11 +2,8 @@
 @using Microsoft.AspNetCore.Identity
 @using TestNetCore.Models
 @model TestNetCore.Models.BaseViewModel
-
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
-
-
 
 <!DOCTYPE html>
 <html>
@@ -28,15 +25,8 @@
         <script src="~/lib/syncfusion-javascript/Scripts/ej/web/ej.web.all.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="~/assets/smoothScroll/SmoothScroll.js"></script>
-        @*<script type="text/javascript" src="~/js/Languages/localizer.js"></script>*@
-
-        @*<link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/material.css" />
-        <script src="https://cdn.syncfusion.com/ej2/dist/ej2.min.js"></script>*@
     </environment>
     <environment exclude="Development">
-        @*<link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
-            asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-            asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />*@
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link href="~/assets/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
         <link href="~/assets/material-icon/material-icons.min.css" rel="stylesheet">
@@ -44,15 +34,10 @@
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <link href="~/lib/syncfusion-javascript/Content/ej/web/bootstrap-theme/ej.web.all.min.css" rel="stylesheet" />
         <link href="~/lib/syncfusion-javascript/Content/ej/web/responsive-css/ej.responsive.css" rel="stylesheet" />
-        @*<script src="~/jquery/jquery-3.1.0.min.js"></script>*@
         <script src="~/lib/jsrender/jsrender.min.js"></script>
         <script src="~/lib/syncfusion-javascript/Scripts/ej/web/ej.web.all.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="~/assets/smoothScroll/SmoothScroll.js"></script>
-        @*<script type="text/javascript" src="~/js/Languages/localizer.js"></script>*@
-
-        @*<link rel="stylesheet" href="https://cdn.syncfusion.com/ej2/material.css" />
-        <script src="https://cdn.syncfusion.com/ej2/dist/ej2.min.js"></script>*@
     </environment>
 </head>
 <body id="scroll">
@@ -121,13 +106,13 @@
                 <span class="label-menu" id="file">Работа с файлами</span>
             </li>
             <li>
-                <a asp-controller="Files" is-active-route asp-action="Gallery" id="gallery">Моя галерея</a>
+                @Html.ActionLink("Моя галерея", "Gallery", "Files")
             </li>
             <li>
-                <a asp-controller="Files" is-active-route asp-action="Crud" id="crudFile">CRUD операции</a>
+                @Html.ActionLink("CRUD операции", "Crud", "Files")
             </li>
             <li>
-                <a asp-controller="Files" is-active-route asp-action="Dictionary" id="dictionary">Словарь</a>
+                @Html.ActionLink("Словарь", "Dictionary", "Dictionary")
             </li>
 
             <li class="title">
@@ -137,9 +122,6 @@
             <li>
                 <a asp-controller="Widgets" is-active-route asp-action="Hotel" id="hotel">Бронь отеля</a>
             </li>
-            @*<li>
-            <a asp-controller="Widgets" is-active-route asp-action="DonatNotification" id="donat">Уведомление о донате</a>
-        </li>*@
 
             <li class="title">
                 <i class="fa fa-bullhorn" aria-hidden="true"> </i>

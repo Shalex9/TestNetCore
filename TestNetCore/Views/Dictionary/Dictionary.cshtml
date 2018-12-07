@@ -119,7 +119,7 @@
         var myData = { word: wordValue };
         var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
         $.ajax({
-            url: "/Files/SearchWord",
+            url: "/Dictionary/SearchWord",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
@@ -137,7 +137,7 @@
         var myData = { word: wordValue };
         var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
         $.ajax({
-            url: "/Files/SearchAssotiation",
+            url: "/Dictionary/SearchAssotiation",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
@@ -184,7 +184,7 @@
         var myData = { word: wordValue, wordAssociation: assWord };
         var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
         $.ajax({
-            url: "/Files/SaveAssociation",
+            url: "/Dictionary/SaveAssociation",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {

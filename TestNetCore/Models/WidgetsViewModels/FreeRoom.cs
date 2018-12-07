@@ -18,6 +18,7 @@ namespace TestNetCore.Models.WidgetsViewModels
 
         public List<int> ListFreeRooms { get; set; }
         public List<HotelInformation> ListInfoFreeRooms { get; set; }
+
         public FreeRoom()
         {
             ListFreeRooms = new List<int>();

@@ -12,6 +12,8 @@ namespace TestNetCore.Models.Files
         public int CountWord { get; set; }
         public List<SavedUserAssociation> ListAssociation { get; set; }
 
+        //public BaseViewModel BaseProp { get; set; }
+
         public DictionaryViewModel()
         {
             ListAssociation = new List<SavedUserAssociation>();

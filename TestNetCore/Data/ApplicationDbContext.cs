@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-//using TestNetCore.Models;
-//using TestNetCore.Models.WidgetsViewModels;
-//using TestNetCore.Models.EFViewModels;
 using TestNetCore.Data.TableData;
 
 namespace TestNetCore.Data

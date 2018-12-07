@@ -24,7 +24,6 @@ namespace TestNetCore
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
@@ -58,7 +57,6 @@ namespace TestNetCore
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -76,7 +74,6 @@ namespace TestNetCore
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseSession();
-            //app.UseHttpContextItemsMiddleware();
 
             app.UseAuthentication();
 
