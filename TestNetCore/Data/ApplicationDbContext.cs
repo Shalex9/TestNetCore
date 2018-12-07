@@ -27,7 +27,6 @@ namespace TestNetCore.Data
         public DbSet<HotelReservation> HotelReservations { get; set; }
         public DbSet<HotelInformation> HotelInformations { get; set; }
         public DbSet<SettingsPageGallery> SettingsGalleryPages { get; set; }
-        //public DbSet<RussianWord> RussianWords { get; set; }
         public DbSet<RussianDictionary> RussianDictionaries { get; set; }
         public DbSet<ForbiddenWord> ForbiddenWords { get; set; }
         public DbSet<ForbiddenWordUser> ForbiddenWordUsers { get; set; }
