@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using TestNetCore.Data;
 using TestNetCore.Models;
+using TestNetCore.Data.TableData;
 
 namespace TestNetCore.Controllers
 {

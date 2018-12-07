@@ -5,13 +5,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TestNetCore.Models.Files
+namespace TestNetCore.Data.TableData
 {
-    [Table("ForbiddenWords")]
-    public class ForbiddenWord
+    [Table("RussianDictionaries")]
+    public class RussianDictionary
     {
         [Key()]
         public int Id { get; set; }
         public string Word { get; set; }
+        public string Definition { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿@using TestNetCore.Controllers
 @using TestNetCore.Models.EFViewModels
 @using Newtonsoft.Json;
+@using TestNetCore.Data.TableData;
 @model TestNetCore.Models.EFViewModels.AddUserViewModel
 @addTagHelper "*, TestNetCore"
 @{
@@ -48,18 +49,18 @@
                         </div>
                     </div>
                     @*<div class="form-group">
-                        <label class="col-md-3 control-label" id="textId">Выберите компанию:</label>
-                        <div class="styleSelect">
-                            <p></p>
-                            <select asp-for="@Model.Company" id="companyId"
-                                    name="companyId" class="form-control">
-                                @foreach (CompanyModel comp in Model.Company)
-                                {
-                                    <option value="@comp.Id">@comp.Name</option>
-                                }
-                            </select>
-                        </div>
-                    </div>*@
+                            <label class="col-md-3 control-label" id="textId">Выберите компанию:</label>
+                            <div class="styleSelect">
+                                <p></p>
+                                <select asp-for="@Model.Company" id="companyId"
+                                        name="companyId" class="form-control">
+                                    @foreach (CompanyModel comp in Model.Company)
+                                    {
+                                        <option value="@comp.Id">@comp.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>*@
 
                     <button id="addNewMess" class="text-center">
                         <span class="glyphicon glyphicon-plus"></span>

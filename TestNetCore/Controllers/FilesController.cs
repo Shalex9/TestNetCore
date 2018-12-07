@@ -6,15 +6,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using TestNetCore.Data;
-using TestNetCore.Models;
-using TestNetCore.Models.API;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Net;
 using TestNetCore.Models.Files;
-using TestNetCore.Models.WidgetsViewModels;
 using System.IO;
+using TestNetCore.Data.TableData;
 
 namespace TestNetCore.Controllers
 {

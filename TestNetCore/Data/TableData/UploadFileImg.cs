@@ -6,16 +6,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace TestNetCore.Models.WidgetsViewModels
+namespace TestNetCore.Data.TableData
 {
-    [Table("AllUserWidgets")]
-    public class AllUserWidget
+    [Table("UploadFilesImgs")]
+    public class UploadFileImg
     {
         [Key()]
         public int Id { get; set; }
-        public Guid UserId { get; set; }
-        public int WidgetId { get; set; }
-        public string WidgetUrl { get; set; }
-        public bool RunTestMessage { get; set; }
+        public string FileName { get; set; }
+        public string UserId { get; set; }
+        public string Size { get; set; }
     }
 }

@@ -5,19 +5,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TestNetCore.Models.EFViewModels
+namespace TestNetCore.Data.TableData
 {
-    [Table("CompaniesSort")]
-    public class CompanySort
+    [Table("Companies")]
+    public class Company
     {
         [Key()]
         public int Id { get; set; }
         public string Name { get; set; }
-
-        public List<UserSort> UsersSort { get; set; }
-        public CompanySort()
-        {
-            UsersSort = new List<UserSort>();
-        }
+        public string Country { get; set; }
     }
 }

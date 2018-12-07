@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace TestNetCore.Models
+namespace TestNetCore.Data.TableData
 {
     [Table("TableIncomes")]
     public class TableIncome

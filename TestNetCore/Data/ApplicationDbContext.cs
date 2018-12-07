@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using TestNetCore.Models;
-using TestNetCore.Models.WidgetsViewModels;
-using TestNetCore.Models.EFViewModels;
-using TestNetCore.Models.Files;
+//using TestNetCore.Models;
+//using TestNetCore.Models.WidgetsViewModels;
+//using TestNetCore.Models.EFViewModels;
+using TestNetCore.Data.TableData;
 
 namespace TestNetCore.Data
 {
@@ -32,7 +32,6 @@ namespace TestNetCore.Data
         public DbSet<ForbiddenWordUser> ForbiddenWordUsers { get; set; }
         public DbSet<SavedUserAssociation> SavedUserAssociations { get; set; }
         public DbSet<CRUDfileUser> CRUDfileUsers { get; set; }
-
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

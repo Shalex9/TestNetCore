@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TestNetCore.Controllers;
+using TestNetCore.Data.TableData;
 
 namespace TestNetCore.Models.EFViewModels
 {

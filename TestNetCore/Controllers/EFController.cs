@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Hosting;
+using TestNetCore.Data.TableData;
 
 namespace TestNetCore.Controllers
 {

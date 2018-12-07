@@ -6,10 +6,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace TestNetCore.Models.WidgetsViewModels
+namespace TestNetCore.Data.TableData
 {
-    [Table("UploadFilesImgs")]
-    public class UploadFileImg
+    [Table("GalleryFilesImgs")]
+    public class GalleryFileImg
     {
         [Key()]
         public int Id { get; set; }

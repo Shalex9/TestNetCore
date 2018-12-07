@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TestNetCore.Models.Files
+namespace TestNetCore.Data.TableData
 {
     [Table("CRUDfileUsers")]
     public class CRUDfileUser

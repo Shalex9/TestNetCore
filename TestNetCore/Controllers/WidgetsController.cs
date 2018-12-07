@@ -11,8 +11,8 @@ using TestNetCore.Models.WidgetsViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mail;
-using TestNetCore.Models;
 using Newtonsoft.Json;
+using TestNetCore.Data.TableData;
 
 namespace TestNetCore.Controllers
 {

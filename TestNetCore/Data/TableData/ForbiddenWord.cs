@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace TestNetCore.Models.Files
+namespace TestNetCore.Data.TableData
 {
-    [Table("SavedUserAssociations")]
-    public class SavedUserAssociation
+    [Table("ForbiddenWords")]
+    public class ForbiddenWord
     {
         [Key()]
         public int Id { get; set; }
-        public string UserId { get; set; }
         public string Word { get; set; }
-        public string AllWordsAss { get; set; }
     }
 }

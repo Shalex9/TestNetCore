@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Net;
+using TestNetCore.Data.TableData;
 
 namespace TestNetCore.Controllers
 {

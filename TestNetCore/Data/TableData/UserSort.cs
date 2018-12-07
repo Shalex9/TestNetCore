@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TestNetCore.Models.EFViewModels
+namespace TestNetCore.Data.TableData
 {
     [Table("UsersSort")]
     public class UserSort

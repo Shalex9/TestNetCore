@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TestNetCore.Models.WidgetsViewModels;
+using TestNetCore.Data.TableData;
 
 namespace TestNetCore.Models.Files
 {

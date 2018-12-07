@@ -4,9 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TestNetCore.Models.WidgetsViewModels;
-using TestNetCore.Models.Files;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using TestNetCore.Data.TableData;
 
 namespace TestNetCore.TagHelpers
 {
