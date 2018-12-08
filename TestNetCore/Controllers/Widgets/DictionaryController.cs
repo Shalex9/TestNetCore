@@ -45,8 +45,23 @@ namespace TestNetCore.Widget.Controllers
         {
             viewModel.UserName = CurrentUserName;
             viewModel.AvatarPath = CurrentAvatarPath;
-
             viewModel.CountWord = _dbContext.RussianDictionaries.Count();
+
+            // проверяю или у юзера уже есть что-то в БД, чтоб не выбросило ошибку
+            var isAssociationUser = _dbContext.SavedUserAssociations.FirstOrDefault(a => a.UserId == UserID);
+
+            //var userAssociations;
+            if (isAssociationUser != null)
+            {
+                SavedUserAssociation listAssociation = new SavedUserAssociation();
+                var userAssociations = _dbContext.SavedUserAssociations.Where(a => a.UserId == UserID);
+
+                foreach (SavedUserAssociation ass in userAssociations)
+                {
+                    viewModel.ListAssociation.Add(ass);
+                }                
+            }
+           
             return viewModel;
         }
 
@@ -82,43 +97,89 @@ namespace TestNetCore.Widget.Controllers
         // Получение ассоциации
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult SearchAssotiation(string word)
+        public IActionResult SearchAssotiation(string word, bool full, bool f3, bool f3len, bool f3cons, bool f3consLen)
         {
             try
             {
-                int wLen = word.Length;
-                char lastSymbol = word[wLen - 1];
-                string wordСonsonants = word.Trim().ToLower().Replace("а", "")
-                                                            .Replace("о", "")
-                                                            .Replace("у", "")
-                                                            .Replace("и", "")
-                                                            .Replace("е", "")
-                                                            .Replace("э", "")
-                                                            .Replace("ю", "")
-                                                            .Replace("я", "")
-                                                            //.Replace("й", "")
-                                                            .Replace("ы", "");
-                string f3consL = String.Concat(wordСonsonants[0], wordСonsonants[1], wordСonsonants[2]);
-                string f3l = word.Substring(0, 3);
-
-                IQueryable<RussianDictionary> list3letters = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f3l + "%"));
-                IQueryable<RussianDictionary> list3lettersAndLastSymbol = list3letters.Where(a => EF.Functions.Like(a.Word, "%[" + lastSymbol + "]"));
-                IQueryable<RussianDictionary> list3ConsLetters = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f3consL + "%"));
-
-                IQueryable<RussianDictionary> listCategory1 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, word + "%"));
-                IQueryable<RussianDictionary> listCategory2 = list3letters.Where(a => a.Word.Length == wLen || a.Word.Length == wLen - 1 || a.Word.Length == wLen + 1);
-                IQueryable<RussianDictionary> listCategory3 = listCategory2.Where(a => EF.Functions.Like(a.Word, "%[" + lastSymbol + "]"));
-                IQueryable<RussianDictionary> listCategory4 = list3ConsLetters.Where(a => a.Word.Length == wLen || a.Word.Length == wLen - 1 || a.Word.Length == wLen + 1);
-                IQueryable<RussianDictionary> listCategory5 = listCategory4.Where(a => EF.Functions.Like(a.Word, "%[" + lastSymbol + "]"));
-
                 AssociatedWords listAssociation = new AssociatedWords();
-                listAssociation.Category1 = listCategory1;
-                listAssociation.Category2 = listCategory2;
-                listAssociation.Category3 = listCategory3;
-                listAssociation.Category4 = listCategory4;
-                listAssociation.Category5 = listCategory5;
-                //listAssociation.Category6 = listCategory6;
-                //listAssociation.Category7 = listCategory7;
+
+                int wLen = word.Length;
+
+                // если слово 3 символа или короче
+                if (wLen <= 3)
+                {
+                    // полное совпадение слова + еще символы
+                    IQueryable<RussianDictionary> listCategory1 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, word + "%"));
+                    listAssociation.FullAndSymbols = listCategory1;
+
+                }
+                // если слово больше 3x символов
+                else
+                {
+                    char lastSymbol = word[wLen - 1];
+                    string wordСonsonants = word.Trim().ToLower().Replace("а", "")
+                                                                .Replace("о", "")
+                                                                .Replace("у", "")
+                                                                .Replace("и", "")
+                                                                .Replace("е", "")
+                                                                .Replace("э", "")
+                                                                .Replace("ю", "")
+                                                                .Replace("я", "")
+                                                                //.Replace("й", "")
+                                                                .Replace("ы", "");
+                    string f3consL = String.Concat(wordСonsonants[0], wordСonsonants[1], wordСonsonants[2]);
+                    string f3l = word.Substring(0, 3);
+
+
+                    IQueryable<RussianDictionary> list3letters = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f3l + "%"));
+                    IQueryable<RussianDictionary> list3lettersAndLastSymbol = list3letters.Where(a => EF.Functions.Like(a.Word, "%[" + lastSymbol + "]"));
+                    IQueryable<RussianDictionary> list3ConsLetters = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, f3consL + "%"));
+
+                    // полное совпадение слова + еще символы
+                    IQueryable<RussianDictionary> listCategory1 = _dbContext.RussianDictionaries.Where(a => EF.Functions.Like(a.Word, word + "%"));
+
+                    // совпадение - первые 3 буквы И длинна такая же +/- 1 символ
+                    IQueryable<RussianDictionary> listCategory2 = list3letters.Where(a => a.Word.Length == wLen || a.Word.Length == wLen - 1 || a.Word.Length == wLen + 1);
+
+                    // совпадение - первые 3 буквы И длинна такая же +/- 1 символ И последний символ совпадает
+                    IQueryable<RussianDictionary> listCategory3 = listCategory2.Where(a => EF.Functions.Like(a.Word, "%[" + lastSymbol + "]"));
+
+                    // совпадение - первые 3 согласные буквы И длинна такая же +/- 1 символ
+                    IQueryable<RussianDictionary> listCategory4 = list3ConsLetters.Where(a => a.Word.Length == wLen || a.Word.Length == wLen - 1 || a.Word.Length == wLen + 1);
+
+                    // совпадение - первые 3 согласные буквы И длинна такая же +/- 1 символ И последний символ совпадает
+                    IQueryable<RussianDictionary> listCategory5 = listCategory4.Where(a => EF.Functions.Like(a.Word, "%[" + lastSymbol + "]"));
+
+
+                    if (full)
+                    {
+
+                        listAssociation.FullAndSymbols = listCategory1;
+                    }
+
+                    if (f3)
+                    {
+                        listAssociation.FirstThreeLetters = listCategory2;
+                    }
+
+                    if (f3len)
+                    {
+                        listAssociation.FirstThreeLettersLength = listCategory3;
+                    }
+
+                    if (f3cons)
+                    {
+                        listAssociation.FirstThreeConsLetters = listCategory4;
+                    }
+
+                    if (f3consLen)
+                    {
+                        listAssociation.FirstThreeConsLettersLength = listCategory5;
+                    }
+
+                    //listAssociation.Category6 = listCategory6;
+                    //listAssociation.Category7 = listCategory7;
+                }
 
                 return Json(listAssociation);
             }
@@ -152,9 +213,12 @@ namespace TestNetCore.Widget.Controllers
                 newAss.AllWordsAss = wordAssociation;
                 _dbContext.SavedUserAssociations.Add(newAss);
             }
-
             _dbContext.SaveChanges();
-            return Json("Success");
+
+            IQueryable<SavedUserAssociation> newUserAss = _dbContext.SavedUserAssociations.Where(a => a.UserId == UserID);
+
+
+            return Json(newUserAss);
         }
 
     }

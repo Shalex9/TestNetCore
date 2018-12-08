@@ -6,18 +6,20 @@
     Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
 }
 
+<script src="~/js/jquery.tablesorter.js"></script>
+
 <form asp-controller="Dictionary" asp-action="Dictionary"
       id="Dictionary"
       method="post" enctype="multipart/form-data"
       class="col-md-12">
     @Html.AntiForgeryToken()
+
     <div class="page-block">
         <h2 id="">Поиск значения слова по словарю</h2>
         <p>ПС: только имена существительные, слов в словаре: @Model.CountWord</p>
         <div class="form-group">
             <label class="col-md-3 control-label" for="bgColorBoxInput" id="bgcolor">Введите искомое слово:</label>
             <div class="col-md-9">
-                @*<input type="text" id="searchWord" asp-for="@Model.SearchWord" style="width: 300px;">*@
                 <div class="input-group" style="width: 300px;">
                     <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-pencil"></span></span>
                     <input type="text" id="searchWord" class="form-control" placeholder="Введите слово" aria-describedby="basic-addon1">
@@ -40,34 +42,50 @@
             </div>
             <div class="col-md-6">Введите "звучание" слова русскими буквами</div>
         </div>
-
-        @*<div class="row asRow">
-            <div class="col-md-1"><div class="asNumber">2</div></div>
-            <div class="col-md-5 boxSettings">
-                <input type="checkbox" aria-label="1">
-                <input type="checkbox" aria-label="2">
-                <input type="checkbox" aria-label="3">
-            </div>
-            <div class="col-md-6">Выберите, как будут составляться ассоциации</div>
-        </div>*@
+        <div id="noWord" class="alert alert-danger alert-dismissable hide">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            Введите слово для поиска ассоциаций
+        </div>
+        <div id="noFilter" class="alert alert-danger alert-dismissable hide">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            Не выбран ни один фильтр. Так по какому принципу мне искать?
+        </div>
 
         <div class="row asRow">
             <div class="col-md-1"><div class="asNumber">2</div></div>
-            <div class="col-md-5 boxResult">
-                <div id="boxResult"></div>
-                <img id="loading" src="~/img/loadingCube.gif" />
+            <div class="col-md-5 boxSettings">
+                <label for="chFullAndSymbols"><input type="checkbox" id="chFullAndSymbols" checked>Полное совпадение слова и еще N символов</label>
+                <label for="chFirstLetters"><input type="checkbox" id="chFirstLetters" checked>Совпадает начало, длинна слова +/- 1 символ</label>
+                <label for="chFirstLettersLength"><input type="checkbox" id="chFirstLettersLength" checked>Начало и последний символ, длинна слова +/- 1 символ</label>
+                <label for="chFirstConsLetters"><input type="checkbox" id="chFirstConsLetters">Совпадают первые три согласные, длинна слова +/- 1 символ</label>
+                <label for="chFirstConsLettersLength"><input type="checkbox" id="chFirstConsLettersLength">Первые три согласные и последний символ, длинна слова +/- 1 символ</label>
             </div>
-            <div class="col-md-6">Здесь появятся похожие по звучанию слова. Составьте из наиболее интересных из них яркий обрах и запомните его!</div>
+            <div class="col-md-6">Выберите фильтры, как будут составляться ассоциации</div>
         </div>
 
         <div class="row asRow">
             <div class="col-md-1"><div class="asNumber">3</div></div>
-            <div class="col-md-5">
-                <table>
+            <div class="col-md-5 boxResult">
+                <div id="boxResult"></div>
+                <img id="loading" src="~/img/loadingCube.gif" />
+            </div>
+            <div class="col-md-6">
+                Здесь появятся похожие по звучанию слова. Составьте из наиболее интересных из них яркий образ и запомните его!<br />
+                Операция поиска производится по словарю, в котором более 50тыс. слов и может занимать некоторе время. В словаре только имена существительные. <br />
+                При наведении на слово появляется значение слова, если оно Вам не знакомо. <br />
+                Нажав + Вы можете сохранить нужные слова-ассоциации в свой личный архив. <br />
+                К одному слову можно выбрать несколько ассоциаций
+            </div>
+        </div>
+
+        <div class="row asRow">
+            <div class="col-md-1"><div class="asNumber">4</div></div>
+            <div class="col-md-5" id="boxUserAssociation" style="padding: 0;">
+                <table class="table">
                     <thead>
-                        <tr>
-                            <th>Слово</th>
-                            <th>Ассоциации</th>
+                        <tr style="font-weight: bold">
+                            <th style="width: 20%">Слово</th>
+                            <th style="width: 80%">Ассоциации</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -81,12 +99,23 @@
                     </tbody>
                 </table>
             </div>
-            <div class="col-md-6">Здесь будет отображаться таблица всех сохраненных ранее ассоциаций</div>
+            <div class="col-md-6">
+                Здесь будет отображаться таблица всех сохраненных ранее ассоциаций<br />
+                Новые ассоциации будут добавляться динамически
+            </div>
+        </div>
+
+
+        <div id="alertSave" class="alertMsg" style="display: none;">
+            Ваша ассоциация успешно сохранена
         </div>
     </div>
+
 </form>
 
 <script type="text/javascript">
+
+    var isFilter, ch1, ch2, ch3, ch4, ch5;
     $("#loading").css("display", "none");
 
     $('#searchWord').keydown(function (event) {        
@@ -101,15 +130,36 @@
         }
     });
 
+    // обработчик клика по ENTER на инпуте ввода слова
     $('#currentWord').keydown(function (event) {
+        // значения чекбоксов фильтров
+        ch1 = $("#chFullAndSymbols").prop("checked");
+        ch2 = $("#chFirstLetters").prop("checked");
+        ch3 = $("#chFirstLettersLength").prop("checked");
+        ch4 = $("#chFirstConsLetters").prop("checked");
+        ch5 = $("#chFirstConsLettersLength").prop("checked");
+
+        if (ch1 || ch2 || ch3 || ch4 || ch5) isFilter = true
+        else isFilter = false
+
         if (event.which == 13) {
-            if ($("#currentWord").val() != "") {
+            if ($("#currentWord").val() != "" && isFilter) {
+                $("#noFilter, #noWord").removeClass('show');
                 searchAssotiation();
+            } else if ($("#currentWord").val() != "" && !isFilter) { 
+                $("#boxResult").text("");
+                $("#noWord").removeClass('show');
+                $("#noFilter").addClass('show'); 
             } else {
                 $("#boxResult").text("");
+                $("#noFilter").removeClass('show');
+                $("#noWord").addClass('show'); 
             }
             event.preventDefault();
         }
+    });
+    $(".close").click(function () {
+        $(this).parent().removeClass('show');
     });
 
     function searchWord() {
@@ -131,65 +181,115 @@
 
     function searchAssotiation() {
         var token = $('input[name="__RequestVerificationToken"]', $('#Dictionary')).val();
+
         $("#boxResult").text("");
         $("#loading").css("display", "block");
         var wordValue = $("#currentWord").val();
-        var myData = { word: wordValue };
+        var myData = { word: wordValue, full: ch1, f3: ch2, f3len: ch3, f3cons: ch4, f3consLen: ch5 };
         var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
         $.ajax({
             url: "/Dictionary/SearchAssotiation",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
                 console.log("data: ", data);
+
+                //var isFullAndSymbols = false;
+                //var isFirstThreeLetters = false;
+                //var isFirstThreeLettersLength = false;
+                //var isFirstThreeConsLetters = false;
+                //var isFirstThreeConsLettersLength = false;
+
+                //if (data.fullAndSymbols != null) isFullAndSymbols = true;
+                //if (data.firstThreeLetters != null) isFirstThreeLetters = true;
+                //if (data.firstThreeLettersLength != null) isFirstThreeLettersLength = true;
+                //if (data.firstThreeConsLetters != null) isFirstThreeConsLetters = true;
+                //if (data.firstThreeConsLettersLength != null) isFirstThreeConsLettersLength = true;
+                
+
                 var box = $("#boxResult");
                 $("#loading").css("display", "none");
-                if (data.category1 != []) {
-                    var len = data.category1.length;
+                if (data.fullAndSymbols != [] && data.fullAndSymbols != null) {
+                    var len = data.fullAndSymbols.length;
                     for (var i = 0; i < len; i++) {
-                        box.append("<p title='" + data.category1[i].definition + "'>" + data.category1[i].word + "<span class='glyphicon glyphicon-plus-sign' onclick='return saveAssociation(\"" + data.category1[i].word + "\")'></span></p>");
+                        box.append("<p><span title='Добавить в мои ассоциации' class='glyphicon glyphicon-plus' onclick='return saveAssociation(\"" + data.fullAndSymbols[i].word + "\", this )'></span><span class='w' title='" + data.fullAndSymbols[i].definition + "'>" + data.fullAndSymbols[i].word + "</span></p>");
                     }
                 }
-                if (data.category3 != []) {
-                    var len = data.category3.length;
+                if (data.firstThreeLettersLength != [] && data.firstThreeLettersLength != null) {
+                    var len = data.firstThreeLettersLength.length;
                     for (var i = 0; i < len; i++) {
-                        box.append("<p title='" + data.category3[i].definition + "'>" + data.category3[i].word + "<span class='glyphicon glyphicon-plus-sign' onclick='return saveAssociation(\"" + data.category3[i].word + "\")'></span></p>");
+                        box.append("<p><span title='Добавить в мои ассоциации' class='glyphicon glyphicon-plus' onclick='return saveAssociation(\"" + data.firstThreeLettersLength[i].word + "\", this )'></span><span class='w' title='" + data.firstThreeLettersLength[i].definition + "'>" + data.firstThreeLettersLength[i].word + "</span></p>");
                     }
                 }
-                if (data.category5 != []) {
-                    var len = data.category5.length;
+                if (data.firstThreeConsLettersLength != [] && data.firstThreeConsLettersLength != null) {
+                    var len = data.firstThreeConsLettersLength.length;
                     for (var i = 0; i < len; i++) {
-                        box.append("<p title='" + data.category5[i].definition + "'>" + data.category5[i].word + "<span class='glyphicon glyphicon-plus-sign' onclick='return saveAssociation\"" + data.category5[i].word + "\")'></span></p>");
+                        box.append("<p><span title='Добавить в мои ассоциации' class='glyphicon glyphicon-plus' onclick='return saveAssociation(\"" + data.firstThreeConsLettersLength[i].word + "\", this )'></span><span class='w' title='" + data.firstThreeConsLettersLength[i].definition + "'>" + data.firstThreeConsLettersLength[i].word + "</span></p>");
                     }
                 }
-                if (data.category2 != []) {
-                    var len = data.category2.length;
+                if (data.firstThreeLetters != [] && data.firstThreeLetters != null) {
+                    var len = data.firstThreeLetters.length;
                     for (var i = 0; i < len; i++) {
-                        box.append("<p title='" + data.category2[i].definition + "'>" + data.category2[i].word + "<span class='glyphicon glyphicon-plus-sign' onclick='return saveAssociation(\"" + data.category2[i].word + "\")'></span></p>");
+                        box.append("<p><span title='Добавить в мои ассоциации' class='glyphicon glyphicon-plus' onclick='return saveAssociation(\"" + data.firstThreeLetters[i].word + "\",  this )'></span><span class='w' title='" + data.firstThreeLetters[i].definition + "'>" + data.firstThreeLetters[i].word + "</span></p>");
                     }
                 }
-                if (data.category4 != []) {
-                    var len = data.category4.length;
+                if (data.firstThreeConsLetters != [] && data.firstThreeConsLetters != null) {
+                    var len = data.firstThreeConsLetters.length;
                     for (var i = 0; i < len; i++) {
-                        box.append("<p title='" + data.category4[i].definition + "'>" + data.category4[i].word + "<span class='glyphicon glyphicon-plus-sign' onclick='return saveAssociation(\"" + data.category4[i].word + "\")'></span></p>");
+                        box.append("<p><span title='Добавить в мои ассоциации' class='glyphicon glyphicon-plus' onclick='return saveAssociation(\"" + data.firstThreeConsLetters[i].word + "\", this )'></span><span class='w' title='" + data.firstThreeConsLetters[i].definition + "'>" + data.firstThreeConsLetters[i].word + "</span></p>");
                     }
+                }
+
+                // если по запросу ничего не найдено
+                if ((data.fullAndSymbols.length == 0 || data.fullAndSymbols === null) &&
+                    (data.firstThreeLetters.length == 0 || data.firstThreeLetters === null) &&
+                    (data.firstThreeLettersLength.length == 0 || data.firstThreeLettersLength === null) &&
+                    (data.firstThreeConsLetters.length == 0 || data.firstThreeConsLetters === null) &&
+                    (data.firstThreeConsLettersLength.length == 0 || data.firstThreeConsLettersLength === null) 
+                ) {
+                    box.append("<p>По запросу ничего не найдено. Проверьте правильность написания слова или попробуйте поставить больше фильтров. Хотя... может быть и такое, что Ваше слово настолько уникальное, что ему не нашлось схожих из 50000 слов)</p>");
                 }
             }
         });
     }
 
-    function saveAssociation(assWord) {
+    function saveAssociation(assWord, elt) {
         var token = $('input[name="__RequestVerificationToken"]', $('#Dictionary')).val();
         var wordValue = $("#currentWord").val();
         var myData = { word: wordValue, wordAssociation: assWord };
         var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+            
         $.ajax({
             url: "/Dictionary/SaveAssociation",
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
                 console.log("data: ", data);
+
+                var name = "glyphicon-ok";
+                var arr = elt.className.split(" ");
+                if (arr.indexOf(name) == -1) {
+                    elt.className += " " + name;
+                }
+                elt.classList.remove("glyphicon-plus");
+
+
+                $("#boxUserAssociation").html('<table class="table"><thead><tr style="font-weight: bold"><th style="width: 20%">Слово</th><th style="width: 80%">Ассоциации</th></tr></thead><tbody></tbody></table> ');
+                for (var i = 0; i < data.length; i++) {
+                    $("#boxUserAssociation tbody").append('<tr><td>' + data[i].word + '</td><td>' + data[i].allWordsAss + '</td></tr>');
+                }
+                $("#boxUserAssociation .table").tablesorter();
+
+
+                $("#alertSave").css("display", "block");
+                setInterval(function () {
+                    $("#alertSave").css("display", "none");
+                }, 4 * 1000);
             }
         });
     }
+
+    $(".table").tablesorter();
+
 </script>

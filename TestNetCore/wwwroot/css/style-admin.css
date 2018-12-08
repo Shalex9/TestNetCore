@@ -2321,6 +2321,7 @@ th.header {
     padding-right: 0;
 }
 .boxSettings {
+    padding: 10px 15px;
     background: #b8b8b8;
     min-height: 150px;
     display: flex;
@@ -2343,6 +2344,19 @@ th.header {
     font-size: 18px;
     color: #000;
 }
+#boxResult p span.glyphicon {
+    margin: 0 10px;
+    font-size: 14px;
+}
 #boxResult p span {
-    margin-left: 10px;
+    cursor: pointer;
+}
+input[type="checkbox"] {
+    margin: 5px 10px 0 !important;
+}
+label {
+    color: #333 !important;
+}
+.glyphicon-ok {
+    color: lightgreen;
 }

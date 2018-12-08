@@ -188,6 +188,7 @@ namespace TestNetCore.Controllers
         }
 
         [HttpPost]
+        [Route("hotel")]
         public IActionResult Hotel(HotelViewModel viewModel)
         {
             var vm = CreateModelForHotel(viewModel);
@@ -235,7 +236,7 @@ namespace TestNetCore.Controllers
             //SendMail("smtp.gmail.com", "shalex9@gmail.com", "399779639", UserEmail,
             //    "Бронирование номера", "Вы успешно забронировали номер! ", null);
 
-            return View(vm);
+            return View("~/Views/Widgets/Hotel.cshtml", vm);
         }
 
         // Send Email News    

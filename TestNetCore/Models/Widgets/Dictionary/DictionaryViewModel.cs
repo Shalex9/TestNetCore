@@ -10,6 +10,13 @@ namespace TestNetCore.Models.Widgets.Dictionary
     {
         public string CurrentWord { get; set; }
         public int CountWord { get; set; }
+
+        public bool FullAndSymbols { get; set; }
+        public bool FirstThreeLetters { get; set; }
+        public bool FirstThreeLettersLength { get; set; }
+        public bool FirstThreeConsLetters { get; set; }
+        public bool FirstThreeConsLettersLength { get; set; }
+
         public List<SavedUserAssociation> ListAssociation { get; set; }
 
         public DictionaryViewModel()

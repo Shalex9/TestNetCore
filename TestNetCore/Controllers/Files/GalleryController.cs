@@ -175,6 +175,7 @@ namespace TestNetCore.Controllers.Files
         
 
         [HttpPost]
+        [Route("gallery")]
         public IActionResult Gallery(List<IFormFile> files, GalleryViewModel viewModel)
         {
             if (viewModel.PostUpload == "uploadFiles")
@@ -316,7 +317,7 @@ namespace TestNetCore.Controllers.Files
 
             var vm = ModelForGallery(viewModel);
             vm.VerifyChanges = true;
-            return View(vm);
+            return View("~/Views/Files/Gallery.cshtml", vm);
         }
 
     }
