@@ -1822,7 +1822,7 @@ table {
     position: relative;
     padding: 10px 0;
     overflow: hidden;
-    width: 100%;
+    width: 200px;
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -2348,15 +2348,18 @@ th.header {
     margin: 0 10px;
     font-size: 14px;
 }
-#boxResult p span {
+#boxResult p span.glyphicon:hover {
     cursor: pointer;
 }
 input[type="checkbox"] {
     margin: 5px 10px 0 !important;
 }
-label {
+.boxSettings label {
     color: #333 !important;
 }
 .glyphicon-ok {
     color: lightgreen;
+}
+.boxButton {
+    display: inline-block;
 }
