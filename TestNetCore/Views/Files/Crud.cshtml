@@ -17,37 +17,9 @@
     <div class="row asRow">
         <h4>Создайте текстовый файл или загрузите существующий файл любого текстового формата</h4>
         <div class="boxButton">
-            @*<div id="btnCreate" class="defaultStyleButton" onclick="return createFile('createFile')">Создать файл</div>*@
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" >Создать файл</button>
+            <button id="btnCreate" type="button" class="btn btn-primary" data-toggle="modal" data-target="#createModal">Создать файл</button>
 
-            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="exampleModalLabel">New message</h4>
-                        </div>
-                        <div class="modal-body">
-                            @*<form>*@
-                                <div class="form-group">
-                                    <label for="recipient-name" class="control-label">Recipient:</label>
-                                    <input type="text" class="form-control" id="recipient-name">
-                                </div>
-                                <div class="form-group">
-                                    <label for="message-text" class="control-label">Message:</label>
-                                    <textarea class="form-control" id="message-text"></textarea>
-                                </div>
-                            @*</form>*@
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Send message</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="chooseFile" class="file_upload defaultStyleButton">
+            <div id="chooseFile" class="file_upload">
                 <button type="button" id="uploadBtn" onclick="return uploadFiles('uploadFiles')">
                     <span class="glyphicon glyphicon-cloud-upload"></span>
                     <span id="download">Загрузить</span>
@@ -62,20 +34,27 @@
             {
                 <p>Еще не создано/загружено ни одного файла. Самое время приступать!</p>
             }
-            else if (Model.CountFiles == 1)
+            else
             {
-                <p>Информация о первом файле: </p>
-                <p>Название: @Model.FileName1 Размер: @Model.FileSize1</p>
-            }
-            else if (Model.CountFiles == 2)
-            {
-                <p>Информация о первом файле: </p>
-                <p>Название: @Model.FileName1 Размер: @Model.FileSize1</p>
-                <p>Информация о втором файле: </p>
-                <p>Название: @Model.FileName2 Размер: @Model.FileSize2</p>
+                <p>Ваш файл(ы): </p>
+                @if (Model.FileName1 != null)
+                {
+                    <p>Название: @Model.FileName1 Размер: @Model.FileSize1</p>
+                }
+                if (Model.FileName2 != null)
+                {
+                    <p>Название: @Model.FileName2 Размер: @Model.FileSize2</p>
+                }
             }
         </div>
-    </div> 
+    </div>
+
+
+    <div class="row asRow">
+
+    </div>
+
+    <hr />
 
     <p>Кстати, больше информации обо мне - в моем резюме, можете скачать)</p>
     <a asp-controller="Crud" is-active-route asp-action="GetResume"
@@ -89,7 +68,34 @@
     <hr />
 
 
+    <div id="alertSave" class="alertMsg" style="display: none;">
+        Ваш файл успешно сохранен на сервере
+    </div>
 
+    <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="createModalLabel">Создание файла</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="recipient-name" class="control-label">Название файла(расширение по умолчанию .txt):</label>
+                        <input type="text" class="form-control" id="fileName">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-text" class="control-label">Текст файла:</label>
+                        <textarea class="form-control" id="fileText"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="return createFile()">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <input type="hidden" asp-for="PostType" id="PostType" />
     <input type="hidden" asp-for="TypeUploadFile" id="TypeUploadFile" />
@@ -98,6 +104,13 @@
 
 
     <script>
+        var countFiles = @Model.CountFiles;
+        console.log(countFiles);
+        if (countFiles == 2) {
+            $("#btnCreate").attr("disabled", "disable"); 
+            $("chooseFile").attr("disabled", "disable");
+            $(".boxButton").append("<h4>Уже создано два файла. Это максимум!</h4>");
+        } 
         function uploadFiles(val) {
             $("#PostType").val(val);
             $("button.uploadImg").click();
@@ -106,7 +119,6 @@
 
         function createFile(val) {
             $("#PostType").val(val);
-
         }
 
         // ADD FILES
@@ -151,14 +163,26 @@
 
         function createFile() {
             var token = $('input[name="__RequestVerificationToken"]', $('#Crud')).val();
-            var myData = { name: fileName };
+            var fileName = $("#fileName").val();
+            var fileText = $("#fileText").val();
+            var myData = { fileName: fileName, fileText: fileText };
             var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
             $.ajax({
                 url: "/Crud/CreateFile",
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
                     console.log("data: ", data);
+                    
+                    if (data.countFiles == 2) {
+                        countFiles = 2;
+                    } 
+
+                    $("#alertSave").css("display", "block");
+                    setInterval(function () {
+                        $("#alertSave").css("display", "none");
+                    }, 4 * 1000);
                 }
             });
         }

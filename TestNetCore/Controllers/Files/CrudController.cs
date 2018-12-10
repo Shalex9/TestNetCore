@@ -13,6 +13,7 @@ using System.Net;
 using TestNetCore.Models.Files.Crud;
 using System.IO;
 using TestNetCore.Data.TableData;
+using System.Text;
 
 namespace TestNetCore.Controllers.Files
 {
@@ -61,7 +62,7 @@ namespace TestNetCore.Controllers.Files
             }
 
             // смотрю, один или два файла уже имеется
-            var isUserOneFile = _dbContext.CRUDfileUsers.FirstOrDefault(a => a.UserId == UserID && a.FileName1 != null && a.FileName2 == null);
+            var isUserOneFile = _dbContext.CRUDfileUsers.FirstOrDefault(a => a.UserId == UserID && ((a.FileName1 != null && a.FileName2 == null) || (a.FileName1 == null && a.FileName2 != null)) );
             var isUserTwoFiles = _dbContext.CRUDfileUsers.FirstOrDefault(a => a.UserId == UserID && a.FileName1 != null && a.FileName2 != null);
             if (isUserOneFile == null && isUserTwoFiles == null)
             {
@@ -82,6 +83,74 @@ namespace TestNetCore.Controllers.Files
             return viewModel;
         }
 
+
+        public CrudViewModel UploadFile(dynamic file, CrudViewModel viewModel)
+        {
+            var fileName = Path.GetFileName(file.FileName);
+            var path = Path.Combine("wwwroot/usersfiles/" + UserID + "/", fileName);
+            var size = (file.Length / 1024) + "КБ";
+
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                file.CopyTo(stream);
+            }
+
+            SaveFileToDB(fileName, path, size, viewModel);
+
+            return viewModel;
+        }
+
+        public CrudViewModel SaveFileToDB(string fileName, string path, string size, CrudViewModel viewModel)
+        {
+            var now = DateTime.Now;
+            var isAnyFile = _dbContext.CRUDfileUsers.FirstOrDefault(a => a.UserId == UserID && (a.FileName1 != null || a.FileName2 != null));
+
+            if (isAnyFile == null)
+            {
+                viewModel.FileName1 = fileName;
+                viewModel.FileSize1 = size;
+                viewModel.DateChange = now;
+
+                CRUDfileUser newFile = new CRUDfileUser();
+                newFile.UserId = UserID;
+                newFile.FileName1 = fileName;
+                newFile.FilePath1 = path;
+                newFile.FileSize1 = size;
+                newFile.LastChange = now;
+
+                _dbContext.CRUDfileUsers.Add(newFile);
+            }
+            else if (isAnyFile.FileName1 != null && isAnyFile.FileName2 == null)
+            {
+                viewModel.FileName2 = fileName;
+                viewModel.FileSize2 = size;
+                viewModel.DateChange = now;
+
+                isAnyFile.FileName2 = fileName;
+                isAnyFile.FilePath2 = path;
+                isAnyFile.FileSize2 = size;
+                isAnyFile.LastChange = now;
+
+                _dbContext.CRUDfileUsers.Update(isAnyFile);
+            }
+            else if (isAnyFile.FileName1 == null && isAnyFile.FileName2 != null)
+            {
+                viewModel.FileName1 = fileName;
+                viewModel.FileSize1 = size;
+                viewModel.DateChange = now;
+
+                isAnyFile.FileName1 = fileName;
+                isAnyFile.FilePath1 = path;
+                isAnyFile.FileSize1 = size;
+                isAnyFile.LastChange = now;
+
+                _dbContext.CRUDfileUsers.Update(isAnyFile);
+            }
+            _dbContext.SaveChanges();
+
+            return viewModel;
+        }
+
         [HttpPost]
         [Route("crud")]
         public IActionResult Crud(List<IFormFile> files, CrudViewModel viewModel)
@@ -95,48 +164,7 @@ namespace TestNetCore.Controllers.Files
                         // загружаю сам файл в нужную дирректорию
                         if (file != null && file.Length > 0)
                         {
-                            var fileName = Path.GetFileName(file.FileName);
-                            var path = Path.Combine("wwwroot/usersfiles/" + UserID + "/", fileName);
-                            var size = (file.Length / 1024) + "КБ";
-                            var now = DateTime.Now;
-                            using (var stream = new FileStream(path, FileMode.Create))
-                            {
-                                file.CopyTo(stream);
-                            }
-
-                            // записую этот файл в БД
-                            var isAnyFile = _dbContext.CRUDfileUsers.FirstOrDefault(a => a.UserId == UserID && (a.FileName1 != null || a.FileName2 != null));
-
-                            if (isAnyFile == null)
-                            {
-                                CRUDfileUser newFile = new CRUDfileUser();
-                                newFile.UserId = UserID;
-                                newFile.FileName1 = fileName;
-                                newFile.FilePath1 = path;
-                                newFile.FileSize1 = size;
-                                newFile.LastChange = now;
-
-                                _dbContext.CRUDfileUsers.Add(newFile);
-                            }
-                            else if (isAnyFile.FileName1 != null && isAnyFile.FileName2 == null)
-                            {
-                                isAnyFile.FileName2 = fileName;
-                                isAnyFile.FilePath2 = path;
-                                isAnyFile.FileSize2 = size;
-                                isAnyFile.LastChange = now;
-
-                                _dbContext.CRUDfileUsers.Update(isAnyFile);
-                            }
-                            else if (isAnyFile.FileName1 == null && isAnyFile.FileName2 != null)
-                            {
-                                isAnyFile.FileName1 = fileName;
-                                isAnyFile.FilePath1 = path;
-                                isAnyFile.FileSize1 = size;
-                                isAnyFile.LastChange = now;
-
-                                _dbContext.CRUDfileUsers.Update(isAnyFile);
-                            }
-                            _dbContext.SaveChanges();
+                            UploadFile(file, viewModel);
                         }
                     }
                 }
@@ -151,54 +179,25 @@ namespace TestNetCore.Controllers.Files
         // Создание файла
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateFile(string fileName)
+        public IActionResult CreateFile(string fileName, string fileText)
         {
             CrudViewModel vm = new CrudViewModel();
             vm = ModelForCrud(vm);
-            var size = "0 КБ";
-            var path = Path.Combine("wwwroot/usersfiles/" + UserID + "/", fileName);
-            var now = DateTime.Now;
-            var isAnyFile = _dbContext.CRUDfileUsers.FirstOrDefault(a => a.UserId == UserID && a.FileName1 != null);
+            fileName = fileName + ".txt";
+            string path = Path.Combine("wwwroot/usersfiles/" + UserID + "/", fileName);
+            string size;
 
-            if (vm.CountFiles == 0)
+            using (var stream = new FileStream(path, FileMode.Create))
             {
-                vm.FileName1 = fileName;
-                vm.FileSize1 = size;
-                vm.DateChange = now;
-                vm.CountFiles = 1;
-
-                CRUDfileUser newFile = new CRUDfileUser();
-                newFile.UserId = UserID;
-                newFile.FileName1 = fileName;
-                newFile.FilePath1 = path;
-                newFile.FileSize1 = size;
-                newFile.LastChange = now;
-
-                _dbContext.CRUDfileUsers.Add(newFile);
+                Byte[] info = new UTF8Encoding(true).GetBytes(fileText);
+                // Add some information to the file.
+                stream.Write(info, 0, info.Length);
+                size = (info.Length / 1024) + "КБ";
             }
-            else if (vm.CountFiles == 1)
-            {
-                vm.FileName2 = fileName;
-                vm.FileSize2 = size;
-                vm.DateChange = now;
-                vm.CountFiles = 2;
+            
+            SaveFileToDB(fileName, path, size, vm);
 
-                isAnyFile.FileName2 = fileName;
-                isAnyFile.FilePath2 = path;
-                isAnyFile.FileSize2 = size;
-                isAnyFile.LastChange = now;
-
-                _dbContext.CRUDfileUsers.Update(isAnyFile);
-            }
-            else if (vm.CountFiles ==2)
-            {
-
-            }
-
-            _dbContext.SaveChanges();
-
-
-            return Json("Hello");
+            return Json(vm);
         }
 
 

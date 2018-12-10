@@ -2363,3 +2363,6 @@ input[type="checkbox"] {
 .boxButton {
     display: inline-block;
 }
+.modal {
+    color: #333;
+}
