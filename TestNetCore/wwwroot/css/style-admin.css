@@ -1234,6 +1234,12 @@ input[type=radio]:focus {
 .mar-left20 {
     margin-left: 20px !important;
 }
+.m-b-20 {
+    margin-bottom: 20px;
+}
+.m-r-20 {
+    margin-right: 20px;
+}
 .header li span {
     font-size: 18px;
 }
@@ -2361,8 +2367,21 @@ input[type="checkbox"] {
     color: lightgreen;
 }
 .boxButton {
-    display: inline-block;
+    display: flex;
 }
 .modal {
     color: #333;
+}
+.boxFile {
+    height: 105px;
+    width: 380px;
+    padding: 10px 25px;
+}
+.boxFile:hover {
+    background: #343434;
+}
+.boxFileInfo {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
 }

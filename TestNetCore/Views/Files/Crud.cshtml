@@ -12,20 +12,28 @@
       class="col-md-12">
     @Html.AntiForgeryToken()
     <h2 id="">CRUD операции с файлами. Страница в стадии разработки</h2>
-    <p>Основные действия с файлами на сервере(для примера, поработаем с текстовыми файлами) - создание(Create), чтение(Read), изменение(Update), удаление(Delete)</p>
+    <h4>Основные действия с файлами на сервере - создание, чтение, изменение, удаление</h4>
+    <p>ПС: для примера, поработаем с текстовыми файлами. Каждый пользователь может создать/загрузить максимум 2 файла. Для теста этого достаточно.</p>
 
-    <div class="row asRow">
+    <hr />
+
+    <div class="m-b-20">
         <h4>Создайте текстовый файл или загрузите существующий файл любого текстового формата</h4>
-        <div class="boxButton">
-            <button id="btnCreate" type="button" class="btn btn-primary" data-toggle="modal" data-target="#createModal">Создать файл</button>
+        <p class="m-b-20">ПС: После создания/загрузки файлов у Вас появится вазможность дальнейшей работы с файлами</p>
+        <div class="boxButton m-b-20">
+            <button id="btnCreate" type="button" class="btn btn-primary" data-toggle="modal" data-target="#createModal">
+                <span class="glyphicon glyphicon-plus"></span>
+                Создать файл
+            </button>
 
-            <div id="chooseFile" class="file_upload">
-                <button type="button" id="uploadBtn" onclick="return uploadFiles('uploadFiles')">
+            <div id="chooseFile" class="mar-left20">
+                @*file_upload*@
+                <button class="btn btn-primary" type="button" id="uploadBtn" onclick="return uploadFiles('uploadFiles')">
                     <span class="glyphicon glyphicon-cloud-upload"></span>
                     <span id="download">Загрузить</span>
                 </button>
-                <div id="fileName" style="margin-top: 5px;">Файл не выбран</div>
-                <input type="file" name="files" id="files" accept="text/*" />
+                @*<div id="fileName" style="margin-top: 5px;">Файл не выбран</div>*@
+                <input type="file" name="files" id="files" accept="text/*" style="display: none;" />
                 <button type="submit" id="pushFile" class="display-none uploadFile">Button</button>
             </div>
         </div>
@@ -36,22 +44,55 @@
             }
             else
             {
-                <p>Ваш файл(ы): </p>
+                <h4 class="m-b-20">Ваш файл(ы): </h4>
                 @if (Model.FileName1 != null)
                 {
-                    <p>Название: @Model.FileName1 Размер: @Model.FileSize1</p>
+                    <div class="boxFile">
+                        <div class="boxFileInfo">
+                            <span class="glyphicon glyphicon-file m-r-20" style="font-size: 36px;"></span>
+                            <div>
+                                <p style="font-size: 20px; margin: 0;">Название: @Model.FileName1</p>
+                                <small><i>Размер: @Model.FileSize1</i></small>
+                            </div>
+                        </div>
+
+                        <div class="actions" style="padding-top: 15px;">
+                            <span class="actionVariant showBlockAnswerLabel"
+                                  onclick="return openFile(@Model.FileName1)">Открыть</span>
+                            <span class="actionVariant showBlockAnswerLabel"
+                                  onclick="return editFile(@Model.FileName1)">Редактировать</span>
+                            <span class="actionVariant deleteQuestionLabel"
+                                  onclick="return deleteFile(@Model.FileName1)">Удалить</span>
+                            <span class="actionVariant infoQuestionLabel"
+                                  onclick="return downloadFile(@Model.FileName1)">Скачать</span>
+                        </div>
+                    </div>
                 }
                 if (Model.FileName2 != null)
                 {
-                    <p>Название: @Model.FileName2 Размер: @Model.FileSize2</p>
+                    <div class="boxFile">
+                        <div class="boxFileInfo">
+                            <span class="glyphicon glyphicon-file m-r-20" style="font-size: 36px;"></span>
+                            <div>
+                                <p style="font-size: 20px; margin: 0;">Название: @Model.FileName2</p>
+                                <small><i>Размер: @Model.FileSize2</i></small>
+                            </div>
+                        </div>
+
+                        <div class="actions" style="padding-top: 15px;">
+                            <span class="actionVariant showBlockAnswerLabel"
+                                  onclick="return openFile(@Model.FileName2)">Открыть</span>
+                            <span class="actionVariant showBlockAnswerLabel"
+                                  onclick="return editFile(@Model.FileName2)">Редактировать</span>
+                            <span class="actionVariant deleteQuestionLabel"
+                                  onclick="return deleteFile(@Model.FileName2)">Удалить</span>
+                            <span class="actionVariant infoQuestionLabel"
+                                  onclick="return downloadFile(@Model.FileName2)">Скачать</span>
+                        </div>
+                    </div>
                 }
             }
         </div>
-    </div>
-
-
-    <div class="row asRow">
-
     </div>
 
     <hr />
@@ -59,7 +100,7 @@
     <p>Кстати, больше информации обо мне - в моем резюме, можете скачать)</p>
     <a asp-controller="Crud" is-active-route asp-action="GetResume"
        id="downloadResume"
-       class="defaultStyleButton"
+       class="btn btn-primary"
        style="margin-top: 25px;">
         <i class="fa fa-floppy-o" aria-hidden="true" id="save"></i>
         <span id="downloadResumeText">Загрузить моё резюме</span>
@@ -105,34 +146,42 @@
 
     <script>
         var countFiles = @Model.CountFiles;
-        console.log(countFiles);
         if (countFiles == 2) {
             $("#btnCreate").attr("disabled", "disable"); 
-            $("chooseFile").attr("disabled", "disable");
-            $(".boxButton").append("<h4>Уже создано два файла. Это максимум!</h4>");
+            $("#uploadBtn").attr("disabled", "disable");
+            $(".boxButton").append("<p style='margin: 5px 0 0 20px;'>Уже создано два файла. Это максимум!</p>");
         } 
         function uploadFiles(val) {
             $("#PostType").val(val);
             $("button.uploadImg").click();
             return true;
         }
+        //function createFile(val) {
+        //    $("#PostType").val(val);
+        //}
 
-        function createFile(val) {
-            $("#PostType").val(val);
-        }
+        // show/hide box Actions for Hover
+        $(".actions").hide();
+        $(".boxFile").hover(
+            function () {
+                $(this).find(".actions").slideToggle(0);
+            }, function () {
+                $(this).find(".actions").slideToggle(0);
+            }
+        );
 
         // ADD FILES
-        var wrapper = $(".file_upload"),
+        var wrapper = $("#chooseFile"),
             inp = wrapper.find("input"),
             btn = wrapper.find("button#uploadBtn"),
-            push = wrapper.find("button#pushFile"),
-            lbl = wrapper.find("div#fileName");
-        btn.focus(function () {
-            wrapper.addClass("focus");
-        }).blur(function () {
-            wrapper.removeClass("focus");
-        });
-        btn.add(lbl).click(function () {
+            push = wrapper.find("button#pushFile");
+            //lbl = wrapper.find("div#fileName");
+        //btn.focus(function () {
+        //    wrapper.addClass("focus");
+        //}).blur(function () {
+        //    wrapper.removeClass("focus");
+        //});
+        btn.click(function () {
             inp.click();
         });
         var file_api = (window.File && window.FileReader && window.FileList && window.Blob) ? true : false;
@@ -140,23 +189,22 @@
             var file_name;
             if (file_api && inp[0].files[0])
                 file_name = inp[0].files[0].name;
-            else
-                file_name = inp.val().replace("C:\\somepath\\", '');
-            if (!file_name.length)
+            //else
+            //    file_name = inp.val().replace("C:\\somepath\\", '');
+            if (file_name == undefined)
                 return;
-            if (lbl.is(":visible")) {
-                lbl.text(file_name);
-                btn.text("Загрузка файла");
-            } else
-                btn.text(file_name);
+            //if (lbl.is(":visible")) {
+            //    lbl.text(file_name);
+            //    btn.text("Загрузка файла");
+            //} else
+            //    btn.text(file_name);
             // for Get Type file
             var file = $("#files")[0].files[0],
                 ext = "не определилось",
                 parts = file.type.split('/');
             if (parts.length > 1) ext = parts.shift();
-            console.log("MIME тип: ", ext);
+            //console.log("MIME тип: ", ext);
             $("#TypeUploadFile").val(ext);
-
             push.click();
         }).change();
 
