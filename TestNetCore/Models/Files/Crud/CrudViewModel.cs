@@ -15,5 +15,9 @@ namespace TestNetCore.Models.Files.Crud
         public string FileName2 { get; set; }
         public string FileSize2 { get; set; }
         public DateTime DateChange { get; set; }
+
+        public string TextFile { get; set; }
+        public string NameFile { get; set; }
+        public string TextAlert { get; set; }
     }
 }

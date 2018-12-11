@@ -48,19 +48,14 @@
             <i class="material-icons">menu</i>
         </div>
 
-        <a id="logotype" href="" class="logo-admin">
+        <a id="logotype" href="http://shalex.info/ru/" class="logo-admin">
             <img style="width: 180px;" src="~/img/logo-shalex.png" />
         </a>
         <ul class="nav navbar-nav navbar-right">
-            @*<li style="margin-right: 10px;">
-                    <input type="button" class="def-btn ripple-top fa fa-paper-plane" value="РУС" onclick="return SetLanguage('ru');" />
-                    <input type="button" class="def-btn ripple-top fa fa-paper-plane" value="УКР" onclick="return SetLanguage('uk');" />
-                </li>*@
-
             <li>
                 <div class="account-user">
                     <img class="avatar" src="@Model.AvatarPath" width="31" height="31" style="border-radius: 5px;" alt="useravatar">
-                    <span> <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@Model.UserName</a></span>
+                    <span>@Model.UserName</span>
                 </div>
             </li>
             <li class="log-out">
@@ -88,7 +83,7 @@
     <div class="sidebar">
         <ul>
             <li class="title">
-                <i class="fa fa-bullhorn" aria-hidden="true"> </i>
+                <i class="fa fa-tasks" aria-hidden="true"> </i>
                 <span class="label-menu" id="">Виджеты</span>
             </li>
             <li>
@@ -101,35 +96,31 @@
 
 
             <li class="title">
-                <i class="fa fa-bar-chart" aria-hidden="true"></i>
-                <span class="label-menu" id="api">Работа с API</span>
-            </li>
-            <li>
-                <a asp-controller="PrivatBank" is-active-route asp-action="PrivatBank" id="privatBank">ПриватБанк</a>
-                @*@Html.ActionLink("ПриватБанк", "PrivatBank", "PrivatBank")*@
-            </li>
-            <li>
-                <a asp-controller="AccuWheather" is-active-route asp-action="AccuWheather" id="accuWheather">Прогноз погоды</a>
-                @*@Html.ActionLink("Прогноз погоды", "AccuWheather", "AccuWheather")*@
-            </li>
-
-
-            <li class="title">
-                <i class="fa fa-cog" aria-hidden="true"> </i>
+                <i class="fa fa-file-text" aria-hidden="true"> </i>
                 <span class="label-menu" id="file">Работа с файлами</span>
             </li>
             <li>
                 <a asp-controller="Gallery" is-active-route asp-action="Gallery">Моя галерея</a>
-                @*@Html.ActionLink("Моя галерея", "Gallery", "Gallery")*@
             </li>
             <li>
                 <a asp-controller="Crud" is-active-route asp-action="Crud">CRUD операции</a>
-                @*@Html.ActionLink("CRUD операции", "Crud", "Crud")*@
             </li>
 
-            
+
             <li class="title">
-                <i class="fa fa-bullhorn" aria-hidden="true"> </i>
+                <i class="fa fa-server" aria-hidden="true"></i>
+                <span class="label-menu" id="api">Работа с API</span>
+            </li>
+            <li>
+                <a asp-controller="PrivatBank" is-active-route asp-action="PrivatBank" id="privatBank">ПриватБанк</a>
+            </li>
+            <li>
+                <a asp-controller="AccuWheather" is-active-route asp-action="AccuWheather" id="accuWheather">Прогноз погоды</a>
+            </li>
+
+
+            <li class="title">
+                <i class="fa fa-sort-alpha-desc" aria-hidden="true"> </i>
                 <span class="label-menu" id="">Другое</span>
             </li>
             <li>
@@ -140,13 +131,13 @@
     </div>
 
     <div class="admin-page">
-        <div class="row">
-            @RenderBody()
+        <div class="row adm">
+                @RenderBody()
+        </div>
             <hr />
             <footer>
                 <p>&copy; 2018 - shalex</p>
             </footer>
-        </div>
     </div>
 
     <environment include="Development">
@@ -161,7 +152,7 @@
     @RenderSection("Scripts", required: false)
 
     <script type="text/javascript">
-        $("#logotype").attr("href", window.location.hostname);
+        //$("#logotype").attr("href", window.location.hostname);
 
         // to set cookie for translation programm.
         //var lang;

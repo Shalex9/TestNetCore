@@ -54,11 +54,11 @@ namespace TestNetCore.Controllers.Files
             var getUserFiles = _dbContext.CRUDfileUsers.FirstOrDefault(a => a.UserId == UserID);
             if (getUserFiles != null)
             {
-                viewModel.FileName1 = getUserFiles.FileName1;
-                viewModel.FileSize1 = getUserFiles.FileSize1;
-                viewModel.DateChange = getUserFiles.LastChange;
+                if (getUserFiles.FileName1 != null) viewModel.FileName1 = getUserFiles.FileName1;
+                if (getUserFiles.FileSize1 != null) viewModel.FileSize1 = getUserFiles.FileSize1;
                 if (getUserFiles.FileName2 != null) viewModel.FileName2 = getUserFiles.FileName2;
                 if (getUserFiles.FileSize2 != null) viewModel.FileSize2 = getUserFiles.FileSize2;
+                viewModel.DateChange = getUserFiles.LastChange;
             }
 
             // смотрю, один или два файла уже имеется
@@ -82,8 +82,7 @@ namespace TestNetCore.Controllers.Files
 
             return viewModel;
         }
-
-
+        
         public CrudViewModel UploadFile(dynamic file, CrudViewModel viewModel)
         {
             var fileName = Path.GetFileName(file.FileName);
@@ -167,7 +166,58 @@ namespace TestNetCore.Controllers.Files
                             UploadFile(file, viewModel);
                         }
                     }
+                    viewModel.VerifyChanges = true;
+                    viewModel.TextAlert = "createFile";
                 }
+            }
+
+            if (viewModel.PostType == "createFile" && viewModel.NameFile != "" && viewModel.NameFile != null)
+            {
+                string fileName = viewModel.NameFile + ".txt";
+                string path = Path.Combine("wwwroot/usersfiles/" + UserID + "/", fileName);
+                string size;
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    Byte[] info = new UTF8Encoding(true).GetBytes(viewModel.TextFile);
+                    stream.Write(info, 0, info.Length);
+                    size = (info.Length / 1024) + "КБ";
+                }
+                
+                viewModel.TextAlert = "createFile";
+                SaveFileToDB(fileName, path, size, viewModel);
+            }
+
+            if (viewModel.PostType == "deleteFile" && viewModel.NameFile != "" && viewModel.NameFile != null)
+            {
+                string fileName = viewModel.NameFile;
+                string path = "wwwroot/usersfiles/" + UserID + "/" + fileName;
+                FileInfo fileInf = new FileInfo(path);
+                if (fileInf.Exists)
+                {
+                    fileInf.Delete();
+                }
+
+                var now = DateTime.Now;
+                var userRecord = _dbContext.CRUDfileUsers.FirstOrDefault(a => a.UserId == UserID);
+                if (userRecord.FileName1 == fileName)
+                {
+                    userRecord.FileName1 = null;
+                    userRecord.FilePath1 = null;
+                    userRecord.FileSize1 = null;
+                    userRecord.LastChange = now;
+                }
+                else if (userRecord.FileName2 == fileName)
+                {
+                    userRecord.FileName2 = null;
+                    userRecord.FilePath2 = null;
+                    userRecord.FileSize2 = null;
+                    userRecord.LastChange = now;
+                }
+
+                viewModel.TextAlert = "deleteFile";
+                _dbContext.CRUDfileUsers.Update(userRecord);
+                _dbContext.SaveChanges();
             }
 
             var vm = ModelForCrud(viewModel);
@@ -175,31 +225,132 @@ namespace TestNetCore.Controllers.Files
             return View("~/Views/Files/Crud.cshtml", vm);
         }
 
+        //// Создание файла
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult CreateFile(string fileName, string fileText)
+        //{
+        //    CrudViewModel vm = new CrudViewModel();
+        //    vm = ModelForCrud(vm);
+        //    fileName = fileName + ".txt";
+        //    string path = Path.Combine("wwwroot/usersfiles/" + UserID + "/", fileName);
+        //    string size;
 
-        // Создание файла
+        //    using (var stream = new FileStream(path, FileMode.Create))
+        //    {
+        //        Byte[] info = new UTF8Encoding(true).GetBytes(fileText);
+        //        // Add some information to the file.
+        //        stream.Write(info, 0, info.Length);
+        //        size = (info.Length / 1024) + "КБ";
+        //    }
+
+        //    SaveFileToDB(fileName, path, size, vm);
+
+        //    return Json(vm);
+        //}
+
+
+        // Чтение файла
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateFile(string fileName, string fileText)
+        public IActionResult ReadFile(string fileName)
         {
-            CrudViewModel vm = new CrudViewModel();
-            vm = ModelForCrud(vm);
-            fileName = fileName + ".txt";
+            CrudViewModel viewModel = new CrudViewModel();
             string path = Path.Combine("wwwroot/usersfiles/" + UserID + "/", fileName);
-            string size;
 
-            using (var stream = new FileStream(path, FileMode.Create))
+            FileInfo fileInf = new FileInfo(path);
+            if (fileInf.Exists)
             {
-                Byte[] info = new UTF8Encoding(true).GetBytes(fileText);
-                // Add some information to the file.
-                stream.Write(info, 0, info.Length);
-                size = (info.Length / 1024) + "КБ";
+                using (StreamReader sr = new StreamReader(path))
+                {
+                    viewModel.TextFile = sr.ReadToEnd();
+                }
             }
-            
-            SaveFileToDB(fileName, path, size, vm);
 
+            var vm = ModelForCrud(viewModel);
             return Json(vm);
         }
 
+
+        // Сохранение изменений в файле
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveChangesFile(string fileName, string fileText)
+        {
+            string path = Path.Combine("wwwroot/usersfiles/" + UserID + "/", fileName);
+            
+            using (StreamWriter sw = new StreamWriter(path, false, System.Text.Encoding.Default))
+            {
+                sw.WriteLine(fileText);
+            }
+
+            return Json("ReWrite successed!");
+        }
+
+
+        //// Удаление файла
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult DeleteFile(string fileName)
+        //{
+        //    CrudViewModel viewModel = new CrudViewModel();
+
+        //    string path = "wwwroot/usersfiles/" + UserID + "/" + fileName;
+        //    FileInfo fileInf = new FileInfo(path);
+        //    if (fileInf.Exists)
+        //    {
+        //        fileInf.Delete();
+        //    }
+
+        //    var now = DateTime.Now;
+        //    var userRecord = _dbContext.CRUDfileUsers.FirstOrDefault(a => a.UserId == UserID);
+        //    if(userRecord.FileName1 == fileName)
+        //    {
+        //        userRecord.FileName1 = null;
+        //        userRecord.FilePath1 = null;
+        //        userRecord.FileSize1 = null;
+        //        userRecord.LastChange = now;
+        //    }
+        //    else if (userRecord.FileName2 == fileName)
+        //    {
+        //        userRecord.FileName2 = null;
+        //        userRecord.FilePath2 = null;
+        //        userRecord.FileSize2 = null;
+        //        userRecord.LastChange = now;
+        //    }
+        //    _dbContext.CRUDfileUsers.Update(userRecord);
+        //    _dbContext.SaveChanges();
+
+
+        //    var vm = ModelForCrud(viewModel);
+        //    return Json(vm);
+        //}
+
+
+        // Загрузка файла
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DownloadFile(string fileName)
+        {
+            GetFile(fileName);
+            Download(fileName);
+            return Json("Download success!!!");
+        }
+
+        public VirtualFileResult Download(string fileName)
+        {
+            string path = $"wwwroot/usersfiles/{UserID}/{fileName}";
+            var filepath = Path.Combine(_appEnvironment.ContentRootPath, path);
+            return File(path, "text/plain", fileName);
+        }
+
+        // Скачивание файлов
+        public IActionResult GetFile(string fileName)
+        {
+            string path = Path.Combine(_appEnvironment.ContentRootPath, "Files/" + fileName);
+            string type = "text/plain";
+            return PhysicalFile(path, type, fileName);
+        }
 
 
         // Скачивание резюме
@@ -209,6 +360,10 @@ namespace TestNetCore.Controllers.Files
             string file_type = "application/pdf";
             string file_name = "CV - Alexander Shevchuk.pdf";
             return PhysicalFile(file_path, file_type, file_name);
+            //string path = Path.Combine(_appEnvironment.ContentRootPath, "Files/" + UserID + "/" + fileName);
+            //string type = "text/plain";
+            //return PhysicalFile(path, type, fileName);
+
         }
 
     }

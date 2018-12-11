@@ -9,19 +9,20 @@
 
 <header class="header">
     <div class="background-image" style="background-image:url(/img/bg.jpg);"></div>
-    <div class="container container-header text-center">
+    <div class="overlay"></div>
+    <div class="container-header text-center">
         <h1 id="headTitleId">Тестовое приложение на C# и ASP.NET Core 2.0</h1>
         <h4 id="headTitleId2">
-            Суть в бекенде, который начинается с логина через google, поэтому с фронтендом сильно не игрался. <br />
             Здесь Вы увидите демонстрацию нескольких страниц, работающих с API и с файлами. <br />
-            Однако большая часть бекенда связана с работой БД и EntityFramework, 
-            а для этого важно идентифицировать разных пользователей.  <br />
+            Поскольку большая часть бекенда связана с работой БД и EntityFramework, -
+            для этого важно идентифицировать разных пользователей.  <br />
             Поэтому, бекенд продолжается после логина через google, который тоже прикрутил в тестовых целях. <br />
             Залогиньтесь, и посмотрите мою работу! <br />
-            Логин проходит через форму GOOGLE, все введенные данные - стандартная процедура регистрации через google.
+            Логин проходит через форму GOOGLE, все введенные данные - стандартная процедура регистрации через google.<br />
+            Суть проекта в бекенде, поэтому с фронтендом сильно не игрался :)
         </h4>
         <div class="start ripple-top animated fadeInDown" data-toggle="modal" data-target="#myModal" id="getStartId">
-            <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("PrivatBank", "PrivatBank", new { area = "" })">Войти</a>
+            <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Crud", "Crud", new { area = "" })">Войти</a>
         </div>
     </div>
 </header>

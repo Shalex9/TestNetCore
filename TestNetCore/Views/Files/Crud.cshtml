@@ -4,6 +4,12 @@
     ViewData["Title"] = "CRUD";
     Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
 }
+<script src="//cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+<!-- Core build with no theme, formatting, non-essential modules -->
+@*<link href="//cdn.quilljs.com/1.3.6/quill.core.css" rel="stylesheet">
+<script src="//cdn.quilljs.com/1.3.6/quill.core.js"></script>*@
 
 
 <form asp-controller="Crud" asp-action="Crud"
@@ -11,7 +17,7 @@
       method="post" enctype="multipart/form-data"
       class="col-md-12">
     @Html.AntiForgeryToken()
-    <h2 id="">CRUD операции с файлами. Страница в стадии разработки</h2>
+    <h2 id="">CRUD операции с файлами</h2>
     <h4>Основные действия с файлами на сервере - создание, чтение, изменение, удаление</h4>
     <p>ПС: для примера, поработаем с текстовыми файлами. Каждый пользователь может создать/загрузить максимум 2 файла. Для теста этого достаточно.</p>
 
@@ -27,12 +33,10 @@
             </button>
 
             <div id="chooseFile" class="mar-left20">
-                @*file_upload*@
                 <button class="btn btn-primary" type="button" id="uploadBtn" onclick="return uploadFiles('uploadFiles')">
                     <span class="glyphicon glyphicon-cloud-upload"></span>
                     <span id="download">Загрузить</span>
                 </button>
-                @*<div id="fileName" style="margin-top: 5px;">Файл не выбран</div>*@
                 <input type="file" name="files" id="files" accept="text/*" style="display: none;" />
                 <button type="submit" id="pushFile" class="display-none uploadFile">Button</button>
             </div>
@@ -58,13 +62,13 @@
 
                         <div class="actions" style="padding-top: 15px;">
                             <span class="actionVariant showBlockAnswerLabel"
-                                  onclick="return openFile(@Model.FileName1)">Открыть</span>
+                                  onclick="return readFile('@Model.FileName1')">Открыть</span>
                             <span class="actionVariant showBlockAnswerLabel"
-                                  onclick="return editFile(@Model.FileName1)">Редактировать</span>
+                                  onclick="return editFile('@Model.FileName1')">Редактировать</span>
                             <span class="actionVariant deleteQuestionLabel"
-                                  onclick="return deleteFile(@Model.FileName1)">Удалить</span>
-                            <span class="actionVariant infoQuestionLabel"
-                                  onclick="return downloadFile(@Model.FileName1)">Скачать</span>
+                                  onclick="return deleteFile('@Model.FileName1')">Удалить</span>
+                            @*<span class="actionVariant infoQuestionLabel"
+                                onclick="return downloadFile('@Model.FileName1')">Скачать</span>*@
                         </div>
                     </div>
                 }
@@ -81,13 +85,13 @@
 
                         <div class="actions" style="padding-top: 15px;">
                             <span class="actionVariant showBlockAnswerLabel"
-                                  onclick="return openFile(@Model.FileName2)">Открыть</span>
+                                  onclick="return readFile('@Model.FileName2')">Открыть</span>
                             <span class="actionVariant showBlockAnswerLabel"
-                                  onclick="return editFile(@Model.FileName2)">Редактировать</span>
+                                  onclick="return editFile('@Model.FileName2')">Редактировать</span>
                             <span class="actionVariant deleteQuestionLabel"
-                                  onclick="return deleteFile(@Model.FileName2)">Удалить</span>
-                            <span class="actionVariant infoQuestionLabel"
-                                  onclick="return downloadFile(@Model.FileName2)">Скачать</span>
+                                  onclick="return deleteFile('@Model.FileName2')">Удалить</span>
+                            @*<span class="actionVariant infoQuestionLabel"
+                                onclick="return downloadFile('@Model.FileName2')">Скачать</span>*@
                         </div>
                     </div>
                 }
@@ -111,6 +115,15 @@
 
     <div id="alertSave" class="alertMsg" style="display: none;">
         Ваш файл успешно сохранен на сервере
+    </div>
+    <div id="alertUpload" class="alertMsg" style="display: none;">
+        Ваш файл успешно загружен и сохранен на сервере
+    </div>
+    <div id="alertEdit" class="alertMsg" style="display: none;">
+        Ваш файл отредактирован и сохранен на сервере
+    </div>
+    <div id="alertDelete" class="alertMsg" style="display: none;">
+        Ваш файл успешно удален с сервера
     </div>
 
     <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel">
@@ -138,100 +151,245 @@
         </div>
     </div>
 
+    <div class="modal fade" id="readModal" tabindex="-1" role="dialog" aria-labelledby="readModallLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="readModalLabel"></h4>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModallLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="editModalLabel"></h4>
+                </div>
+                <div class="modal-body">
+                    <div id="editor-container"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="return saveFile()">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button id="trigReadModal" type="button" data-toggle="modal" data-target="#readModal" style="display: none;"></button>
+    <button id="trigEditModal" type="button" data-toggle="modal" data-target="#editModal" style="display: none;"></button>
+    <button id="startPost" type="submit" style="display: none;"></button>
     <input type="hidden" asp-for="PostType" id="PostType" />
+    <input type="hidden" asp-for="NameFile" id="NameFile" />
+    <input type="hidden" asp-for="TextFile" id="TextFile" />
     <input type="hidden" asp-for="TypeUploadFile" id="TypeUploadFile" />
 
 </form>
 
 
-    <script>
-        var countFiles = @Model.CountFiles;
-        if (countFiles == 2) {
-            $("#btnCreate").attr("disabled", "disable"); 
-            $("#uploadBtn").attr("disabled", "disable");
-            $(".boxButton").append("<p style='margin: 5px 0 0 20px;'>Уже создано два файла. Это максимум!</p>");
-        } 
-        function uploadFiles(val) {
-            $("#PostType").val(val);
-            $("button.uploadImg").click();
-            return true;
-        }
-        //function createFile(val) {
-        //    $("#PostType").val(val);
-        //}
+<script>
+    var countFiles = @Model.CountFiles;
+    var fileNameForChange;
+    if (countFiles == 2) {
+        $("#btnCreate").attr("disabled", "disable");
+        $("#uploadBtn").attr("disabled", "disable");
+        $(".boxButton").append("<p style='margin: 5px 0 0 20px;'>Уже создано два файла. Это максимум!</p>");
+    }
+    function uploadFiles(val) {
+        $("#PostType").val(val);
+        $("button.uploadImg").click();
+        return true;
+    }
+    function createFile() {
+        $("#PostType").val("createFile");
+        $("#NameFile").val($("#fileName").val());
+        $("#TextFile").val($("#fileText").val());
+        $("#startPost").trigger("click");
+        return true;
+    }
+    function deleteFile(fileName) {
+        $("#PostType").val("deleteFile");
+        $("#NameFile").val(fileName);
+        $("#startPost").trigger("click");
+        return true;
+    }
 
-        // show/hide box Actions for Hover
-        $(".actions").hide();
-        $(".boxFile").hover(
-            function () {
-                $(this).find(".actions").slideToggle(0);
-            }, function () {
-                $(this).find(".actions").slideToggle(0);
+    // show/hide box Actions for Hover
+    $(".actions").hide();
+    $(".boxFile").hover(
+        function () {
+            $(this).find(".actions").slideToggle(0);
+        }, function () {
+            $(this).find(".actions").slideToggle(0);
+        }
+    );
+
+    // ADD FILES
+    var wrapper = $("#chooseFile"),
+        inp = wrapper.find("input"),
+        btn = wrapper.find("button#uploadBtn"),
+        push = wrapper.find("button#pushFile");
+    btn.click(function () {
+        inp.click();
+    });
+    var file_api = (window.File && window.FileReader && window.FileList && window.Blob) ? true : false;
+    inp.change(function () {
+        var file_name;
+        if (file_api && inp[0].files[0])
+            file_name = inp[0].files[0].name;
+        if (file_name == undefined)
+            return;
+        // for Get Type file
+        var file = $("#files")[0].files[0],
+            ext = "не определилось",
+            parts = file.type.split('/');
+        if (parts.length > 1) ext = parts.shift();
+        //console.log("MIME тип: ", ext);
+        $("#TypeUploadFile").val(ext);
+        push.click();
+    }).change();
+
+    if ("@Model.TextAlert" == "deleteFile") {
+            showAlert("alertDelete");
+    }
+    if ("@Model.TextAlert" == "createFile") {
+            showAlert("alertSave");
+    }
+
+    // оторображение алертов разного содержания
+    function showAlert(block) {
+        $("#"+block).css("display", "block");
+        setInterval(function () {
+            $("#"+block).css("display", "none");
+        }, 4 * 1000);
+    }
+
+    //function createFile() {
+    //    var token = $('input[name="__RequestVerificationToken"]', $('#Crud')).val();
+    //    var fileName = $("#fileName").val();
+    //    var fileText = $("#fileText").val();
+    //    var myData = { fileName: fileName, fileText: fileText };
+    //    var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
+    //    $.ajax({
+    //        url: "/Crud/CreateFile",
+    //        type: "POST",
+    //        data: dataWithAntiforgeryToken,
+    //        success: function (data) {
+    //            console.log("data: ", data);
+
+    //            if (data.countFiles == 2) {
+    //                countFiles = 2;
+    //            }
+
+    //            showAlert("alertSave");
+    //        }
+    //    });
+    //}
+
+    function readFile(fileName) {
+        var token = $('input[name="__RequestVerificationToken"]', $('#Crud')).val();
+        var myData = { fileName: fileName };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
+        $.ajax({
+            url: "/Crud/ReadFile",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+                $("#readModal .modal-title").html(fileName);
+                $("#readModal .modal-body").html(data.textFile);
+                $("#trigReadModal").click();
             }
-        );
-
-        // ADD FILES
-        var wrapper = $("#chooseFile"),
-            inp = wrapper.find("input"),
-            btn = wrapper.find("button#uploadBtn"),
-            push = wrapper.find("button#pushFile");
-            //lbl = wrapper.find("div#fileName");
-        //btn.focus(function () {
-        //    wrapper.addClass("focus");
-        //}).blur(function () {
-        //    wrapper.removeClass("focus");
-        //});
-        btn.click(function () {
-            inp.click();
         });
-        var file_api = (window.File && window.FileReader && window.FileList && window.Blob) ? true : false;
-        inp.change(function () {
-            var file_name;
-            if (file_api && inp[0].files[0])
-                file_name = inp[0].files[0].name;
-            //else
-            //    file_name = inp.val().replace("C:\\somepath\\", '');
-            if (file_name == undefined)
-                return;
-            //if (lbl.is(":visible")) {
-            //    lbl.text(file_name);
-            //    btn.text("Загрузка файла");
-            //} else
-            //    btn.text(file_name);
-            // for Get Type file
-            var file = $("#files")[0].files[0],
-                ext = "не определилось",
-                parts = file.type.split('/');
-            if (parts.length > 1) ext = parts.shift();
-            //console.log("MIME тип: ", ext);
-            $("#TypeUploadFile").val(ext);
-            push.click();
-        }).change();
+    }
+
+    function editFile(fileName) {
+        var token = $('input[name="__RequestVerificationToken"]', $('#Crud')).val();
+        var myData = { fileName: fileName };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
+        $.ajax({
+            url: "/Crud/ReadFile",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+
+                fileNameForChange = fileName;
+                $("#editModal .modal-title").html(fileName);
+                $("#editModal .modal-body #editor-container .ql-editor").html('<p>'+data.textFile+'</p>');
+                $("#trigEditModal").click();
+            }
+        });
+    }
+
+    function saveFile() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#Crud')).val();
+        var fileText = $("#editor-container .ql-editor p").text();
+        var myData = { fileName: fileNameForChange, fileText: fileText };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
+        $.ajax({
+            url: "/Crud/SaveChangesFile",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+
+                showAlert("alertEdit");
+            }
+        });
+    }
+
+    //function deleteFile(fileName) {
+    //    var token = $('input[name="__RequestVerificationToken"]', $('#Crud')).val();
+    //    var myData = { fileName: fileName };
+    //    var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
+    //    $.ajax({
+    //        url: "/Crud/DeleteFile",
+    //        type: "POST",
+    //        data: dataWithAntiforgeryToken,
+    //        success: function (data) {
+    //            console.log("data: ", data);
+    //            showAlert("alertDelete");
+    //        }
+    //    });
+    //}
+
+    function downloadFile(fileName) {
+        var token = $('input[name="__RequestVerificationToken"]', $('#Crud')).val();
+        var myData = { fileName: fileName };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+
+        $.ajax({
+            url: "/Crud/DownloadFile",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("data: ", data);
+
+            }
+        });
+    }
 
 
-        function createFile() {
-            var token = $('input[name="__RequestVerificationToken"]', $('#Crud')).val();
-            var fileName = $("#fileName").val();
-            var fileText = $("#fileText").val();
-            var myData = { fileName: fileName, fileText: fileText };
-            var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
-
-            $.ajax({
-                url: "/Crud/CreateFile",
-                type: "POST",
-                data: dataWithAntiforgeryToken,
-                success: function (data) {
-                    console.log("data: ", data);
-                    
-                    if (data.countFiles == 2) {
-                        countFiles = 2;
-                    } 
-
-                    $("#alertSave").css("display", "block");
-                    setInterval(function () {
-                        $("#alertSave").css("display", "none");
-                    }, 4 * 1000);
-                }
-            });
-        }
-    </script>
+    var quill = new Quill('#editor-container', {
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline']
+            ]
+        },
+        theme: 'snow'
+    });
+</script>
