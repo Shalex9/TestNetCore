@@ -225,30 +225,6 @@ namespace TestNetCore.Controllers.Files
             return View("~/Views/Files/Crud.cshtml", vm);
         }
 
-        //// Создание файла
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult CreateFile(string fileName, string fileText)
-        //{
-        //    CrudViewModel vm = new CrudViewModel();
-        //    vm = ModelForCrud(vm);
-        //    fileName = fileName + ".txt";
-        //    string path = Path.Combine("wwwroot/usersfiles/" + UserID + "/", fileName);
-        //    string size;
-
-        //    using (var stream = new FileStream(path, FileMode.Create))
-        //    {
-        //        Byte[] info = new UTF8Encoding(true).GetBytes(fileText);
-        //        // Add some information to the file.
-        //        stream.Write(info, 0, info.Length);
-        //        size = (info.Length / 1024) + "КБ";
-        //    }
-
-        //    SaveFileToDB(fileName, path, size, vm);
-
-        //    return Json(vm);
-        //}
-
 
         // Чтение файла
         [HttpPost]
@@ -286,45 +262,6 @@ namespace TestNetCore.Controllers.Files
 
             return Json("ReWrite successed!");
         }
-
-
-        //// Удаление файла
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult DeleteFile(string fileName)
-        //{
-        //    CrudViewModel viewModel = new CrudViewModel();
-
-        //    string path = "wwwroot/usersfiles/" + UserID + "/" + fileName;
-        //    FileInfo fileInf = new FileInfo(path);
-        //    if (fileInf.Exists)
-        //    {
-        //        fileInf.Delete();
-        //    }
-
-        //    var now = DateTime.Now;
-        //    var userRecord = _dbContext.CRUDfileUsers.FirstOrDefault(a => a.UserId == UserID);
-        //    if(userRecord.FileName1 == fileName)
-        //    {
-        //        userRecord.FileName1 = null;
-        //        userRecord.FilePath1 = null;
-        //        userRecord.FileSize1 = null;
-        //        userRecord.LastChange = now;
-        //    }
-        //    else if (userRecord.FileName2 == fileName)
-        //    {
-        //        userRecord.FileName2 = null;
-        //        userRecord.FilePath2 = null;
-        //        userRecord.FileSize2 = null;
-        //        userRecord.LastChange = now;
-        //    }
-        //    _dbContext.CRUDfileUsers.Update(userRecord);
-        //    _dbContext.SaveChanges();
-
-
-        //    var vm = ModelForCrud(viewModel);
-        //    return Json(vm);
-        //}
 
 
         // Загрузка файла
