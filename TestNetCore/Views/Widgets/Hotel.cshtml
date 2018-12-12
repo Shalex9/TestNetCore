@@ -28,7 +28,6 @@
 <div class="col-md-12">
     <div class="page-block">
         <h2 id="infoHotel">Информация о номерах</h2>
-
         <table class="table">
             <thead>
                 <tr style="width: 100%; font-weight: bold">
@@ -124,34 +123,29 @@
             </div>
 
             <div style="margin-top: 50px; text-align: center;">
-                <button class="defaultStyleButton" id="btnSearch" type="submit">
+                <button class="defaultStyleButton" id="btnSearch" onclick="return addReserve();">
                     <span class="glyphicon glyphicon-ok"></span>
                     <span class="" id="search">Бронировать</span>
                 </button>
-                @*<button id="submitSearch" class="text-center" type="submit" style="display: none;"></button>*@
+                <button id="submitReserve" class="text-center" type="submit" style="display: none;"></button>
             </div>
-
         </div>
-        <input type="hidden" asp-for="StartReserv" id="StartReserv" />
-        <input type="hidden" asp-for="EndReserv" id="EndReserv" />
 
-        <div id="alertEngaged" class="alertMsg" style="display: none">
+        <div id="alertEngaged" class="alertMsg" style="display: none;">
             На указанные даты этот номер занят. Выберите другие даты или номер.
         </div>
-
-        @if (Model.RoomReserved)
+        @if (Model.AlertType == "alertAddReserve")
         {
-            <div id="alertReserved" class="alertMsg" style="display: block">
+            <div id="alertAddReserve" class="alertMsg" style="display: block;">
                 Ваш номер успешно забронирован. Вы получите подтверждение на почтовый ящик.
             </div>
         }
-
-        @*@if (Model.DeletedReserved)
-        {*@
-        <div id="alertDeleteReserved" class="alertMsg" style="display: none">
-            Ваша бронь отменена. Вы получите подтверждение на почтовый ящик.
-        </div>
-        @*}*@
+        @if (Model.AlertType == "alertDelReserve")
+        {
+            <div id="alertDelReserve" class="alertMsg" style="display: block;">
+                Ваша бронь отменена. Вы получите подтверждение на почтовый ящик.
+            </div>
+        }
     </div>
 
 
@@ -247,6 +241,26 @@
         }
     </div>
 
+    <div class="modal fade" id="errorDate" tabindex="-1" role="dialog" aria-labelledby="errorDatelLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="errorDateLabel">Не корректные даты бронирования</h4>
+                </div>
+                <div class="modal-body">Проверьте введенные даты</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button id="trigErrorDate" type="button" data-toggle="modal" data-target="#errorDate" style="display: none;"></button>
+
+    <input type="hidden" asp-for="StartReserv" id="StartReserv" />
+    <input type="hidden" asp-for="EndReserv" id="EndReserv" />
+    <input type="hidden" asp-for="IdForDelete" id="IdForDelete" />
+    <input type="hidden" asp-for="PostType" id="PostType" />
 </form>
 
 <div class="col-md-12">
@@ -403,28 +417,16 @@
     });
 
 
-    setInterval(function () {
-        $("#alertReserved, #alertEngaged, #alertDeleteReserved").css("display", "none");
-    }, 5 * 1000);
+    function addReserve() {
+        $("#PostType").val("addReserve");
+        $("#IdForDelete").val(0);
+        $("#submitReserve").click();
+    }
 
     function deleteReserved(idForDelete) {
-        var token = $('input[name="__RequestVerificationToken"]', $('#Hotel')).val();
-        var myData = { id: idForDelete };
-        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
-        $.ajax({
-            url: "/Hotel/DeleteReserved",
-            type: "POST",
-            data: dataWithAntiforgeryToken,
-            success: function (data) {
-                console.log("data: ", data);
-                $("#alertDeleteReserved").css("display", "block");
-                setTimeout(function () {
-                    $("#alertDeleteReserved").css("display", "none");
-                }, 5000);
-                
-                location.reload();               
-            }
-        });
+        $("#PostType").val("delReserve");
+        $("#IdForDelete").val(idForDelete);
+        $("#submitReserve").click();
     }
 
     function checkIsFreeRoom() {
@@ -461,18 +463,26 @@
                         });
 
                     } else {
-                        $("#alertEngaged").css("display", "block");
-                        setTimeout(function () {
-                            $("#alertEngaged").css("display", "none");
-                        }, 5000);
+                        showAlert("alertEngaged");
                     }
                 } else {
-                    $("#freeRoom").html("<p>" + data.errorText + "</p>");
-                    $("#freeRoom").css("display", "block");
+                    $("#trigErrorDate").click();
                 }
             }
         });
     }
+
+    // оторображение алертов разного содержания
+    function showAlert(block) {
+        $("#" + block).css("display", "block");
+        setInterval(function () {
+            $("#" + block).css("display", "none");
+        }, 4 * 1000);
+    }
+
+    setInterval(function () {
+        $("#alertAddReserve, #alertDelReserve").css("display", "none");
+    }, 4 * 1000);
 
     //sort table
     $("#allReserve").tablesorter({

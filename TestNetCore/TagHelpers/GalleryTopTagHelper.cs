@@ -48,7 +48,7 @@ namespace TestNetCore.TagHelpers
                 " <br/> Загрузите своё изображение, или воспользуйтесь готовыми вариантами из галереи.</h3>";
             string notFileSound = "<h3>Ни одной мелодии не загружено." + 
                 " <br/> Загрузите свою мелодию, или воспользуйтесь готовыми вариантами из галереи. </h3>";
-            string closeTags = "</div></div></div>";
+            string closeTags = "</ul></div></div></div>";
 
 
             GalleryItemImages(templateGalleryImg, divGalleryImg);

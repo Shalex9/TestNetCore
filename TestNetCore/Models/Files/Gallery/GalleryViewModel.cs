@@ -8,7 +8,8 @@ namespace TestNetCore.Models.Files.Gallery
 {
     public class GalleryViewModel : BaseViewModel
     {
-        public string PostSaveSettings { get; set; }
+        //public string PostSaveSettings { get; set; }
+        public string PostType { get; set; }
 
         // general
         public string BgBox { get; set; }
@@ -49,7 +50,7 @@ namespace TestNetCore.Models.Files.Gallery
         public int ImageUploadCount { get; set; }
         public int SoundUploadCount { get; set; }
 
-        public string PostUpload { get; set; }
+        //public string PostUpload { get; set; }
         public string ImagePath { get; set; }
         public string SoundPath { get; set; }
 

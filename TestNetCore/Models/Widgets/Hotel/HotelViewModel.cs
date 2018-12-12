@@ -9,6 +9,10 @@ namespace TestNetCore.Models.Widgets.Hotel
 {
     public class HotelViewModel : BaseViewModel
     {
+        public string PostType { get; set; }
+        public string AlertType { get; set; }
+        public int IdForDelete { get; set; }
+
         public string NameOffice { get; set; }
         public int NumberOfRoom { get; set; }
         public int PriceForRoom { get; set; }

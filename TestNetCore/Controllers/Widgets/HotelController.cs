@@ -87,93 +87,57 @@ namespace TestNetCore.Controllers
             var room102 = _dbContext.HotelInformations.FirstOrDefault(u => u.NumberOfRoom == 102);
             var room201 = _dbContext.HotelInformations.FirstOrDefault(u => u.NumberOfRoom == 201);
             var room202 = _dbContext.HotelInformations.FirstOrDefault(u => u.NumberOfRoom == 202);
-
-            bool free101 = true;
+            
             foreach (var i in list101Reserved)
             {
                 if (now > i.StartReserv && now < i.EndReserv)
                 {
-                    free101 = false;
+                    room101.IsFreeNow = false;
                     break;
                 }
                 else
                 {
-                    free101 = true;
+                    room101.IsFreeNow = true;
                 }
             }
-            if (free101)
-            {
-                room101.IsFreeNow = true;
-            }
-            else
-            {
-                room101.IsFreeNow = false;
-            }
 
-            bool free102 = true;
             foreach (var i in list102Reserved)
             {
                 if (now > i.StartReserv && now < i.EndReserv)
                 {
-                    free102 = false;
+                    room102.IsFreeNow = false;
                     break;
                 }
                 else
                 {
-                    free102 = true;
+                    room102.IsFreeNow = true;
                 }
             }
-            if (free102)
-            {
-                room102.IsFreeNow = true;
-            }
-            else
-            {
-                room102.IsFreeNow = false;
-            }
 
-            bool free201 = true;
             foreach (var i in list201Reserved)
             {
                 if (now > i.StartReserv && now < i.EndReserv)
                 {
-                    free201 = false;
+                    room201.IsFreeNow = false;
                     break;
                 }
                 else
                 {
-                    free201 = true;
+                    room201.IsFreeNow = true;
                 }
             }
-            if (free201)
-            {
-                room201.IsFreeNow = true;
-            }
-            else
-            {
-                room201.IsFreeNow = false;
-            }
 
-            bool free202 = true;
             foreach (var i in list202Reserved)
             {
                 if (now > i.StartReserv && now < i.EndReserv)
                 {
-                    free202 = false;
+                    room202.IsFreeNow = false;
                     break;
                 }
                 else
                 {
-                    free202 = true;
+                    room202.IsFreeNow = true;
                 }
-            }
-            if (free202)
-            {
-                room202.IsFreeNow = true;
-            }
-            else
-            {
-                room202.IsFreeNow = false;
             }
 
 
@@ -191,52 +155,60 @@ namespace TestNetCore.Controllers
         [Route("hotel")]
         public IActionResult Hotel(HotelViewModel viewModel)
         {
-            var vm = CreateModelForHotel(viewModel);
-            var room = viewModel.NumberOfRoom;
-            var price = _dbContext.HotelInformations.FirstOrDefault(u => u.NumberOfRoom == room).PriceForRoom;
-            var countDay = (viewModel.EndReserv - viewModel.StartReserv).Days + 1;
-            var summ = countDay * price;
-            vm.SummReserv = summ;
-            var textToEmail = "Вы успешно забронировали номер! " +
-                "Информация о Вашей брони: Номер комнаты:" + room + ". Тип номера: " + ". " +
-                "Дата заезда: " + viewModel.StartReserv + ". Дата отъезда: " + viewModel.EndReserv +
-                ". Всего по оплате: " + summ + ". " +
-                "Ждем Вас в нашем отеле и желаем счастливого отдыха!";
+            if (viewModel.PostType == "addReserve")
+            {
+                var room = viewModel.NumberOfRoom;
+                var price = _dbContext.HotelInformations.FirstOrDefault(u => u.NumberOfRoom == room).PriceForRoom;
+                var countDay = (viewModel.EndReserv - viewModel.StartReserv).Days + 1;
+                var summ = countDay * price;
+                viewModel.SummReserv = summ;
+                var textToEmail = "Вы успешно забронировали номер! " +
+                    "Информация о Вашей брони: Номер комнаты:" + room + ". Тип номера: " + ". " +
+                    "Дата заезда: " + viewModel.StartReserv + ". Дата отъезда: " + viewModel.EndReserv +
+                    ". Всего по оплате: " + summ + ". " +
+                    "Ждем Вас в нашем отеле и желаем счастливого отдыха!";
 
-            var reserve = new HotelReservation();
+                var reserve = new HotelReservation();
 
-            reserve.NumberOfRoom = viewModel.NumberOfRoom;
-            reserve.StartReserv = viewModel.StartReserv;
-            reserve.EndReserv = viewModel.EndReserv;
-            reserve.DateReserv = DateTime.Now;
-            reserve.GuestGuid = UserID;
-            reserve.GuestEmail = UserEmail;
-            reserve.SummReserv = summ;
-            reserve.GuestName = _dbContext.ClaimsDataUsers.FirstOrDefault(u => u.UserEmail == UserEmail.ToString()).UserName;
+                reserve.NumberOfRoom = viewModel.NumberOfRoom;
+                reserve.StartReserv = viewModel.StartReserv;
+                reserve.EndReserv = viewModel.EndReserv;
+                reserve.DateReserv = DateTime.Now;
+                reserve.GuestGuid = UserID;
+                reserve.GuestEmail = UserEmail;
+                reserve.SummReserv = summ;
+                reserve.GuestName = _dbContext.ClaimsDataUsers.FirstOrDefault(u => u.UserEmail == UserEmail.ToString()).UserName;
 
-            _dbContext.HotelReservations.Add(reserve);
+                _dbContext.HotelReservations.Add(reserve);
+
+                //var mes = SendMessage();
+
+                viewModel.ListAllReserved.Add(reserve);
+                viewModel.ListUserReserved.Add(reserve);
+                viewModel.RoomReserved = true;
+                viewModel.AlertType = "alertAddReserve";
+            }
+
+            if (viewModel.PostType == "delReserve")
+            {
+                var reserveForDelete = _dbContext.HotelReservations.FirstOrDefault(u => u.Id == viewModel.IdForDelete);
+
+                if (reserveForDelete != null)
+                {
+                    _dbContext.HotelReservations.Remove(reserveForDelete);
+                    viewModel.AlertType = "alertDelReserve";
+                }
+            }
+
             _dbContext.SaveChanges();
 
-            //DateTime now = DateTime.Now;
-            //vm.ListUserReserved = _dbContext.HotelReservations.Where(u => u.GuestGuid == UserID && u.EndReserv > now).ToList();
-
-            //if (vm.ListUserReserved.Count() != 0)
-            //    vm.HasUserReserve = true;
-            //else
-            //    vm.HasUserReserve = false;
-
-            //var mes = SendMessage();
-
-            vm.ListAllReserved.Add(reserve);
-            vm.ListUserReserved.Add(reserve);
-            vm.RoomReserved = true;
-
+            viewModel = CreateModelForHotel(viewModel);
 
             // Send Mail
             //SendMail("smtp.gmail.com", "shalex9@gmail.com", "399779639", UserEmail,
             //    "Бронирование номера", "Вы успешно забронировали номер! ", null);
 
-            return View("~/Views/Widgets/Hotel.cshtml", vm);
+            return View("~/Views/Widgets/Hotel.cshtml", viewModel);
         }
 
         // Send Email News    
@@ -404,22 +376,6 @@ namespace TestNetCore.Controllers
             }
 
             return Json(free);
-        }
-
-
-        //AJAX
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteReserved(int id)
-        {
-            var reserveForDelete = _dbContext.HotelReservations.FirstOrDefault(u => u.Id == id);
-
-            _dbContext.HotelReservations.Remove(reserveForDelete);
-            _dbContext.SaveChanges();
-
-            var deleted = "Deleted Success";
-            return Json(deleted);
-        }
-        
+        }        
     }
 }

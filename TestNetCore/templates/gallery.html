@@ -1,0 +1,166 @@
+﻿<div id="modalGallery">
+    <div id="boxGallery">
+        <h3 id="mgallery">Медиа галерея</h3>
+        <div class="col-md-3 text-left">
+
+            <div>
+                <span class="gallery-title" id="mydownloads">Мои загрузки</span>
+            </div>
+            <ul class="gallery__list">
+                <li>
+                    <a id="imgUpload">
+                        <span class="glyphicon glyphicon-picture"></span>
+                        <span class="mar-left10" id="pictures">Изображения</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="soundUpload">
+                        <span class="glyphicon glyphicon-music"></span>
+                        <span class="mar-left10" id="sounds">Звуки</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div>
+                <span class="gallery-title">Галерея</span>
+            </div>
+            <ul class="gallery__list">
+                <li>
+                    <a id="imgGallery">
+                        <span class="glyphicon glyphicon-picture"></span>
+                        <span class="mar-left10" id="pictures1">Изображения</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="soundGallery">
+                        <span class="glyphicon glyphicon-music"></span>
+                        <span class="mar-left10">Звуки</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="file_upload" id="chooseImg">
+                <button type="button" id="uploadBtn" onclick="return uploadFiles('uploadFiles')">
+                    <span class="glyphicon glyphicon-cloud-upload"></span>
+                    <span id="download">Загрузить</span>
+                </button>
+                <div id="fileName" style="margin-top: 5px;">Файл не выбран</div>
+                <input type="file" name="files" id="files" accept="image/*, audio/*" />
+                <button type="submit" id="pushFile" class="display-none uploadFile">Button</button>
+            </div>
+
+            <div class="galleryClose">
+                <span id="modal_ok" class="defaultStyleButton">Принять</span>
+                <span id="modal_cancel" class="defaultStyleButton">Отмена</span>
+            </div>
+        </div>
+        <div id="modalGalleryContent" class="col-md-9">
+            
+            <ul id="imgGalleryContainer" class="galleryList images">
+                @foreach (var dataFile in Model.GalleryItemImgs)
+                {
+                <li onclick="return getImgName('@dataFile.FileName', 'galleryImg')">
+                    <div class="imgBoxBg"
+                         style="background-image: url('../gallery/galleryImg/@dataFile.FileName');"></div>
+                    <div class="boxFooter">
+                        <div class="boxFooter__FileName">@dataFile.FileName</div>
+                        <div class="boxFooter__Panel">
+                            <div class="size">@dataFile.Size</div>
+                            <div class="zoomImgGallery">
+                                <a href="../gallery/galleryImg/@dataFile.FileName" target="_blank">
+                                    <span class="glyphicon glyphicon-zoom-in"></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                }
+            </ul>
+
+            <ul id="soundGalleryContainer" class="galleryList sounds">
+                @foreach (var dataFile in Model.GalleryItemSounds)
+                {
+                <li onclick="return getSoundName('@dataFile.FileName', 'gallerySound')">
+                    <div class="soundBoxBg">
+                        <i class="fa fa-play-circle-o playSound"
+                           onclick="playSound('../gallery/gallerySound/@dataFile.FileName', this);"></i>
+                        <i class="fa fa-stop-circle-o stopSound"
+                           onclick="stopSound();"></i>
+                    </div>
+                    <div class="boxFooter">
+                        <div class="boxFooter__FileName">@dataFile.FileName</div>
+                        <div class="boxFooter__Panel">
+                            <div class="size">@dataFile.Size</div>
+                        </div>
+                    </div>
+                </li>
+                }
+            </ul>
+
+            <ul id="imgUploadContainer" class="galleryList images">
+                @if (Model.ImageGalleryCount.Count() > 0)
+                {
+                foreach (var dataFile in Model.UploadItemImgs)
+                {
+                <li onclick="return getImgName('@dataFile.FileName', 'uploadImg')">
+                    <div class="imgBoxBg"
+                         style="background-image: url('../gallery/uploadImg/@dataFile.UserId/@dataFile.FileName');"></div>
+                    <div class="boxFooter">
+                        <div class="boxFooter__FileName">@dataFile.FileName</div>
+                        <div class="boxFooter__Panel">
+                            <div class="size">@dataFile.Size</div>
+                            <div class="zoom">
+                                <a href="../gallery/uploadImg/@dataFile.UserId/@dataFile.FileName" target="_blank">
+                                    <span class="glyphicon glyphicon-zoom-in"></span>
+                                </a>
+                            </div>
+                            <div class="trash" onclick="return deleteImageById(@dataFile.Id)">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                }
+                }
+                else
+                {
+                <h3>
+                    Ни одного изображения не загружено.<br /> Загрузите своё изображение, или воспользуйтесь готовыми вариантами из галереи.
+                </h3>
+                }
+            </ul>
+
+            <ul id="soundUploadContainer" class="galleryList sounds">
+                @if (Model.SoundGalleryCount.Count() > 0)
+                {
+                foreach (var dataFile in Model.UploadItemSounds)
+                {
+                <li onclick="return getSoundName('@dataFile.FileName', 'uploadSound')">
+                    <div class="soundBoxBg">
+                        <i class="fa fa-play-circle-o playSound"
+                           onclick="playSound('../gallery/uploadSound/@dataFile.UserId/@dataFile.FileName', this);"></i>
+                        <i class="fa fa-stop-circle-o stopSound"
+                           onclick="stopSound();"></i>
+                    </div>
+                    <div class="boxFooter">
+                        <div class="boxFooter__FileName">@dataFile.FileName</div>
+                        <div class="boxFooter__Panel">
+                            <div class="size">@dataFile.Size</div>
+                            <div class="trash" onclick="return deleteSoundById(@dataFile.Id)">
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                }
+                }
+                else
+                {
+                <h3>
+                    Ни одной мелодии не загружено.<br /> Загрузите свою мелодию, или воспользуйтесь готовыми вариантами из галереи.
+                </h3>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

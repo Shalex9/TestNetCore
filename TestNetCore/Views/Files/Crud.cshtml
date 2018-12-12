@@ -274,7 +274,7 @@
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
-                console.log("data: ", data);
+                //console.log("data: ", data);
                 $("#readModal .modal-title").html(fileName);
                 $("#readModal .modal-body").html(data.textFile);
                 $("#trigReadModal").click();
@@ -292,7 +292,7 @@
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
-                console.log("data: ", data);
+                //console.log("data: ", data);
 
                 fileNameForChange = fileName;
                 $("#editModal .modal-title").html(fileName);
@@ -313,7 +313,7 @@
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
-                console.log("data: ", data);
+                //console.log("data: ", data);
 
                 showAlert("alertEdit");
             }
@@ -330,8 +330,7 @@
             type: "POST",
             data: dataWithAntiforgeryToken,
             success: function (data) {
-                console.log("data: ", data);
-
+                //console.log("data: ", data);
             }
         });
     }

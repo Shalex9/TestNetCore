@@ -16,6 +16,18 @@
     <div class="page-block">
 
         <h2 id="titleAPIAccuWeather">API AccuWeather</h2>
+        <p>
+            Работа с бесплатно предосталяемым API сайта AccuWeather. 
+            К сожалению, другие метео-сайты типа Gismeteo и Sinoptik бесплатно API не предосталяют.
+            Вывод информации особо не стилизировал)
+        </p>
+        <p style="display: block; font-size: 12px;">
+            <span class="title fa fa-exclamation-triangle"></span>
+            <span id="triangleCity">
+                Важно! Поскольку API получаем на зарубежном сайте, поэтому название города ДОЛЖНО быть на латинском
+                (или на украинском, он автоматически транслитерируется в латиницу). Название города на русском преведет к ошибке!
+            </span>
+        </p>
 
         <h3 class="form-section" id="">Очень краткий прогноз погоды на 12 часов: </h3>
         <div class="form-group">
@@ -26,13 +38,6 @@
                    class="launch defaultStyleButton" id="forecast12hours">
                     <span class="glyphicon glyphicon-search"></span> <span class="btnSearch">Поиск</span>
                 </a>
-                <p style="display: block; font-size: 12px;">
-                    <span class="title fa fa-exclamation-triangle"></span>
-                    <span id="triangleCity">
-                        API получаем на зарубежном сайте, поэтому название города ДОЛЖНО быть на латинском
-                        (или на украинском, он автоматически транслитерируется в латиницу)
-                    </span>
-                </p>
             </div>
         </div>
         <div id="weather12hoursBox"></div>
@@ -46,13 +51,6 @@
                    class="launch defaultStyleButton" id="forecast5days">
                     <span class="glyphicon glyphicon-search"></span> <span class="btnSearch">Поиск</span>
                 </a>
-                <p style="display: block; font-size: 12px;">
-                    <span class="title fa fa-exclamation-triangle"></span>
-                    <span id="triangleCity">
-                        API получаем на зарубежном сайте, поэтому название города ДОЛЖНО быть на латинском
-                        (или на украинском, он автоматически транслитерируется в латиницу)
-                    </span>
-                </p>
             </div>
         </div>
         <div id="weather5daysBox"></div>

@@ -21,7 +21,7 @@
         soundName = "@Html.Raw(Model.NameSound)",
         pathSound = "@Html.Raw(Model.PathSound)",
         animationDuration = @Model.AnimationDuration + "000",
-        soundVolume = @Html.Raw(Model.SoundVolume),
+        soundVolume = @Html.Raw(Model.SoundVolume) / 100,
         startEffectAnimationImg = "@Html.Raw(Model.StartEffectAnimation)",
         finishEffectAnimationImg = "@Html.Raw(Model.FinishEffectAnimation)";
 </script>
@@ -33,6 +33,12 @@
     @Html.AntiForgeryToken()
     <div class="page-block">
         <h2>Моя галерея</h2>
+        <h4>Это демонстрация мини-виджета с сохранением настроек в БД и, собственно, моей галереи, написанной с нуля</h4>
+        <p class="m-b-20">
+            Зайти в галерею можете кликнув по названию изображения или звукового файла.
+            В ней можете загрузить свой файл изображения/аудио и нажмите Принять. Можете изменить и другие доступные настройки.
+            Не забудьте нажать кнопку Сохранить настройки. А теперь жмите Запуск анимации!
+        </p>
         <div class="form-group">
             <label class="col-md-3 control-label" for="bgColorBoxInput" id="bgcolor">Цвет фона:</label>
             <div class="col-md-9">
@@ -241,51 +247,218 @@
             <button id="endTriggerAnimation" class="sm-btn ripple-top" style="display: none;">Исчезание</button>
         </div>
 
-            @if (Model.VerifyChanges)
-            {
-                <div id="alertSave" class="alertMsg" style="display: block">
-                    Ваши настройки успешно сохранены.
+        @if (Model.VerifyChanges)
+        {
+            <div id="alertSave" class="alertMsg" style="display: block">
+                Ваши настройки успешно сохранены.
+            </div>
+        }
+        <div id="overlay"></div>
+
+        @*По неизвестным мне причинам галерея через тег-хелпер не раьотает на продакшене, хотя локально работает круто и без ошибок, поэтому закинул рабочий вариант напрямую, без тег-хелпера ниже*@
+        @*<gallerytop gallery-img-items="@Model.GalleryItemImgs"
+                    gallery-sound-items="@Model.GalleryItemSounds"
+                    upload-img-items="@Model.UploadItemImgs"
+                    upload-sound-items="@Model.UploadItemSounds">
+        </gallerytop>*@
+
+        <div id="modalGallery">
+            <div id="boxGallery">
+                <h3 id="mgallery">Медиа галерея</h3>
+                <div class="col-md-3 text-left">
+
+                    <div>
+                        <span class="gallery-title" id="mydownloads">Мои загрузки</span>
+                    </div>
+                    <ul class="gallery__list">
+                        <li>
+                            <a id="imgUpload">
+                                <span class="glyphicon glyphicon-picture"></span>
+                                <span class="mar-left10" id="pictures">Изображения</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a id="soundUpload">
+                                <span class="glyphicon glyphicon-music"></span>
+                                <span class="mar-left10" id="sounds">Звуки</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div>
+                        <span class="gallery-title">Галерея</span>
+                    </div>
+                    <ul class="gallery__list">
+                        <li>
+                            <a id="imgGallery">
+                                <span class="glyphicon glyphicon-picture"></span>
+                                <span class="mar-left10" id="pictures1">Изображения</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a id="soundGallery">
+                                <span class="glyphicon glyphicon-music"></span>
+                                <span class="mar-left10">Звуки</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="file_upload" id="chooseImg">
+                        <button type="button" id="uploadBtn" onclick="return uploadFiles('uploadFiles')">
+                            <span class="glyphicon glyphicon-cloud-upload"></span>
+                            <span id="download">Загрузить</span>
+                        </button>
+                        <div id="fileName" style="margin-top: 5px;">Файл не выбран</div>
+                        <input type="file" name="files" id="files" accept="image/*, audio/*" />
+                        <button type="submit" id="pushFile" class="display-none uploadFile">Button</button>
+                    </div>
+
+                    <div class="galleryClose">
+                        <span id="modal_ok" class="defaultStyleButton">Принять</span>
+                        <span id="modal_cancel" class="defaultStyleButton">Отмена</span>
+                    </div>
                 </div>
-            }
-            <div id="overlay"></div>
+                <div id="modalGalleryContent" class="col-md-9">
+                    <ul id="imgGalleryContainer" class="galleryList images">
+                        @foreach (var dataFile in Model.GalleryItemImgs)
+                        {
+                            <li onclick="return getImgName('@dataFile.FileName', 'galleryImg')">
+                                <div class="imgBoxBg"
+                                     style="background-image: url('../gallery/galleryImg/@dataFile.FileName');"></div>
+                                <div class="boxFooter">
+                                    <div class="boxFooter__FileName">@dataFile.FileName</div>
+                                    <div class="boxFooter__Panel">
+                                        <div class="size">@dataFile.Size</div>
+                                        <div class="zoomImgGallery">
+                                            <a href="../gallery/galleryImg/@dataFile.FileName" target="_blank">
+                                                <span class="glyphicon glyphicon-zoom-in"></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
 
-            @*<gallerytop gallery-img-items="@Model.GalleryItemImgs"
-                        gallery-sound-items="@Model.GalleryItemSounds"
-                        upload-img-items="@Model.UploadItemImgs"
-                        upload-sound-items="@Model.UploadItemSounds">
-            </gallerytop>*@
+                    <ul id="soundGalleryContainer" class="galleryList sounds">
+                        @foreach (var dataFile in Model.GalleryItemSounds)
+                        {
+                            <li onclick="return getSoundName('@dataFile.FileName', 'gallerySound')">
+                                <div class="soundBoxBg">
+                                    <i class="fa fa-play-circle-o playSound"
+                                       onclick="playSound('../gallery/gallerySound/@dataFile.FileName', this);"></i>
+                                    <i class="fa fa-stop-circle-o stopSound"
+                                       onclick="stopSound();"></i>
+                                </div>
+                                <div class="boxFooter">
+                                    <div class="boxFooter__FileName">@dataFile.FileName</div>
+                                    <div class="boxFooter__Panel">
+                                        <div class="size">@dataFile.Size</div>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
 
-            <input type="hidden" asp-for="LayoutMessage" id="LayoutMessage" />
-            <input type="hidden" asp-for="PostSaveSettings" id="PostSaveSettings" />
-            <input type="hidden" asp-for="PostUpload" id="PostUpload" />
-            <input type="hidden" asp-for="GalleryVisible" id="GalleryVisible" />
-            <input type="hidden" asp-for="SelectGalleryBox" id="SelectGalleryBox" />
-            <input type="hidden" asp-for="SelectImageSource" id="SelectImageSource" />
-            <input type="hidden" asp-for="SelectSoundSource" id="SelectSoundSource" />
-            <input type="hidden" asp-for="IdForDeletionImage" id="IdForDeletionImage" />
-            <input type="hidden" asp-for="IdForDeletionSound" id="IdForDeletionSound" />
-            <input type="hidden" asp-for="TypeUploadFile" id="TypeUploadFile" />
-            <input type="hidden" asp-for="NameImage" id="NameImageDon" />
-            <input type="hidden" asp-for="NameSound" id="NameSoundDon" />
-            <input type="hidden" asp-for="NewNameImage" id="NewNameImageDon" />
-            <input type="hidden" asp-for="NewNameSound" id="NewNameSoundDon" />
-            <input type="hidden" asp-for="PathImage" id="PathImageDon" />
-            <input type="hidden" asp-for="PathSound" id="PathSoundDon" />
-            <input type="hidden" asp-for="VerifyChanges" id="verify" />
+                    <ul id="imgUploadContainer" class="galleryList images">
+                        @if (Model.ImageGalleryCount > 0)
+                        {
+                            foreach (var dataFile in Model.UploadItemImgs)
+                            {
+                                <li onclick="return getImgName('@dataFile.FileName', 'uploadImg')">
+                                    <div class="imgBoxBg"
+                                         style="background-image: url('../gallery/uploadImg/@dataFile.UserId/@dataFile.FileName');"></div>
+                                    <div class="boxFooter">
+                                        <div class="boxFooter__FileName">@dataFile.FileName</div>
+                                        <div class="boxFooter__Panel">
+                                            <div class="size">@dataFile.Size</div>
+                                            <div class="zoom">
+                                                <a href="../gallery/uploadImg/@dataFile.UserId/@dataFile.FileName" target="_blank">
+                                                    <span class="glyphicon glyphicon-zoom-in"></span>
+                                                </a>
+                                            </div>
+                                            <div class="trash" onclick="return deleteImageById(@dataFile.Id)">
+                                                <span class="glyphicon glyphicon-trash"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <h3>
+                                Ни одного изображения не загружено.<br /> Загрузите своё изображение, или воспользуйтесь готовыми вариантами из галереи.
+                            </h3>
+                        }
+                    </ul>
+
+                    <ul id="soundUploadContainer" class="galleryList sounds">
+                        @if (Model.SoundGalleryCount > 0)
+                        {
+                            foreach (var dataFile in Model.UploadItemSounds)
+                            {
+                                <li onclick="return getSoundName('@dataFile.FileName', 'uploadSound')">
+                                    <div class="soundBoxBg">
+                                        <i class="fa fa-play-circle-o playSound"
+                                           onclick="playSound('../gallery/uploadSound/@dataFile.UserId/@dataFile.FileName', this);"></i>
+                                        <i class="fa fa-stop-circle-o stopSound"
+                                           onclick="stopSound();"></i>
+                                    </div>
+                                    <div class="boxFooter">
+                                        <div class="boxFooter__FileName">@dataFile.FileName</div>
+                                        <div class="boxFooter__Panel">
+                                            <div class="size">@dataFile.Size</div>
+                                            <div class="trash" onclick="return deleteSoundById(@dataFile.Id)">
+                                                <span class="glyphicon glyphicon-trash"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <h3>
+                                Ни одной мелодии не загружено.<br /> Загрузите свою мелодию, или воспользуйтесь готовыми вариантами из галереи.
+                            </h3>
+                        }
+                    </ul>
+                </div>
+            </div>
         </div>
-</form>
 
+
+        <input type="hidden" asp-for="LayoutMessage" id="LayoutMessage" />
+        <input type="hidden" asp-for="PostType" id="PostType" />
+        <input type="hidden" asp-for="GalleryVisible" id="GalleryVisible" />
+        <input type="hidden" asp-for="SelectGalleryBox" id="SelectGalleryBox" />
+        <input type="hidden" asp-for="SelectImageSource" id="SelectImageSource" />
+        <input type="hidden" asp-for="SelectSoundSource" id="SelectSoundSource" />
+        <input type="hidden" asp-for="IdForDeletionImage" id="IdForDeletionImage" />
+        <input type="hidden" asp-for="IdForDeletionSound" id="IdForDeletionSound" />
+        <input type="hidden" asp-for="TypeUploadFile" id="TypeUploadFile" />
+        <input type="hidden" asp-for="NameImage" id="NameImageDon" />
+        <input type="hidden" asp-for="NameSound" id="NameSoundDon" />
+        <input type="hidden" asp-for="NewNameImage" id="NewNameImageDon" />
+        <input type="hidden" asp-for="NewNameSound" id="NewNameSoundDon" />
+        <input type="hidden" asp-for="PathImage" id="PathImageDon" />
+        <input type="hidden" asp-for="PathSound" id="PathSoundDon" />
+        <input type="hidden" asp-for="VerifyChanges" id="verify" />
+    </div>
+</form>
+<script src="~/js/myGallery.js"></script>
 <script>
     function runTestAnimation() {
         gifAnimation();
-        playSound(pathSound);
-    }
+        runSound(pathSound);
+    } 
 
-    function playSound(pathSound) {
+    function runSound(pathSound) {
         $("body").append(
             '<audio class="sound-player" id="rington" autoplay="autoplay" style="display:none;" src="' + pathSound + '"></audio>');
         var aud = document.getElementById("rington");
-        aud.volume = volumeAudio;
+        aud.volume = soundVolume;
         $('#rington').on('ended',
             function () {
                 $("#rington").remove();
@@ -328,6 +501,36 @@
             });
     };
 
+
+    function saveSettings(val) {
+        $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
+        $("#PostType").val(val);
+        $("#SelectGalleryBox").val("");
+        $("button.saveSettings").click();
+        return true;
+    }
+    function uploadFiles(val) {
+        $("#PostType").val(val);
+        $("button.uploadImg").click();
+        return true;
+    }
+    // for DELETE img
+    function deleteImageById(id) {
+        $("#IdForDeletionImage").val(id);
+        $("#PostType").val("deleteFiles");
+        $("#pushFile").click();
+    }
+    function deleteSoundById(id) {
+        $("#IdForDeletionSound").val(id);
+        $("#PostType").val("deleteFiles");
+        $("#pushFile").click();
+    }        
+    
+
+    setInterval(function () {
+        $("#alertSave").css("display", "none");
+    }, 4 * 1000);
+
     // Animation
     var widthBox = parseInt($("#previewBox").css("width")),
         heightBox = parseInt($("#previewBox").css("height")),
@@ -338,356 +541,55 @@
         gifXBanner = centerX - widthGif / 2,
         gifYBanner = centerY - heightGif / 2;
 
-        function saveSettings(val) {
-            $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
-            $("#PostSaveSettings").val(val);
-            $("#SelectGalleryBox").val("");
-            $("#PostUpload").val("");
-            $("button.saveSettings").click();
-            return true;
+
+    $('#startEffectAnimation').each(function () {
+        $(this).siblings('p').text($(this).children().children('option:selected').text());
+    }).change(function () {
+        $(this).siblings('p').text($(this).children().children('option:selected').text());
+    });
+
+    $('#finishEffectAnimation').each(function () {
+        $(this).siblings('p').text($(this).children().children('option:selected').text());
+    }).change(function () {
+        $(this).siblings('p').text($(this).children().children('option:selected').text());
+    });
+    
+
+    $("#animationDurationRange").slider({
+        range: "min",
+        value: parseInt("@Model.AnimationDuration"),
+        step: 1,
+        min: 2,
+        max: 60,
+        slide: function( event, ui ) {
+            $( "#animationDurationInput" ).val( ui.value );
+            var value = $("#animationDurationInput").val();
+            $("#animationDurationRange").slider("value", value);
         }
-        function uploadFiles(val) {
-            $("#PostUpload").val(val);
-            $("#PostSaveSettings").val("");
-            $("button.uploadImg").click();
-            return true;
+    });
+    $("#animationDurationInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#animationDurationRange").slider("value", parseInt(value));
+    });
+
+
+    $("#soundVolumeRange").slider({
+        range: "min",
+        value: parseInt("@Model.SoundVolume"),
+        step: 1,
+        min: 0,
+        max: 100,
+        slide: function( event, ui ) {
+            $( "#soundVolumeInput" ).val( ui.value );
+            var value = $("#soundVolumeInput").val();
+            $("#soundVolumeRange").slider("value", value);
         }
-
-        // for highlight the ACTIVE FILE in gallery
-        var divImageName = $(".images .boxFooter__FileName");
-        var divSoundName = $(".sounds .boxFooter__FileName");
-        for (var a = 0; a < divImageName.length; a++) {
-            var elemImg, elemImgLi,
-                w = divImageName[a].textContent;
-            if (w === imageName) {
-                elemImg = divImageName[a];
-                elemImg.style.cssText = "font-weight: bold; color: #eeeeee;";
-                elemImgLi = elemImg.parentNode.parentNode;
-                elemImgLi.style.cssText = "border-color: #eeeeee";
-            }
-        }
-        for (var a = 0; a < divSoundName.length; a++) {
-            var elemSound, elemSoundLi,
-                w = divSoundName[a].textContent;
-            if (w === soundName) {
-                elemSound = divSoundName[a];
-                elemSound.style.cssText = "font-weight: bold; color: #eeeeee;";
-                elemSoundLi = elemSound.parentNode.parentNode;
-                elemSoundLi.style.cssText = "border-color: #eeeeee";
-            }
-        }
-
-        // For PLAY/STOP ringtones
-        function playSound(fileName, self) {
-            stopSound();
-            $(".playSound").css("display", "inline-block");
-            $(".stopSound").css("display", "none");
-            $(self).css("display", "none");
-            $(self).siblings().css("display", "inline-block");
-            $("body").append(
-                '<audio class="sound-player" id="donatRington" autoplay="autoplay" style="display:none;">' +
-                '<source src="' + fileName + '" />' +
-                '<embed src="' + fileName + '" hidden="true" autostart="true" loop="false"/>' + '</audio>');
-            $('#donatRington').on('ended',
-                function () {
-                    stopSound();
-                });
-        }
-        function stopSound() {
-            $(".stopSound").css("display", "none");
-            $(".playSound").css("display", "inline-block");
-            $(".sound-player").remove();
-        }
-
-        // Save Name choosen Image and Sound
-        function getImgName(name, tab) {
-            $("#NewNameImageDon").val(name);
-            $("#SelectImageSource").val(tab);
-            return true;
-        }
-        function getSoundName(name, tab) {
-            $("#NewNameSoundDon").val(name);
-            $("#SelectSoundSource").val(tab);
-            return true;
-        }
-
-
-        // Border over choosen Image and Sound
-        $(".galleryList li").click(function () {
-            $(this).siblings().css({
-                "border-color": "rgb(240, 242, 242)",
-                "font-weight": "normal",
-                "color": "#333"
-            });
-            $(this).css({
-                "border-color": "#3297DB",
-                "font-weight": "bold",
-                "color": "#3297DB"
-            });
-        });
-
-        // for DELETE img
-        function deleteImageById(id) {
-            $("#IdForDeletionImage").val(id);
-            $("#PostUpload").val("uploadFiles");
-            $("#PostSaveSettings").val("");
-            $("#PostGenerateLink").val("");
-            $("#pushFile").click();
-        }
-        function deleteSoundById(id) {
-            $("#IdForDeletionSound").val(id);
-            $("#PostUpload").val("uploadFiles");
-            $("#PostSaveSettings").val("");
-            $("#PostGenerateLink").val("");
-            $("#pushFile").click();
-        }
-
-
-        // Switch tabs in gallery
-        $('#imgGallery').click(function () {
-            $('#SelectGalleryBox').val('galleryImg');
-            $("#modalGallery span.active").removeClass("active");
-            $(this).find("span").addClass("active");
-            $("#imgGalleryContainer").siblings().css("display", "none");
-            $("#imgGalleryContainer").css("display", "flex");
-        });
-        $('#soundGallery').click(function () {
-            $('#SelectGalleryBox').val('gallerySound');
-            $("#modalGallery span.active").removeClass("active");
-            $(this).find("span").addClass("active");
-            $("#soundGalleryContainer").siblings().css("display", "none");
-            $("#soundGalleryContainer").css("display", "flex");
-        });
-        $('#imgUpload').click(function () {
-            $('#SelectGalleryBox').val('uploadImg');
-            $("#modalGallery span.active").removeClass("active");
-            $(this).find("span").addClass("active");
-            $("#imgUploadContainer").siblings().css("display", "none");
-            $("#imgUploadContainer").css("display", "flex");
-        });
-        $('#soundUpload').click(function () {
-            $('#SelectGalleryBox').val('uploadSound');
-            $("#modalGallery span.active").removeClass("active");
-            $(this).find("span").addClass("active");
-            $("#soundUploadContainer").siblings().css("display", "none");
-            $("#soundUploadContainer").css("display", "flex");
-        });
-
-
-
-        // MODAL Window  Gallery IMG&SOUND
-        $('#btnChooseImage').click(function (event) {
-            event.preventDefault();
-            $('#overlay').fadeIn(400,
-                function () {
-                    $('#modalGallery')
-                        .css('display', 'block')
-                        .animate({ opacity: 1, top: '50%' }, 200);
-                });
-            $("#modalGallery span.active").removeClass("active");
-            $("#imgGallery span").addClass("active");
-            $("#imgUploadContainer").siblings().css("display", "none");
-            $("#imgGalleryContainer").css("display", "flex");
-        });
-        $('#btnChooseSound').click(function (event) {
-            event.preventDefault();
-            $('#overlay').fadeIn(400,
-                function () {
-                    $('#modalGallery')
-                        .css('display', 'block')
-                        .animate({ opacity: 1, top: '50%' }, 200);
-                });
-            $("#modalGallery span.active").removeClass("active");
-            $("#soundGallery span").addClass("active");
-            $("#soundUploadContainer").siblings().css("display", "none");
-            $("#soundGalleryContainer").css("display", "flex");
-        });
-        $('#modal_close, #overlay, #modal_cancel').click(function () {
-            $('#modalGallery')
-                .animate({ opacity: 0, top: '45%' }, 200,
-                    function () {
-                        $(this).css('display', 'none');
-                        $('#overlay').fadeOut(400);
-                    }
-                );
-            $("#NewNameImageDon").val("");
-            $("#NewNameSoundDon").val("");
-            $('#GalleryVisible').val("");
-            $('#SelectImageSource').val("");
-            $('#SelectSoundSource').val("");
-            $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
-        });
-
-        $('#modal_ok').click(function () {
-            $('#imgGalleryContainer, #soundGalleryContainer, #imgUploadContainer, #soundUploadContainer').css('display', 'none');
-            $('#modalGallery')
-                .animate({ opacity: 0, top: '45%' }, 200,
-                    function () {
-                        $(this).css('display', 'none');
-                        $('#overlay').fadeOut(400);
-                    }
-                );
-            $('#GalleryVisible').val("");
-            var newNameImage = $("#NewNameImageDon").val();
-            var newSourceImage = $("#SelectImageSource").val();
-            var newNameSound = $("#NewNameSoundDon").val();
-            if (newNameImage !== "") {
-                $("#NameImageDon").val(newNameImage);
-                $("#nameChoosenImage").text(newNameImage);
-                $("#animationExample").attr("src", function () {
-                    return "/gallery/" + newSourceImage + "/" + newNameImage;
-                });
-                $("#animationExample").attr("title", function () {
-                    return newNameImage;
-                });
-            } else {
-                $("#NameImageDon").val(imageName);
-                $("#nameChoosenImage").text(imageName);
-            }
-            if (newNameSound !== "") {
-                $("#NameSoundDon").val(newNameSound);
-                $("#nameChoosenSound").text(newNameSound);
-            } else {
-                $("#NameSoundDon").val(soundName);
-                $("#nameChoosenSound").text(soundName);
-            }
-        });
-
-
-        // select box in Modal Gallery after uploadFiles-POST
-        if (galleryVisible === true) {
-            $('#overlay').fadeIn(0,
-                function () {
-                    $('#modalGallery')
-                        .css('display', 'block')
-                        .animate({ opacity: 1, top: '50%' }, 0);
-                });
-        }
-        if (selectGalleryBox === "galleryImg") {
-            $('#imgGallery').click();
-        }
-        if (selectGalleryBox === "gallerySound") {
-            $('#soundGallery').click();
-        }
-        if (selectGalleryBox === "uploadImg") {
-            $('#imgUpload').click();
-        }
-        if (selectGalleryBox === "uploadSound") {
-            $('#soundUpload').click();
-        }
-
-
-
-        // ADD FILES
-        var wrapper = $(".file_upload"),
-            inp = wrapper.find("input"),
-            btn = wrapper.find("button#uploadBtn"),
-            push = wrapper.find("button#pushFile"),
-            lbl = wrapper.find("div#fileName");
-        btn.focus(function () {
-            wrapper.addClass("focus");
-        }).blur(function () {
-            wrapper.removeClass("focus");
-        });
-        btn.add(lbl).click(function () {
-            inp.click();
-        });
-        var file_api = (window.File && window.FileReader && window.FileList && window.Blob) ? true : false;
-        inp.change(function () {
-            var file_name;
-            if (file_api && inp[0].files[0])
-                file_name = inp[0].files[0].name;
-            else
-                file_name = inp.val().replace("C:\\somepath\\", '');
-            if (!file_name.length)
-                return;
-            if (lbl.is(":visible")) {
-                lbl.text(file_name);
-                btn.text("Загрузка файла");
-            } else
-                btn.text(file_name);
-            // for Get Type file
-            var file = $("#files")[0].files[0],
-                ext = "не определилось",
-                parts = file.type.split('/');
-            if (parts.length > 1) ext = parts.shift();
-            console.log("MIME тип: ", ext);
-            $("#TypeUploadFile").val(ext);
-
-            push.click();
-        }).change();
-
-
-
-        setInterval(function () {
-            $("#alertSave").css("display", "none");
-        }, 4 * 1000);
-
-
-
-
-        $('#startEffectAnimation').each(function () {
-            $(this).siblings('p').text($(this).children().children('option:selected').text());
-        }).change(function () {
-            $(this).siblings('p').text($(this).children().children('option:selected').text());
-        });
-
-        $('#finishEffectAnimation').each(function () {
-            $(this).siblings('p').text($(this).children().children('option:selected').text());
-        }).change(function () {
-            $(this).siblings('p').text($(this).children().children('option:selected').text());
-        });
-
-
-
-
-        $("#animationDurationRange").slider({
-            range: "min",
-            value: parseInt("@Model.AnimationDuration"),
-            step: 1,
-            min: 2,
-            max: 60,
-            slide: function( event, ui ) {
-                $( "#animationDurationInput" ).val( ui.value );
-                var value = $("#animationDurationInput").val();
-                $("#animationDurationRange").slider("value", value);
-            }
-        });
-        $("#animationDurationInput").change(function () {
-            var n=/\d{6}\s+~/g;
-            var value = this.value.replace(n, "");
-            $("#animationDurationRange").slider("value", parseInt(value));
-        });
-
-
-        $("#soundVolumeRange").slider({
-            range: "min",
-            value: parseInt("@Model.SoundVolume"),
-            step: 1,
-            min: 0,
-            max: 100,
-            slide: function( event, ui ) {
-                $( "#soundVolumeInput" ).val( ui.value );
-                var value = $("#soundVolumeInput").val();
-                $("#soundVolumeRange").slider("value", value);
-            }
-        });
-        $("#soundVolumeInput").change(function () {
-            var n=/\d{6}\s+~/g;
-            var value = this.value.replace(n, "");
-            $("#soundVolumeRange").slider("value", parseInt(value));
-        });
-
-
-
-
-        //$('#startEffectAnimation').change(function () {
-        //    var anim = $(this).val();
-        //    testAnim(anim);
-        //});
-        //$('#finishEffectAnimation').change(function () {
-        //    var anim = $(this).val();
-        //    testAnim(anim);
-        //});
+    });
+    $("#soundVolumeInput").change(function () {
+        var n=/\d{6}\s+~/g;
+        var value = this.value.replace(n, "");
+        $("#soundVolumeRange").slider("value", parseInt(value));
+    });
 
 </script>
