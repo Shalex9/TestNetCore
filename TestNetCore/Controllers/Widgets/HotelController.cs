@@ -158,15 +158,11 @@ namespace TestNetCore.Controllers
             if (viewModel.PostType == "addReserve")
             {
                 var room = viewModel.NumberOfRoom;
+                var roomComfort = _dbContext.HotelInformations.FirstOrDefault(u => u.NumberOfRoom == room).ComfortableOfRoom;
                 var price = _dbContext.HotelInformations.FirstOrDefault(u => u.NumberOfRoom == room).PriceForRoom;
                 var countDay = (viewModel.EndReserv - viewModel.StartReserv).Days + 1;
                 var summ = countDay * price;
                 viewModel.SummReserv = summ;
-                var textToEmail = "Вы успешно забронировали номер! " +
-                    "Информация о Вашей брони: Номер комнаты:" + room + ". Тип номера: " + ". " +
-                    "Дата заезда: " + viewModel.StartReserv + ". Дата отъезда: " + viewModel.EndReserv +
-                    ". Всего по оплате: " + summ + ". " +
-                    "Ждем Вас в нашем отеле и желаем счастливого отдыха!";
 
                 var reserve = new HotelReservation();
 
@@ -180,23 +176,42 @@ namespace TestNetCore.Controllers
                 reserve.GuestName = _dbContext.ClaimsDataUsers.FirstOrDefault(u => u.UserEmail == UserEmail.ToString()).UserName;
 
                 _dbContext.HotelReservations.Add(reserve);
-
-                //var mes = SendMessage();
-
+                
                 viewModel.ListAllReserved.Add(reserve);
                 viewModel.ListUserReserved.Add(reserve);
                 viewModel.RoomReserved = true;
                 viewModel.AlertType = "alertAddReserve";
+
+                string textToEmail = "Уважаемый " + reserve.GuestName + "! Вы успешно забронировали номер! " +
+                    "Информация о Вашей брони: Номер комнаты: " + room + ". Тип номера: " + roomComfort + ". " +
+                    "Дата заезда: " + viewModel.StartReserv + ". Дата отъезда: " + viewModel.EndReserv +
+                    ". Всего по оплате: " + summ + "грн. " +
+                    "Ждем Вас в нашем отеле и желаем счастливого отдыха!";
+
+                // Send Mail
+                SendEMail(UserEmail, "Бронирование номера", textToEmail, "party.gif");
             }
 
             if (viewModel.PostType == "delReserve")
             {
                 var reserveForDelete = _dbContext.HotelReservations.FirstOrDefault(u => u.Id == viewModel.IdForDelete);
-
                 if (reserveForDelete != null)
                 {
                     _dbContext.HotelReservations.Remove(reserveForDelete);
                     viewModel.AlertType = "alertDelReserve";
+                    string guestName = _dbContext.ClaimsDataUsers.FirstOrDefault(u => u.UserEmail == UserEmail.ToString()).UserName;
+                    var dateStart = reserveForDelete.StartReserv;
+                    var dateEnd = reserveForDelete.EndReserv;
+                    var roomNumber = reserveForDelete.NumberOfRoom;
+                    var roomComfort = _dbContext.HotelInformations.FirstOrDefault(u => u.NumberOfRoom == roomNumber).ComfortableOfRoom;
+
+                    string textToEmail = "Уважаемый " + guestName + "! Уведомляем, что Ваша бронь отеля отменена! " +
+                        "Информация о Вашей отмененной брони: Номер комнаты: " + roomNumber + ". Тип номера: " + roomComfort + ". " +
+                        "Дата заезда: " + dateStart + ". Дата отъезда: " + dateEnd +
+                        ". Надеемся, что еще увидимся с Вами! Всегда ждем Вас в нашем отеле и желаем счастливого отдыха!";
+
+                    // Send Mail
+                    SendEMail(UserEmail, "Отмена бронирования номера", textToEmail, "spongebob.gif");
                 }
             }
 
@@ -204,66 +219,35 @@ namespace TestNetCore.Controllers
 
             viewModel = CreateModelForHotel(viewModel);
 
-            // Send Mail
-            //SendMail("smtp.gmail.com", "shalex9@gmail.com", "399779639", UserEmail,
-            //    "Бронирование номера", "Вы успешно забронировали номер! ", null);
-
             return View("~/Views/Widgets/Hotel.cshtml", viewModel);
         }
 
         // Send Email News    
-        public static void SendMail(string smtpServer, string from, string password,
-            string mailto, string caption, string message, string attachFile)
+        public static void SendEMail(string mailto, string caption, string message, string attachFile)
         {
             try
             {
-                MailAddress fromAdress = new MailAddress("shalex9@gmail.com", "399779639");
-                MailAddress toAdress = new MailAddress("shalex9@mailinator.com", "399779639");
-
-                using (MailMessage mail = new MailMessage(fromAdress, toAdress))
-                using (SmtpClient client = new SmtpClient())
-                {
-                    mail.Subject = caption;
-                    mail.Body = message;
-
-                    client.Host = smtpServer;
-                    client.Port = 587;
-                    client.EnableSsl = true;
-                    client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                    client.UseDefaultCredentials = false;
-                    client.Credentials = new NetworkCredential(fromAdress.Address, password);
-
-                    client.Send(mail);
-                }
-                //MailMessage mail = new MailMessage();
-                //mail.From = new MailAddress(from);
-                //mail.To.Add(new MailAddress(mailto));
-                //mail.Subject = caption;
-                //mail.Body = message;
-                ////if (!string.IsNullOrEmpty(attachFile))
-                ////    mail.Attachments.Add(new Attachment("wwwroot/gallery/newsImg/" + attachFile));
-                //SmtpClient client = new SmtpClient();
-                //client.Host = smtpServer;
-                //client.Port = 587;
-                //client.EnableSsl = true;
-                //client.UseDefaultCredentials = false;
-                //client.Credentials = new NetworkCredential("shevlex@gmail.com", password);
-                //client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                //client.Send(mail);
-                //mail.Dispose();
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress("alexdotnetapp@gmail.com", "Site: testdotnetapp.pp.ua");
+                mail.To.Add(new MailAddress(mailto));
+                mail.Subject = caption;
+                mail.Body = message;
+                if (!string.IsNullOrEmpty(attachFile))
+                    mail.Attachments.Add(new Attachment("wwwroot/gallery/galleryImg/" + attachFile));
+                SmtpClient client = new SmtpClient();
+                client.Host = "smtp.gmail.com";
+                client.Port = 587;
+                client.EnableSsl = true;
+                client.Credentials = new NetworkCredential("alexdotnetapp@gmail.com", "qwerty12345678!");
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                client.Send(mail);
+                mail.Dispose();
             }
             catch (Exception e)
             {
                 throw new Exception("Mail.Send: " + e.Message);
             }
         }
-
-        //public async Task<IActionResult> SendMessage()
-        //{
-        //    EmailService emailService = new EmailService();
-        //    await emailService.SendEmailAsync("shalex9@maillinator.com", "Тема письма", "Тест письма: тест!");
-        //    return RedirectToAction("Index");
-        //}
 
 
         //AJAX
@@ -272,6 +256,7 @@ namespace TestNetCore.Controllers
         public IActionResult CheckIsFreeRoom(DateTime start, DateTime end)
         {
             DateTime now = DateTime.Now;
+            DateTime today = now.AddDays(-1);
             var list101Reserved = _dbContext.HotelReservations.Where(u => u.NumberOfRoom == 101).ToList();
             var list102Reserved = _dbContext.HotelReservations.Where(u => u.NumberOfRoom == 102).ToList();
             var list201Reserved = _dbContext.HotelReservations.Where(u => u.NumberOfRoom == 201).ToList();
@@ -282,7 +267,7 @@ namespace TestNetCore.Controllers
             free.EndReserv = end;
             free.CountDays = (end - start).Days + 1;
 
-            if (start >= now && end > now && start < end)
+            if (start >= today && end > now && start < end)
             {
                 free.IsCorrectDate = true;
 
