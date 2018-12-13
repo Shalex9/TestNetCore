@@ -14,30 +14,32 @@
 
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link href="~/assets/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
+        <link href="~/css/font-awesome.min.css" rel="stylesheet">
         <link href="~/assets/material-icon/material-icons.min.css" rel="stylesheet">
         <link rel="stylesheet" href="~/css/style-admin.css" />
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <link href="~/lib/syncfusion-javascript/Content/ej/web/bootstrap-theme/ej.web.all.min.css" rel="stylesheet" />
         <link href="~/lib/syncfusion-javascript/Content/ej/web/responsive-css/ej.responsive.css" rel="stylesheet" />
-        <script src="~/jquery/jquery-3.1.0.min.js"></script>
-        <script src="~/lib/jsrender/jsrender.min.js"></script>
+        @*<script src="~/jquery/jquery-3.1.0.min.js"></script>*@
         <script src="~/lib/syncfusion-javascript/Scripts/ej/web/ej.web.all.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="~/assets/smoothScroll/SmoothScroll.js"></script>
+        <script src="~/lib/jsrender/jsrender.min.js"></script>
+        <script src="~/js/site.js"></script>
     </environment>
     <environment exclude="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link href="~/assets/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
+        <link href="~/css/font-awesome.min.css" rel="stylesheet">
         <link href="~/assets/material-icon/material-icons.min.css" rel="stylesheet">
         <link rel="stylesheet" href="~/css/style-admin.css" asp-append-version="true" />
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <link href="~/lib/syncfusion-javascript/Content/ej/web/bootstrap-theme/ej.web.all.min.css" rel="stylesheet" />
         <link href="~/lib/syncfusion-javascript/Content/ej/web/responsive-css/ej.responsive.css" rel="stylesheet" />
-        <script src="~/lib/jsrender/jsrender.min.js"></script>
         <script src="~/lib/syncfusion-javascript/Scripts/ej/web/ej.web.all.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="~/assets/smoothScroll/SmoothScroll.js"></script>
+        <script src="~/lib/jsrender/jsrender.min.js"></script>
+        <script src="~/js/site.js"></script>
     </environment>
 </head>
 <body id="scroll">
@@ -47,7 +49,6 @@
         <div class="btn-menu">
             <i class="material-icons">menu</i>
         </div>
-
         <a id="logotype" href="http://shalex.info/ru/" class="logo-admin">
             <img style="width: 180px;" src="~/img/logo-shalex.png" />
         </a>
@@ -132,37 +133,29 @@
 
     <div class="admin-page">
         <div class="row adm">
-                @RenderBody()
+            @RenderBody()
         </div>
-            <hr />
-            <footer>
-                <p>&copy; 2018 - shalex</p>
-            </footer>
+        <hr />
+        <footer>
+            <p>&copy; 2018 - shalex</p>
+        </footer>
     </div>
-
-    <environment include="Development">
-        <script src="~/lib/jsrender/jsrender.min.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
-    </environment>
-    <environment exclude="Development">
-        <script src="~/lib/jsrender/jsrender.min.js"></script>
-        <script src="~/js/site.min.js" asp-append-version="true"></script>
-    </environment>
 
     @RenderSection("Scripts", required: false)
 
     <script type="text/javascript">
-        //$("#logotype").attr("href", window.location.hostname);
-
-        // to set cookie for translation programm.
-        //var lang;
-        //$(document).ready(function () {
-        //    lang = getCookie("language");
-        //    if (lang == null || lang === "") {
-        //        lang = 'ru';
+        //function showInfo() {
+        //    if ($(".glyphicon").hasClass("glyphicon-eye-open")) {
+        //        $(".glyphicon").removeClass("glyphicon-eye-open");
+        //        $(".glyphicon").addClass("glyphicon-eye-close");
+        //        $(".showInfoBtn").text("Скрыть описание");
+        //    } else {
+        //        $(".glyphicon").removeClass("glyphicon-eye-close");
+        //        $(".glyphicon").addClass("glyphicon-eye-open");
+        //        $(".showInfoBtn").text("Показать описание");
         //    }
-        //    SetLanguage(lang);
-        //});
+        //    $(".showInfoText").toggleClass("display-none");
+        //}
     </script>
 </body>
 </html>

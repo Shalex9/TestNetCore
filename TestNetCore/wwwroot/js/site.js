@@ -1,4 +1,12 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-// Write your JavaScript code.
+﻿function showInfo() {
+    if ($(".glyphicon").hasClass("glyphicon-eye-open")) {
+        $(".glyphicon").removeClass("glyphicon-eye-open");
+        $(".glyphicon").addClass("glyphicon-eye-close");
+        $(".showInfoBtn").text("Скрыть описание");
+    } else {
+        $(".glyphicon").removeClass("glyphicon-eye-close");
+        $(".glyphicon").addClass("glyphicon-eye-open");
+        $(".showInfoBtn").text("Показать описание");
+    }
+    $(".showInfoText").toggleClass("display-none");
+}

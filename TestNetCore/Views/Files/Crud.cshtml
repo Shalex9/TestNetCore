@@ -12,10 +12,11 @@
       method="post" enctype="multipart/form-data"
       class="col-md-12">
     @Html.AntiForgeryToken()
-    <h2 id="">CRUD операции с файлами</h2>
+    <h2>CRUD операции с файлами</h2>
+
     <h4>Основные действия с файлами на сервере - создание, чтение, изменение, удаление</h4>
     <p>ПС: для примера, поработаем с текстовыми файлами. Каждый пользователь может создать/загрузить максимум 2 файла. Для теста этого достаточно.</p>
-
+   
     <hr />
 
     <div class="m-b-20">
@@ -104,7 +105,7 @@
         <i class="fa fa-floppy-o" aria-hidden="true" id="save"></i>
         <span id="downloadResumeText">Загрузить моё резюме</span>
     </a>
-    
+
     <div id="alertSave" class="alertMsg" style="display: none;">
         Ваш файл успешно сохранен на сервере
     </div>

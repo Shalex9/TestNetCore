@@ -10,11 +10,10 @@
 }
 <link rel="stylesheet" href="~/css/animate.min.css">
 <link rel="stylesheet" href="~/css/jquery-ui.min.css">
-<link rel="stylesheet" href="~/css/txt.wav.css">
 <script type="text/javascript" src="~/js/jquery.tablesorter.js"></script>
 <script src="~/js/jquery-ui.min.js"></script>
-<script src="~/lib/jquery.globalize.min.js"></script>
-<script src="~/lib/jquery.validate.min.js"></script>
+@*<script src="~/lib/jquery.globalize.min.js"></script>
+<script src="~/lib/jquery.validate.min.js"></script>*@
 <script src="https://cdn.syncfusion.com/js/assets/i18n/ej.culture.ru-RU.min.js"></script>
 <script src="https://cdn.syncfusion.com/js/assets/i18n/ej.culture.uk-UA.min.js"></script>
 
@@ -27,8 +26,12 @@
 
 <div class="col-md-12">
     <div class="page-block">
-        <h2>Симуляция бронирования номеров. </h2>
-        <p>
+        <h2 class="titleBeforeBtnInfo">Симуляция бронирования номеров. </h2>
+        <button id="showInfo" class="btn btn-primary btn-sm m-b-20" type="button" onclick="return showInfo();">
+            <span class="glyphicon glyphicon-eye-open"></span>
+            <span class="showInfoBtn">Показать описание</span>
+        </button>
+        <p class="showInfoText display-none">
             Выберите понравившийся Вам номер, подходящие даты. Из списка свободных номеров выберите более подходящий и жмите
             кнопку Бронировать. <br />
             В подтверждение бронирования Вам придет на Ваш почтовый ящик, указанный при регистрации письмо с уведомлением о бронировании
@@ -39,6 +42,7 @@
             Внизу также отображается таблица бронирований, всех пользователей сайта.
             Также все прошедшие бронирования можно увидеть в архиве.
         </p><br />
+        <hr />
         <h2 id="infoHotel">Информация о номерах</h2>
         <table class="table">
             <thead>

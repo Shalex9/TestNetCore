@@ -115,12 +115,8 @@ body {
   color: #eee;
   background: #444;
   box-sizing: border-box;
-  /*min-height: 100%;*/
   position: relative;
 }
-/*body,html {
-    height: 100%;
-}*/
 
 a {
   -webkit-transform: translateZ(0);
@@ -2237,4 +2233,8 @@ input[type="checkbox"] {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+}
+.titleBeforeBtnInfo {
+    display: inline-block;
+    margin-right: 30px;
 }
