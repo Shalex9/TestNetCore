@@ -1,0 +1,90 @@
+﻿@using TestNetCore.Controllers
+@using TestNetCore.Models.Widgets.Messages
+@using Newtonsoft.Json;
+
+@model TestNetCore.Models.Widgets.Messages.MessagesViewModel
+
+@{
+    ViewData["Title"] = "Messages";
+    Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
+}
+@*<link rel="stylesheet" href="~/css/animate.min.css">
+<link rel="stylesheet" href="~/css/jquery-ui.min.css">
+<script type="text/javascript" src="~/js/jquery.tablesorter.js"></script>
+<script src="~/js/jquery-ui.min.js"></script>*@
+
+
+<form class="form-inline col-md-12"
+      asp-controller="Messages" asp-action="Messages"
+      id="Messages"
+      method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <div class="page-block">
+        <h2 class="titleBeforeBtnInfo">Отправка сообщений. Страница в стадии разработки</h2>
+        <button id="showInfo" class="btn btn-primary btn-sm m-b-20" type="button" onclick="return showInfo();">
+            <span class="glyphicon glyphicon-eye-open"></span>
+            <span class="showInfoBtn">Показать описание</span>
+        </button>
+        <p class="showInfoText display-none">
+            Отправьте сообщение на любой имейл.<br />
+        </p><br />
+        <hr />
+        <h2>Составьте сообщение</h2>
+
+        <div class="form-inline">
+            <div class="form-group">
+                <label for="exampleInputName2">Name</label>
+                <input asp-for="NameFrom" type="text" class="form-control" placeholder="Имя отправителя">
+            </div>
+            <div class="form-group">
+                <input asp-for="SendTo" type="text" class="form-control" readonly value="SendTo">
+            </div>
+        </div>
+        <input asp-for="TitleMessage" type="text" class="form-control" placeholder="Заголовок">
+        <textarea asp-for="TextMessage" class="form-control" rows="3"></textarea>
+
+        <div id="chooseFile" class="mar-left20">
+            <button class="btn btn-primary" type="button" id="uploadBtn" onclick="return uploadFiles('uploadFiles')">
+                <span class="glyphicon glyphicon-cloud-upload"></span>
+                <span id="download">Прикрепить файл</span>
+            </button>
+            <input type="file" name="files" id="files" accept="text/*, image/*, audio/*" style="display: none;" />
+            <button type="submit" id="pushFile" class="display-none uploadFile">Button</button>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-default">Отправить сообщение</button>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" asp-for="PostType" id="PostType" />
+</form>
+
+
+<script>
+
+    // ADD FILES
+    var wrapper = $("#chooseFile"),
+        inp = wrapper.find("input"),
+        btn = wrapper.find("button#uploadBtn"),
+        push = wrapper.find("button#pushFile");
+    btn.click(function () {
+        inp.click();
+    });
+    var file_api = (window.File && window.FileReader && window.FileList && window.Blob) ? true : false;
+    inp.change(function () {
+        var file_name;
+        if (file_api && inp[0].files[0])
+            file_name = inp[0].files[0].name;
+        if (file_name == undefined)
+            return;
+        var file = $("#files")[0].files[0],
+            ext = "не определилось",
+            parts = file.type.split('/');
+        if (parts.length > 1) ext = parts.shift();
+        //console.log("MIME тип: ", ext);
+        push.click();
+    }).change();
+</script>

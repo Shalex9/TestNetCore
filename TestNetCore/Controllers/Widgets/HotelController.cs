@@ -222,7 +222,7 @@ namespace TestNetCore.Controllers
             return View("~/Views/Widgets/Hotel.cshtml", viewModel);
         }
 
-        // Send Email News    
+        // Send Email  
         public static void SendEMail(string mailto, string caption, string message, string attachFile)
         {
             try
