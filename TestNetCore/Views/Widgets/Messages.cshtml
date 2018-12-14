@@ -25,7 +25,7 @@
         <p>
             Отправьте сообщение на свой имейл. Укажите все данные, по желанию прикрепите файл(ограничимся одним)<br />
             ПС: чтобы с моего сайта не рассылался спам всем подряд - ограничимся отправкой сообщений <span class="myStyleSpan">только на свой ящик</span> :)
-</p>
+        </p>
         <hr />
         <h3>Составьте сообщение</h3>
 
@@ -38,7 +38,7 @@
         <div class="form-group">
             <label class="col-md-3 control-label" for="nameSender">Имя отправителя:</label>
             <div class="col-md-9">
-                <input id="nameSender" asp-for="NameFrom" type="text" class="form-control" placeholder="Имя отправителя">
+                <input id="nameSender" asp-for="NameFrom" type="text" class="form-control" placeholder="Имя отправителя" pattern="[а-яА-ЯёЁa-zA-Z0-9-_\.\s]]{1,20}$">
             </div>
         </div>
         <div class="form-group">
@@ -48,27 +48,38 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="textMes" class="col-md-3">Текст сообщения: </label>
+            <label for="TextMessage" class="col-md-3">Текст сообщения: </label>
             <div class="col-md-9">
-                <textarea id="textMes" asp-for="TextMessage" class="form-control" rows="3" style="width: 500px;"></textarea>
+                <textarea asp-for="TextMessage" id="TextMessage" class="form-control" rows="3" style="width: 500px;" required
+                          onblur="saveText();"
+                          oninvalid="this.setCustomValidity('Обязательное поле')"
+                          oninput="this.setCustomValidity('')">
+                </textarea>
             </div>
         </div>
         <div class="form-group m-b-20">
             <label for="textMes" class="col-md-3">Прикрепить файл: </label>
             <div class="col-md-9">
                 <div id="chooseFile">
-                    <button class="btn btn-primary" type="button" id="uploadBtn" onclick="return uploadFiles();">
-                        <span class="glyphicon glyphicon-cloud-upload"></span>
+                    <button class="btn btn-primary" type="button" id="uploadBtn">
+                        <span class="glyphicon glyphicon-cloud-upload m-r-5"></span>
                         <span id="download">Прикрепить файл</span>
                     </button>
                     <input type="file" name="files" id="files" accept="text/*, image/*, audio/*" style="display: none;" />
-                    <button type="submit" id="pushFile" class="display-none uploadFile" onclick="return saveFile();">Button</button>
+                    <button type="submit" id="pushFile" class="display-none uploadFile">Button</button>
                 </div>
             </div>
         </div>
-        
+
         <div class="text-center m-b-20">
-            <button type="button" class="btn btn-primary m-b-20" onclick="return sendEmail();">Отправить сообщение</button>
+            <button id="playVoice" type="button" class="btn btn-primary" onclick="voice()">
+                <span class="glyphicon glyphicon-play-circle m-r-5"></span> Прослушать начитку введенного сообщения
+            </button>
+        </div>
+        <div class="text-center m-b-20">
+            <button type="button" class="btn btn-primary" onclick="return sendEmail();">
+                <span class="glyphicon glyphicon-send m-r-5"></span> Отправить сообщение
+            </button>
         </div>
 
         <hr />
@@ -80,7 +91,7 @@
             Т.е. все слова, которые есть в этом списке, также в тексте отправленного сообщения будут автоматически заменяться звёздочками. Вводить их в этот список нет необходимости.<br />
             Чтобы эти слова перед Вами лишний раз не "муляли" блок со словами по умолчанию скрывается.
         </p>
-                <div class="form-group">
+        <div class="form-group">
             <label class="col-md-3 control-label" for="forbiddenList" id="perslist">Свой список нежелательных слов:</label>
             <div class="col-md-9">
                 <a id="labelShowForbidden"
@@ -98,22 +109,22 @@
                           id="forbiddenList">
                 </textarea>
                 <a id="labelHideForbidden"
-                    class="change-btn"
-                    style="display: none;"
-                    onclick="hideForbidden()">
+                   class="change-btn"
+                   style="display: none;"
+                   onclick="hideForbidden()">
                     <i class="fa fa-eye-slash" aria-hidden="true"></i>
                     Скрыть список
                 </a>
             </div>
         </div>
-
-
         <div class="text-center m-b-20">
-            <button type="button" class="btn btn-primary" onclick="return saveSettings();">Сохранить список слов</button>
+            <button type="button" class="btn btn-primary" onclick="return saveSettings();">
+                <i class="fa fa-floppy-o m-r-5" aria-hidden="true"></i> Сохранить список слов
+            </button>
         </div>
     </div>
 
-    @*@if (Model.AlertType == "alertSended")
+    @if (Model.AlertType == "alertSended")
     {
         <div id="alertSended" class="alertMsg" style="display: block;">
             Сообщение успешно Отправлено на Ваш почтовый почтовый ящик.
@@ -122,9 +133,9 @@
     @if (Model.AlertType == "alertSave")
     {
         <div id="alertSave" class="alertMsg" style="display: block;">
-            Настройки успешно сохранены.
+            Слова успешно сохранены в списке.
         </div>
-    }*@
+    }
 
     <button id="sbm" type="submit" style="display: none;"></button>
     <input type="hidden" asp-for="PostType" id="PostType" />
@@ -133,9 +144,6 @@
 
 
 <script>
-    function uploadFiles() {
-        $("#PostType").val('uploadFiles');
-    }
     function sendEmail() {
         $("#PostType").val('sendEmail');
         $("#sbm").click();
@@ -168,6 +176,20 @@
         $("#alertSended, #alertSave").css("display", "none");
     }, 4 * 1000);
 
+    var pathVoice;
+    function voice() {
+        if (pathVoice != undefined) {
+            $("body").append(
+                '<audio class="sound-player" id="voiceRington" autoplay="autoplay" style="display:none;" src="' + pathVoice + '"></audio>');
+            var aud = document.getElementById("voiceRington");
+            $('#voiceRington').on('ended',
+                function () {
+                    $("#voiceRington").remove();
+            });
+        }
+    }
+
+
     // ADD FILES
     var wrapper = $("#chooseFile"),
         inp = wrapper.find("input"),
@@ -188,21 +210,30 @@
             parts = file.type.split('/');
         if (parts.length > 1) ext = parts.shift();
         $("#AttachFile").val(file_name);
+        $("#PostType").val('uploadFiles');
         push.click();
     }).change();
 
-    function saveFile() {
-        var token = $('input[name="__RequestVerificationToken"]', $('#Messages')).val();
-        var myData = { files: $("#AttachFile").val() };
-        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
-        $.ajax({
-            url: "/Messages/SaveFile",
-            type: "POST",
-            data: dataWithAntiforgeryToken,
-            success: function (data) {
-                console.log("AttachFile: ", data);
-                $("#AttachFile").val(data);
-            }
-        });
+    $("#playVoice").attr("disabled", "disable");
+    function saveText() {
+        var message = $("#TextMessage").val();
+        if (message == "") {
+            $("#playVoice").attr("disabled", "disable");
+        } else {
+            var token = $('input[name="__RequestVerificationToken"]', $('#Messages')).val();
+            var myData = { text: message };
+            var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+            $.ajax({
+                url: "/Messages/SaveText",
+                type: "POST",
+                data: dataWithAntiforgeryToken,
+                success: function (data) {
+                    console.log("data: ", data);
+                    $("#playVoice").removeAttr("disabled");
+                    pathVoice = data.replace("wwwroot/", "../") + ".mp3";
+                    console.log("pathVoice: ", pathVoice);
+                }
+            });
+        }        
     }
 </script>

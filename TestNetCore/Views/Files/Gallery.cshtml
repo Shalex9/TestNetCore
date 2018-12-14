@@ -457,6 +457,7 @@
     } 
 
     function runSound(pathSound) {
+        console.log("pathSound: ", pathSound);
         $("body").append(
             '<audio class="sound-player" id="rington" autoplay="autoplay" style="display:none;" src="' + pathSound + '"></audio>');
         var aud = document.getElementById("rington");

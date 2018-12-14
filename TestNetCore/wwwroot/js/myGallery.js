@@ -25,6 +25,7 @@ for (var a = 0; a < divSoundName.length; a++) {
 
 // For PLAY/STOP ringtones
 function playSound(fileName, self) {
+    console.log("fileName", fileName);
     stopSound();
     $(".playSound").css("display", "inline-block");
     $(".stopSound").css("display", "none");

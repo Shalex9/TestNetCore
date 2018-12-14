@@ -14,14 +14,25 @@ using Newtonsoft.Json;
 using TestNetCore.Data.TableData;
 using TestNetCore.Models.Widgets.Messages;
 using System.Text.RegularExpressions;
+using System.Text;
+using System.Security.Cryptography;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
 
 namespace TestNetCore.Controllers
 {
     public class MessagesController : BaseController
     {
-        public MessagesController(IHttpContextAccessor httpContextAccessor, ApplicationDbContext dbContext)
+        private readonly IHostingEnvironment _appEnvironment;
+
+        public MessagesController(
+            IHttpContextAccessor httpContextAccessor, 
+            ApplicationDbContext dbContext,
+            IHostingEnvironment appEnvironment)
             : base(httpContextAccessor, dbContext)
-        { }
+        {
+            _appEnvironment = appEnvironment;
+        }
 
 
         [HttpGet]
@@ -38,10 +49,26 @@ namespace TestNetCore.Controllers
         public MessagesViewModel ModelForMessages(MessagesViewModel viewModel)
         {
             // Проверяю или существует директория для файлов для этого юзера, если нет - создаю
-            string directoryFilesUser = "wwwroot/usersfiles/" + UserID + "/imgForEmail/";
-            if (!Directory.Exists(directoryFilesUser))
+            string directoryFilesImg = $"wwwroot/usersfiles/{UserID}/imgForEmail/";
+            if (!Directory.Exists(directoryFilesImg))
             {
-                Directory.CreateDirectory(directoryFilesUser);
+                Directory.CreateDirectory(directoryFilesImg);
+            }
+
+            string directoryFilesVoice = $"wwwroot/usersfiles/{UserID}/voiceMessage/";
+            if (!Directory.Exists(directoryFilesVoice))
+            {
+                Directory.CreateDirectory(directoryFilesVoice);
+            }
+
+            var isForbidden = _dbContext.ForbiddenWordUsers.FirstOrDefault(a => a.UserId == UserID);
+            if (isForbidden != null)
+            {
+                var forbidden = _dbContext.ForbiddenWordUsers.Where(a => a.UserId == UserID);
+                foreach (var f in forbidden)
+                {
+                    viewModel.StringForbiddenWordsUser = viewModel.StringForbiddenWordsUser + f;
+                }
             }
 
             viewModel.SendTo = UserEmail;
@@ -75,7 +102,7 @@ namespace TestNetCore.Controllers
                 // for Change forbidden words to ***
                 if (viewModel.TextMessage != null)
                 {
-                    viewModel.TextMessage = RemoveWords(viewModel.TextMessage, forbiddenWordsUser, forbiddenWordStandart, viewModel);
+                    viewModel.TextMessage = RemoveWords(viewModel.TextMessage, forbiddenWordsUser, forbiddenWordStandart, viewModel, "***");
                 }
                 SendEMail(UserEmail, viewModel.NameFrom, viewModel.TitleMessage, viewModel.TextMessage, viewModel.AttachFile, UserID);
             }
@@ -132,6 +159,36 @@ namespace TestNetCore.Controllers
             return View("~/Views/Widgets/Messages.cshtml", viewModel);
         }
 
+        //Save Text OnBlur
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveText(string text)
+        {
+            if (text != null && text != "")
+            {
+                var generateMP3 = new Generate();
+                var dirPath = $"wwwroot/usersfiles/{UserID}/voiceMessage/";
+
+                // Create List Forbidden Words (Standart Forbidden Words + User )
+                var forbiddenWordsUser = _dbContext.ForbiddenWordUsers.Where(u => u.UserId == UserID);
+                var forbiddenWordStandart = _dbContext.ForbiddenWords.Where(a => a.Word != null);
+                
+                // for Change forbidden words to " цензура "
+                MessagesViewModel viewModel = new MessagesViewModel();
+                text = RemoveWords(text, forbiddenWordsUser, forbiddenWordStandart, viewModel, " цензура ");
+
+                string fileName = GetMd5Hash(text);
+                generateMP3.tts(text, "ru", dirPath, fileName);
+                string fullPath = $"wwwroot/usersfiles/{UserID}/voiceMessage/{fileName}.mp3";
+
+                return Json(fullPath);
+            }
+            else
+            {
+                return Json("noVoice");
+            }            
+        }
+
 
         // Send Email  
         public static void SendEMail(string mailto, string name, string title, string message, string attachFile, string id)
@@ -139,7 +196,14 @@ namespace TestNetCore.Controllers
             try
             {
                 MailMessage mail = new MailMessage();
-                mail.From = new MailAddress("alexdotnetapp@gmail.com", name + "(, from test site: testdotnetapp.pp.ua)");
+                if(name == null)
+                {
+                    mail.From = new MailAddress("alexdotnetapp@gmail.com", "Message from test site: testdotnetapp.pp.ua)");
+                }
+                else
+                {
+                    mail.From = new MailAddress("alexdotnetapp@gmail.com", name + ", (from test site: testdotnetapp.pp.ua)");
+                }
                 mail.To.Add(new MailAddress(mailto));
                 mail.Subject = title;
                 mail.Body = message;
@@ -179,7 +243,8 @@ namespace TestNetCore.Controllers
         public static string RemoveWords(string textForReplace,
                                     IQueryable<ForbiddenWordUser> forbiddenWordUser,
                                     IQueryable<ForbiddenWord> forbiddenWordStandart,
-                                    MessagesViewModel viewModel)
+                                    MessagesViewModel viewModel,
+                                    string replaceTo)
         {
             foreach (var word in forbiddenWordUser)
             {
@@ -203,9 +268,25 @@ namespace TestNetCore.Controllers
             }
 
             string pattern = "\\b" + string.Join("\\b|\\b", arrayForbidden) + "\\b";
-            string replace = "***";
-            textForReplace = Regex.Replace(textForReplace, pattern, replace, RegexOptions.IgnoreCase);
-            return textForReplace;
+            string newText = Regex.Replace(textForReplace, pattern, replaceTo, RegexOptions.IgnoreCase);
+            return newText;
+        }
+
+
+        // для формировании имени голосового файла исходя из текста сообщения
+        public string GetMd5Hash(string input)
+        {
+            StringBuilder sBuilder = new StringBuilder();
+            using (MD5 md5Hash = MD5.Create())
+            {
+                byte[] data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
+
+                for (int i = 0; i < data.Length; i++)
+                {
+                    sBuilder.Append(data[i].ToString("x2"));
+                }
+            }
+            return sBuilder.ToString();
         }
     }
 }
