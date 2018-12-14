@@ -21,49 +21,152 @@
     @Html.AntiForgeryToken()
 
     <div class="page-block">
-        <h2 class="titleBeforeBtnInfo">Отправка сообщений. Страница в стадии разработки</h2>
-        <button id="showInfo" class="btn btn-primary btn-sm m-b-20" type="button" onclick="return showInfo();">
-            <span class="glyphicon glyphicon-eye-open"></span>
-            <span class="showInfoBtn">Показать описание</span>
-        </button>
-        <p class="showInfoText display-none">
-            Отправьте сообщение на любой имейл.<br />
-        </p><br />
+        <h2>Отправка сообщений. Страница в стадии разработки</h2>
+        <p>
+            Отправьте сообщение на свой имейл. Укажите все данные, по желанию прикрепите файл(ограничимся одним)<br />
+            ПС: чтобы с моего сайта не рассылался спам всем подряд - ограничимся отправкой сообщений <span class="myStyleSpan">только на свой ящик</span> :)
+</p>
         <hr />
-        <h2>Составьте сообщение</h2>
+        <h3>Составьте сообщение</h3>
 
-        <div class="form-inline">
-            <div class="form-group">
-                <label for="exampleInputName2">Name</label>
-                <input asp-for="NameFrom" type="text" class="form-control" placeholder="Имя отправителя">
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="sendTo">Отправить на Email:</label>
+            <div class="col-md-9">
+                <input id="sendTo" asp-for="SendTo" type="text" class="form-control" readonly="readonly" value="@Model.SendTo">
             </div>
-            <div class="form-group">
-                <input asp-for="SendTo" type="text" class="form-control" readonly value="SendTo">
-            </div>
-        </div>
-        <input asp-for="TitleMessage" type="text" class="form-control" placeholder="Заголовок">
-        <textarea asp-for="TextMessage" class="form-control" rows="3"></textarea>
-
-        <div id="chooseFile" class="mar-left20">
-            <button class="btn btn-primary" type="button" id="uploadBtn" onclick="return uploadFiles('uploadFiles')">
-                <span class="glyphicon glyphicon-cloud-upload"></span>
-                <span id="download">Прикрепить файл</span>
-            </button>
-            <input type="file" name="files" id="files" accept="text/*, image/*, audio/*" style="display: none;" />
-            <button type="submit" id="pushFile" class="display-none uploadFile">Button</button>
         </div>
         <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-10">
-                <button type="submit" class="btn btn-default">Отправить сообщение</button>
+            <label class="col-md-3 control-label" for="nameSender">Имя отправителя:</label>
+            <div class="col-md-9">
+                <input id="nameSender" asp-for="NameFrom" type="text" class="form-control" placeholder="Имя отправителя">
             </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label" for="titleMes">Заголовок: </label>
+            <div class="col-md-9">
+                <input id="titleMes" asp-for="TitleMessage" type="text" class="form-control" placeholder="Заголовок">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="textMes" class="col-md-3">Текст сообщения: </label>
+            <div class="col-md-9">
+                <textarea id="textMes" asp-for="TextMessage" class="form-control" rows="3" style="width: 500px;"></textarea>
+            </div>
+        </div>
+        <div class="form-group m-b-20">
+            <label for="textMes" class="col-md-3">Прикрепить файл: </label>
+            <div class="col-md-9">
+                <div id="chooseFile">
+                    <button class="btn btn-primary" type="button" id="uploadBtn" onclick="return uploadFiles();">
+                        <span class="glyphicon glyphicon-cloud-upload"></span>
+                        <span id="download">Прикрепить файл</span>
+                    </button>
+                    <input type="file" name="files" id="files" accept="text/*, image/*, audio/*" style="display: none;" />
+                    <button type="submit" id="pushFile" class="display-none uploadFile" onclick="return saveFile();">Button</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center m-b-20">
+            <button type="button" class="btn btn-primary m-b-20" onclick="return sendEmail();">Отправить сообщение</button>
+        </div>
+
+        <hr />
+        <h3>Список черных слов</h3>
+        <p>
+            Введите слова, которые Вам не нравятся через пробел или запятую. Например: капуста арбуз чеснок.
+            Слова, которые Вы здесь укажете <span class="myStyleSpan">в тексте отправленного сообщения будут заменяться звёздочками</span>. Регистр не учитывается.<br />
+            По умолчанию, к тесту сообщений я <span class="myStyleSpan">подключил библиотеку цензуры)</span> Там около 900 нецензурных слов на русском, украинском и английском.<br />
+            Т.е. все слова, которые есть в этом списке, также в тексте отправленного сообщения будут автоматически заменяться звёздочками. Вводить их в этот список нет необходимости.<br />
+            Чтобы эти слова перед Вами лишний раз не "муляли" блок со словами по умолчанию скрывается.
+        </p>
+                <div class="form-group">
+            <label class="col-md-3 control-label" for="forbiddenList" id="perslist">Свой список нежелательных слов:</label>
+            <div class="col-md-9">
+                <a id="labelShowForbidden"
+                   class="change-btn"
+                   style="line-height: 33px;"
+                   onclick="showForbidden()">
+                    <i class="fa fa-eye" aria-hidden="true" id="showlist">Показать список</i>
+                </a>
+                <textarea asp-for="@Model.StringForbiddenWordsUser"
+                          type="text"
+                          value="@Model.StringForbiddenWordsUser"
+                          rows="2"
+                          style="width: 500px; display: none;"
+                          class="form-control preventDefault"
+                          id="forbiddenList">
+                </textarea>
+                <a id="labelHideForbidden"
+                    class="change-btn"
+                    style="display: none;"
+                    onclick="hideForbidden()">
+                    <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                    Скрыть список
+                </a>
+            </div>
+        </div>
+
+
+        <div class="text-center m-b-20">
+            <button type="button" class="btn btn-primary" onclick="return saveSettings();">Сохранить список слов</button>
         </div>
     </div>
 
+    @*@if (Model.AlertType == "alertSended")
+    {
+        <div id="alertSended" class="alertMsg" style="display: block;">
+            Сообщение успешно Отправлено на Ваш почтовый почтовый ящик.
+        </div>
+    }
+    @if (Model.AlertType == "alertSave")
+    {
+        <div id="alertSave" class="alertMsg" style="display: block;">
+            Настройки успешно сохранены.
+        </div>
+    }*@
+
+    <button id="sbm" type="submit" style="display: none;"></button>
     <input type="hidden" asp-for="PostType" id="PostType" />
+    <input type="hidden" asp-for="AttachFile" id="AttachFile" />
 </form>
 
 
 <script>
+    function uploadFiles() {
+        $("#PostType").val('uploadFiles');
+    }
+    function sendEmail() {
+        $("#PostType").val('sendEmail');
+        $("#sbm").click();
+    }
+    function saveSettings() {
+        $("#PostType").val('saveSettings');
+        $("#sbm").click();
+    }
+    function hideForbidden() {
+        $('#labelHideForbidden').css('display', 'none');
+        $('#labelShowForbidden').css('display', 'inline-block');
+        $('#forbiddenList').css('display', 'none');
+        $('#forbiddenTitle').css('display', 'none');
+    }
+    function showForbidden() {
+        $('#labelHideForbidden').css('display', 'inline-block');
+        $('#labelShowForbidden').css({ display: 'none', lineHeight: 'initial' });
+        $('#forbiddenList').css('display', 'inline-block');
+        $('#forbiddenTitle').css('display', 'inline-block');
+    }
+
+    // Для всех инпутовс классом preventDefault отключаю POST по клику на ENTER
+    $("input.preventDefault").keydown(function (event) {
+        if (event.which === 13) {
+            event.preventDefault();
+        }
+    });
+
+    setInterval(function () {
+        $("#alertSended, #alertSave").css("display", "none");
+    }, 4 * 1000);
 
     // ADD FILES
     var wrapper = $("#chooseFile"),
@@ -84,7 +187,22 @@
             ext = "не определилось",
             parts = file.type.split('/');
         if (parts.length > 1) ext = parts.shift();
-        //console.log("MIME тип: ", ext);
+        $("#AttachFile").val(file_name);
         push.click();
     }).change();
+
+    function saveFile() {
+        var token = $('input[name="__RequestVerificationToken"]', $('#Messages')).val();
+        var myData = { files: $("#AttachFile").val() };
+        var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
+        $.ajax({
+            url: "/Messages/SaveFile",
+            type: "POST",
+            data: dataWithAntiforgeryToken,
+            success: function (data) {
+                console.log("AttachFile: ", data);
+                $("#AttachFile").val(data);
+            }
+        });
+    }
 </script>
