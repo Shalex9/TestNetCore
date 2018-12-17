@@ -24,7 +24,6 @@ namespace TestNetCore.Controllers
     public class MessagesController : BaseController
     {
         private readonly IHostingEnvironment _appEnvironment;
-        private string VoiceName;
 
         public MessagesController(
             IHttpContextAccessor httpContextAccessor, 
@@ -126,7 +125,7 @@ namespace TestNetCore.Controllers
                 mes.TitleMessage = viewModel.TitleMessage;
                 mes.TextMessage = viewModel.TextMessage;
                 mes.AttachFile = viewModel.AttachFile;
-                mes.VoiceName = this.VoiceName;
+                mes.VoiceName = GetMd5Hash(viewModel.TextMessage) + ".mp3";
                 mes.DateMessage = DateTime.Now;
 
                 _dbContext.EmailMessages.Add(mes);
@@ -206,7 +205,6 @@ namespace TestNetCore.Controllers
                 text = RemoveWords(text, forbiddenWordsUser, forbiddenWordStandart, viewModel, " цензура ");
 
                 string fileName = GetMd5Hash(text);
-                VoiceName = fileName;
                 generateMP3.tts(text, "ru", dirPath, fileName);
                 string pathForPlay = $"../usersfiles/{UserID}/voiceMessage/{fileName}.mp3";
 

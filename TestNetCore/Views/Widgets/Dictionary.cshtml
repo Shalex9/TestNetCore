@@ -285,6 +285,8 @@
                 }
                 $("#boxUserAssociation .table").tablesorter({ headers: { 2: { sorter: false } } });
 
+                $("#boxExport").html("<p>Теперь Вы можете проверить сохранение Ваших слов в таблицу Excel нажав кнопку ниже</p><a id='dlink' style='display:none;'></a><div class='defaultStyleButton' style='width: 120px;' onclick='tableToExcel(\"myAssociation\", \"Мои ассоциации слов\", \"Мои ассоциации слов.xls\")'>Экспорт в .xls</div>");
+
                 $("#alertSave").css("display", "block");
                 setInterval(function () {
                     $("#alertSave").css("display", "none");
