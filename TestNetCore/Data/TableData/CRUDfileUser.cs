@@ -19,6 +19,5 @@ namespace TestNetCore.Data.TableData
         public string FileName2 { get; set; }
         public string FilePath2 { get; set; }
         public string FileSize2 { get; set; }
-        public DateTime LastChange { get; set; }
     }
 }

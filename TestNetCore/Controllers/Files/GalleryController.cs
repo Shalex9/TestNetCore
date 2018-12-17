@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using TestNetCore.Data;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using System.Net;
 using TestNetCore.Models.Files.Gallery;
@@ -30,6 +29,17 @@ namespace TestNetCore.Controllers.Files
         public IActionResult Gallery()
         {
             var viewModel = new GalleryViewModel();
+
+            // FOR READ FROM TXT FILE AND WRITE TO DATABASE
+            DefaultDataDB def = new DefaultDataDB(_dbContext);
+            if (_dbContext.GalleryFilesImgs.FirstOrDefault() == null)
+            {
+                def.GalleryImg();
+            }
+            if (_dbContext.GalleryFilesSounds.FirstOrDefault() == null)
+            {
+                def.GallerySound();
+            }
 
             viewModel = ModelForGallery(viewModel);
             return View("~/Views/Files/Gallery.cshtml", viewModel);
@@ -137,7 +147,6 @@ namespace TestNetCore.Controllers.Files
             foreach (GalleryFileImg galleryImg in _dbContext.GalleryFilesImgs)
             {
                 var gi = new GalleryFileImg();
-                gi.UserId = UserID;
                 gi.Id = galleryImg.Id;
                 gi.FileName = galleryImg.FileName;
                 gi.Size = galleryImg.Size;
@@ -147,7 +156,6 @@ namespace TestNetCore.Controllers.Files
             foreach (GalleryFileSound gallerySound in _dbContext.GalleryFilesSounds)
             {
                 var gi = new GalleryFileSound();
-                gi.UserId = UserID;
                 gi.Id = gallerySound.Id;
                 gi.FileName = gallerySound.FileName;
                 gi.Size = gallerySound.Size;

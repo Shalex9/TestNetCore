@@ -17,7 +17,6 @@ namespace TestNetCore.Models.Widgets.Messages
         public string PostType { get; set; }
         public string AlertType { get; set; }
         public string VoiceName { get; set; }
-        //public string VoicePath { get; set; }
 
         // Вся строка запрещенных слов которую разбираю по пробелу и делаю List
         public string StringForbiddenWordsUser { get; set; }

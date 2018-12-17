@@ -1,0 +1,16 @@
+bug.gif 23,1КБ
+cat.gif 133КБ
+rabbit.gif 6,54КБ
+shark.gif 330КБ
+star.gif 128КБ
+spongebob.gif 217КБ
+spongebob1.gif 241КБ
+butterfly.gif 285КБ
+cheerful-dog.gif 41,8КБ
+dove.gif 203КБ
+giphy.gif 225КБ
+pikachu.gif 53,2КБ
+rabbit1.gif 269КБ
+wolf.gif 749КБ
+opossum.gif 454КБ
+party.gif 957КБ

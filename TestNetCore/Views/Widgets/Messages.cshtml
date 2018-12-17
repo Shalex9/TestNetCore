@@ -8,11 +8,6 @@
     ViewData["Title"] = "Messages";
     Layout = "~/Views/Shared/_LayoutCabinet.cshtml";
 }
-@*<link rel="stylesheet" href="~/css/animate.min.css">
-<link rel="stylesheet" href="~/css/jquery-ui.min.css">
-<script type="text/javascript" src="~/js/jquery.tablesorter.js"></script>
-<script src="~/js/jquery-ui.min.js"></script>*@
-
 
 <form class="form-inline col-md-12"
       asp-controller="Messages" asp-action="Messages"
@@ -21,10 +16,12 @@
     @Html.AntiForgeryToken()
 
     <div class="page-block">
-        <h2>Отправка сообщений. Страница в стадии разработки</h2>
+        <h2>Отправка сообщений. Голосовая начитка текста</h2>
         <p>
             Отправьте сообщение на свой имейл. Укажите все данные, по желанию прикрепите файл(ограничимся одним)<br />
-            ПС: чтобы с моего сайта не рассылался спам всем подряд - ограничимся отправкой сообщений <span class="myStyleSpan">только на свой ящик</span> :)
+            ПС: чтобы с моего сайта не рассылался спам всем подряд - ограничимся отправкой сообщений <span class="myStyleSpan">только на свой ящик</span> :)<br />
+            После того, как введете текст сообщения - можете прослушать <span class="myStyleSpan">голосовую начитку текста</span>, нажав соответствующию кнопку внизу. <br />
+            В голосовом сообщении, так же как и при отпраке текста также будет происходить <span class="myStyleSpan">замена слов из черного списка</span> (подробнее об этом читайте ниже)
         </p>
         <hr />
         <h3>Составьте сообщение</h3>
@@ -36,39 +33,49 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-md-3 control-label" for="nameSender">Имя отправителя:</label>
+            <label class="col-md-3 control-label" for="nameSender">Имя отправителя (по желанию):</label>
             <div class="col-md-9">
-                <input id="nameSender" asp-for="NameFrom" type="text" class="form-control" placeholder="Имя отправителя" pattern="[а-яА-ЯёЁa-zA-Z0-9-_\.\s]]{1,20}$">
+                <input id="nameSender" asp-for="NameFrom" type="text" class="form-control" placeholder="Имя отправителя">
             </div>
         </div>
         <div class="form-group">
-            <label class="col-md-3 control-label" for="titleMes">Заголовок: </label>
+            <label class="col-md-3 control-label" for="titleMes">Заголовок (по желанию): </label>
             <div class="col-md-9">
                 <input id="titleMes" asp-for="TitleMessage" type="text" class="form-control" placeholder="Заголовок">
             </div>
         </div>
         <div class="form-group">
-            <label for="TextMessage" class="col-md-3">Текст сообщения: </label>
+            <label for="TextMessage" class="col-md-3">Текст сообщения (обязательно): </label>
             <div class="col-md-9">
                 <textarea asp-for="TextMessage" id="TextMessage" class="form-control" rows="3" style="width: 500px;" required
-                          onblur="saveText();"
+                          onblur="generateVoice();"
                           oninvalid="this.setCustomValidity('Обязательное поле')"
                           oninput="this.setCustomValidity('')">
                 </textarea>
             </div>
         </div>
         <div class="form-group m-b-20">
-            <label for="textMes" class="col-md-3">Прикрепить файл: </label>
-            <div class="col-md-9">
-                <div id="chooseFile">
-                    <button class="btn btn-primary" type="button" id="uploadBtn">
-                        <span class="glyphicon glyphicon-cloud-upload m-r-5"></span>
-                        <span id="download">Прикрепить файл</span>
-                    </button>
-                    <input type="file" name="files" id="files" accept="text/*, image/*, audio/*" style="display: none;" />
-                    <button type="submit" id="pushFile" class="display-none uploadFile">Button</button>
+            @if (Model.AttachFile == null)
+            {
+                <label for="textMes" class="col-md-3">Прикрепить файл (по желанию): </label>
+                <div class="col-md-9">
+                    <div id="chooseFile">
+                        <button class="btn btn-primary" type="button" id="uploadBtn">
+                            <span class="glyphicon glyphicon-cloud-upload m-r-5"></span>
+                            <span id="download">Прикрепить файл</span>
+                        </button>
+                        <input type="file" name="files" id="files" accept="text/*, image/*, audio/*" style="display: none;" />
+                        <button type="submit" id="pushFile" class="display-none uploadFile">Button</button>
+                    </div>
                 </div>
-            </div>
+            }
+            else
+            {
+                <label for="textMes" class="col-md-3">Прикрепленный файл: </label>
+                <div class="col-md-9">
+                    <p class="myStyleSpan" style="line-height: 33px;">@Model.AttachFile</p>
+                </div>
+            }
         </div>
 
         <div class="text-center m-b-20">
@@ -81,15 +88,17 @@
                 <span class="glyphicon glyphicon-send m-r-5"></span> Отправить сообщение
             </button>
         </div>
-
-        <hr />
+    </div>
+    <div class="page-block">
         <h3>Список черных слов</h3>
         <p>
-            Введите слова, которые Вам не нравятся через пробел или запятую. Например: капуста арбуз чеснок.
+            Введите слова, которые Вам не нравятся через пробел или запятую. Например: капуста арбуз чеснок.<br />
             Слова, которые Вы здесь укажете <span class="myStyleSpan">в тексте отправленного сообщения будут заменяться звёздочками</span>. Регистр не учитывается.<br />
-            По умолчанию, к тесту сообщений я <span class="myStyleSpan">подключил библиотеку цензуры)</span> Там около 900 нецензурных слов на русском, украинском и английском.<br />
-            Т.е. все слова, которые есть в этом списке, также в тексте отправленного сообщения будут автоматически заменяться звёздочками. Вводить их в этот список нет необходимости.<br />
-            Чтобы эти слова перед Вами лишний раз не "муляли" блок со словами по умолчанию скрывается.
+            Также, к тесту сообщений я <span class="myStyleSpan">подключил библиотеку цензуры.</span> Там около 900 неприличных слов на русском, украинском и английском.<br />
+            Т.е. все слова, которые есть в том списке, также, по умолчанию, в тексте отправленного сообщения будут автоматически заменяться звёздочками. Вводить их в этот список нет необходимости.<br />
+            Здесь можете потестировать с любым другим словом: впишите его здесь, сохраните настройки, упомяните это слово в сообщении
+            и послушайте/отправьте сообщение.
+            Ну и чтобы эти слова перед Вами лишний раз не "муляли" блок с Вашими "черными" словами по умолчанию скрывается.
         </p>
         <div class="form-group">
             <label class="col-md-3 control-label" for="forbiddenList" id="perslist">Свой список нежелательных слов:</label>
@@ -107,7 +116,7 @@
                           style="width: 500px; display: none;"
                           class="form-control preventDefault"
                           id="forbiddenList">
-                </textarea>
+            </textarea>
                 <a id="labelHideForbidden"
                    class="change-btn"
                    style="display: none;"
@@ -136,6 +145,12 @@
             Слова успешно сохранены в списке.
         </div>
     }
+    @if (Model.AlertType == "alertUpload")
+    {
+        <div id="alertSave" class="alertMsg" style="display: block;">
+            Файл прикреплен.
+        </div>
+    }
 
     <button id="sbm" type="submit" style="display: none;"></button>
     <input type="hidden" asp-for="PostType" id="PostType" />
@@ -150,6 +165,7 @@
     }
     function saveSettings() {
         $("#PostType").val('saveSettings');
+        $("#TextMessage").removeAttr("required");
         $("#sbm").click();
     }
     function hideForbidden() {
@@ -173,7 +189,7 @@
     });
 
     setInterval(function () {
-        $("#alertSended, #alertSave").css("display", "none");
+        $("#alertSended, #alertSave, #alertUpload").css("display", "none");
     }, 4 * 1000);
 
     var pathVoice;
@@ -188,8 +204,7 @@
             });
         }
     }
-
-
+    
     // ADD FILES
     var wrapper = $("#chooseFile"),
         inp = wrapper.find("input"),
@@ -211,11 +226,12 @@
         if (parts.length > 1) ext = parts.shift();
         $("#AttachFile").val(file_name);
         $("#PostType").val('uploadFiles');
+        $("#TextMessage").removeAttr("required");
         push.click();
     }).change();
 
     $("#playVoice").attr("disabled", "disable");
-    function saveText() {
+    function generateVoice() {
         var message = $("#TextMessage").val();
         if (message == "") {
             $("#playVoice").attr("disabled", "disable");
@@ -224,14 +240,12 @@
             var myData = { text: message };
             var dataWithAntiforgeryToken = $.extend(myData, { '__RequestVerificationToken': token });
             $.ajax({
-                url: "/Messages/SaveText",
+                url: "/Messages/GenerateVoice",
                 type: "POST",
                 data: dataWithAntiforgeryToken,
                 success: function (data) {
-                    console.log("data: ", data);
                     $("#playVoice").removeAttr("disabled");
-                    pathVoice = data.replace("wwwroot/", "../") + ".mp3";
-                    console.log("pathVoice: ", pathVoice);
+                    pathVoice = data;
                 }
             });
         }        

@@ -118,19 +118,6 @@
                 Здесь будет отображаться таблица всех сохраненных ранее ассоциаций<br />
                 Новые ассоциации будут добавляться динамически<br />
                 <div id="boxExport"></div>
-                @*@if (Model.ListAssociation.Count() == 0)
-                {
-                    <strong>Когда будет сохранена хоть одна ассоциация, здесь появится кнопка экспорта таблицы ассоциаций в формат .xls</strong>
-                }
-                else
-                {
-                    <p>Теперь Вы можете проверить сохранение Ваших слов в таблицу Excel нажав кнопку ниже</p>
-                    <a id="dlink" style="display:none;"></a>
-                    <div class="defaultStyleButton" style="width: 120px;"
-                            onclick="tableToExcel('myAssociation', 'Мои ассоциации слов', 'Мои ассоциации слов.xls')">
-                        Экспорт в .xls
-                    </div>
-                }*@
             </div>
 
         <div id="alertSave" class="alertMsg" style="display: none;">
@@ -322,6 +309,7 @@
                 if (data.length != 0) {
                     $("#boxUserAssociation").html('<table class="table" id="myAssociation"><thead><tr style="font-weight: bold"><th style="width: 20%">Слово</th><th style="width: 73%">Ассоциации</th><th style="width: 7%"></th></tr></thead><tbody></tbody></table> ');
                     for (var i = 0; i < data.length; i++) {
+                        //error delete
                         $("#boxUserAssociation tbody").append("<tr><td>" + data[i].word + "</td><td>" + data[i].allWordsAss + "</td><td><span class='title glyphicon glyphicon-trash pointer' title='Удалить' onclick='return deleteAss(\"" + data[i].word.toString() + "\"')></span></td></tr>");
                     }
                     $("#boxUserAssociation .table").tablesorter({ headers: { 2: { sorter: false } } });
@@ -343,7 +331,7 @@
     if (@Model.ListAssociation.Count() == 0) {
         $("#boxExport").html("<strong>Когда будет сохранена хоть одна ассоциация, здесь появится кнопка экспорта таблицы ассоциаций в формат .xls</strong>");
     } else {
-        $("#boxExport").html("<p>Теперь Вы можете проверить сохранение Ваших слов в таблицу Excel нажав кнопку ниже</p><a id='dlink' style = 'display:none; ></a><div class='defaultStyleButton' style='width: 120px; onclick='tableToExcel(\"myAssociation\", \"Мои ассоциации слов\", \"Мои ассоциации слов.xls\")'>Экспорт в .xls</div>");
+        $("#boxExport").html("<p>Теперь Вы можете проверить сохранение Ваших слов в таблицу Excel нажав кнопку ниже</p><a id='dlink' style = 'display:none;' ></a><div class='defaultStyleButton' style='width: 120px;' onclick='tableToExcel(\"myAssociation\", \"Мои ассоциации слов\", \"Мои ассоциации слов.xls\")'>Экспорт в .xls</div>");
     }
 
     // Export to Excell

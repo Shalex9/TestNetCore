@@ -20,7 +20,6 @@
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <link href="~/lib/syncfusion-javascript/Content/ej/web/bootstrap-theme/ej.web.all.min.css" rel="stylesheet" />
         <link href="~/lib/syncfusion-javascript/Content/ej/web/responsive-css/ej.responsive.css" rel="stylesheet" />
-        @*<script src="~/jquery/jquery-3.1.0.min.js"></script>*@
         <script src="~/lib/syncfusion-javascript/Scripts/ej/web/ej.web.all.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="~/assets/smoothScroll/SmoothScroll.js"></script>
@@ -47,7 +46,7 @@
 
     <header class="header-admin">
         <div class="btn-menu">
-            <i class="material-icons">menu</i>
+            <i class="material-icons" id="openSidebar">menu</i>
         </div>
         <a id="logotype" href="http://shalex.info/ru/" class="logo-admin">
             <img style="width: 180px;" src="~/img/logo-shalex.png" />
@@ -67,7 +66,7 @@
                             <li>
                                 <button type="submit" class="btn btn-link navbar-btn navbar-link">
                                     <div><i class="fa fa-sign-out" aria-hidden="true"></i></div>
-                                    <span id="logoutId">Выйти</span>
+                                    <span id="logout">Выйти</span>
                                 </button>
                             </li>
                         </ul>
@@ -147,18 +146,9 @@
     @RenderSection("Scripts", required: false)
 
     <script type="text/javascript">
-        //function showInfo() {
-        //    if ($(".glyphicon").hasClass("glyphicon-eye-open")) {
-        //        $(".glyphicon").removeClass("glyphicon-eye-open");
-        //        $(".glyphicon").addClass("glyphicon-eye-close");
-        //        $(".showInfoBtn").text("Скрыть описание");
-        //    } else {
-        //        $(".glyphicon").removeClass("glyphicon-eye-close");
-        //        $(".glyphicon").addClass("glyphicon-eye-open");
-        //        $(".showInfoBtn").text("Показать описание");
-        //    }
-        //    $(".showInfoText").toggleClass("display-none");
-        //}
+        $("#openSidebar").on("click", function () {
+            $('.sidebar').toggleClass('showSidebar');
+        });
     </script>
 </body>
 </html>

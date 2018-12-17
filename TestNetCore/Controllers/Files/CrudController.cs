@@ -58,7 +58,6 @@ namespace TestNetCore.Controllers.Files
                 if (getUserFiles.FileSize1 != null) viewModel.FileSize1 = getUserFiles.FileSize1;
                 if (getUserFiles.FileName2 != null) viewModel.FileName2 = getUserFiles.FileName2;
                 if (getUserFiles.FileSize2 != null) viewModel.FileSize2 = getUserFiles.FileSize2;
-                viewModel.DateChange = getUserFiles.LastChange;
             }
 
             // смотрю, один или два файла уже имеется
@@ -101,21 +100,18 @@ namespace TestNetCore.Controllers.Files
 
         public CrudViewModel SaveFileToDB(string fileName, string path, string size, CrudViewModel viewModel)
         {
-            var now = DateTime.Now;
             var isAnyFile = _dbContext.CRUDfileUsers.FirstOrDefault(a => a.UserId == UserID && (a.FileName1 != null || a.FileName2 != null));
 
             if (isAnyFile == null)
             {
                 viewModel.FileName1 = fileName;
                 viewModel.FileSize1 = size;
-                viewModel.DateChange = now;
 
                 CRUDfileUser newFile = new CRUDfileUser();
                 newFile.UserId = UserID;
                 newFile.FileName1 = fileName;
                 newFile.FilePath1 = path;
                 newFile.FileSize1 = size;
-                newFile.LastChange = now;
 
                 _dbContext.CRUDfileUsers.Add(newFile);
             }
@@ -123,12 +119,10 @@ namespace TestNetCore.Controllers.Files
             {
                 viewModel.FileName2 = fileName;
                 viewModel.FileSize2 = size;
-                viewModel.DateChange = now;
 
                 isAnyFile.FileName2 = fileName;
                 isAnyFile.FilePath2 = path;
                 isAnyFile.FileSize2 = size;
-                isAnyFile.LastChange = now;
 
                 _dbContext.CRUDfileUsers.Update(isAnyFile);
             }
@@ -136,12 +130,10 @@ namespace TestNetCore.Controllers.Files
             {
                 viewModel.FileName1 = fileName;
                 viewModel.FileSize1 = size;
-                viewModel.DateChange = now;
 
                 isAnyFile.FileName1 = fileName;
                 isAnyFile.FilePath1 = path;
                 isAnyFile.FileSize1 = size;
-                isAnyFile.LastChange = now;
 
                 _dbContext.CRUDfileUsers.Update(isAnyFile);
             }
@@ -205,14 +197,12 @@ namespace TestNetCore.Controllers.Files
                     userRecord.FileName1 = null;
                     userRecord.FilePath1 = null;
                     userRecord.FileSize1 = null;
-                    userRecord.LastChange = now;
                 }
                 else if (userRecord.FileName2 == fileName)
                 {
                     userRecord.FileName2 = null;
                     userRecord.FilePath2 = null;
                     userRecord.FileSize2 = null;
-                    userRecord.LastChange = now;
                 }
 
                 viewModel.TextAlert = "deleteFile";

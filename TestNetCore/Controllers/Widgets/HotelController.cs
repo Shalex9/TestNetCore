@@ -28,6 +28,14 @@ namespace TestNetCore.Controllers
         public IActionResult Hotel()
         {
             var viewModel = new HotelViewModel();
+
+            // FOR READ FROM TXT FILE AND WRITE TO DATABASE
+            if (_dbContext.HotelInformations.FirstOrDefault() == null)
+            {
+                DefaultDataDB hotel = new DefaultDataDB(_dbContext);
+                hotel.HotelRooms();
+            }
+
             viewModel = CreateModelForHotel(viewModel);
             viewModel.RoomReserved = false;
 

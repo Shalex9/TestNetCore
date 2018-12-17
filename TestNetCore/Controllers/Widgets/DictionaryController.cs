@@ -37,6 +37,13 @@ namespace TestNetCore.Widget.Controllers
             var viewModel = new DictionaryViewModel();
             viewModel = ModelForDictionary(viewModel);
 
+            // FOR READ FROM TXT FILE AND WRITE TO DATABASE
+            if (_dbContext.RussianDictionaries.FirstOrDefault() == null)
+            {                
+                DefaultDataDB dict = new DefaultDataDB(_dbContext);
+                dict.Dictionary();
+            }
+
             return View("~/Views/Widgets/Dictionary.cshtml", viewModel);
         }
 
@@ -68,12 +75,6 @@ namespace TestNetCore.Widget.Controllers
         [HttpPost]
         public IActionResult Dictionary(DictionaryViewModel viewModel)
         {
-            // FOR READ FROM TXT FILE AND WRITE TO DATABASE
-            //WordSeeder seed = new WordSeeder(_dbContext);
-            //seed.SeedWord();
-            //seed.SeedDictionary();
-            //seed.SeedForbidden();
-
             var vm = ModelForDictionary(viewModel);
             return View("~/Views/Widgets/Dictionary.cshtml", vm);
         }

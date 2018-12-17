@@ -184,7 +184,26 @@ namespace TestNetCore.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.ClaimsDataUser", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.AllUserWidget", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("RunTestMessage");
+
+                    b.Property<Guid>("UserId");
+
+                    b.Property<int>("WidgetId");
+
+                    b.Property<string>("WidgetUrl");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AllUserWidgets");
+                });
+
+            modelBuilder.Entity("TestNetCore.Data.TableData.ClaimsDataUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -211,22 +230,7 @@ namespace TestNetCore.Data.Migrations
                     b.ToTable("ClaimsDataUsers");
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.EFViewModels.Company", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Country");
-
-                    b.Property<string>("Name");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Companies");
-                });
-
-            modelBuilder.Entity("TestNetCore.Models.EFViewModels.CompanySort", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.CompanySort", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -239,49 +243,7 @@ namespace TestNetCore.Data.Migrations
                     b.ToTable("CompaniesSort");
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.EFViewModels.Phone", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<decimal>("Diagonal")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<int?>("ManufacturerId");
-
-                    b.Property<string>("Name");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ManufacturerId");
-
-                    b.ToTable("Phones");
-                });
-
-            modelBuilder.Entity("TestNetCore.Models.EFViewModels.UserSort", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("Age");
-
-                    b.Property<int>("CompanyId");
-
-                    b.Property<string>("Name");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
-
-                    b.ToTable("UsersSort");
-                });
-
-            modelBuilder.Entity("TestNetCore.Models.Files.CRUDfileUser", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.CRUDfileUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -299,8 +261,6 @@ namespace TestNetCore.Data.Migrations
 
                     b.Property<string>("FileSize2");
 
-                    b.Property<DateTime>("LastChange");
-
                     b.Property<string>("UserId");
 
                     b.HasKey("Id");
@@ -308,7 +268,34 @@ namespace TestNetCore.Data.Migrations
                     b.ToTable("CRUDfileUsers");
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.Files.ForbiddenWord", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.EmailMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AttachFile");
+
+                    b.Property<DateTime>("DateMessage");
+
+                    b.Property<string>("NameFrom");
+
+                    b.Property<string>("SendTo");
+
+                    b.Property<string>("TextMessage");
+
+                    b.Property<string>("TitleMessage");
+
+                    b.Property<string>("UserId");
+
+                    b.Property<string>("VoiceName");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmailMessages");
+                });
+
+            modelBuilder.Entity("TestNetCore.Data.TableData.ForbiddenWord", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -321,7 +308,7 @@ namespace TestNetCore.Data.Migrations
                     b.ToTable("ForbiddenWords");
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.Files.ForbiddenWordUser", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.ForbiddenWordUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -336,130 +323,7 @@ namespace TestNetCore.Data.Migrations
                     b.ToTable("ForbiddenWordUsers");
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.Files.RussianDictionary", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Definition");
-
-                    b.Property<string>("Word");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RussianDictionaries");
-                });
-
-            modelBuilder.Entity("TestNetCore.Models.Files.SavedUserAssociation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AllWordsAss");
-
-                    b.Property<string>("UserId");
-
-                    b.Property<string>("Word");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SavedUserAssociations");
-                });
-
-            modelBuilder.Entity("TestNetCore.Models.Files.SettingsPageGallery", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("AnimationDelay");
-
-                    b.Property<int>("AnimationDuration");
-
-                    b.Property<string>("BgBox");
-
-                    b.Property<string>("BgMessage");
-
-                    b.Property<decimal>("BgMessageOpacity")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<int>("CaliberImage");
-
-                    b.Property<string>("FinishEffectAnimation");
-
-                    b.Property<string>("LayoutMessage");
-
-                    b.Property<string>("NameImage");
-
-                    b.Property<string>("NameSound");
-
-                    b.Property<string>("PathImage");
-
-                    b.Property<string>("PathSound");
-
-                    b.Property<int>("SoundVolume");
-
-                    b.Property<string>("StartEffectAnimation");
-
-                    b.Property<string>("UserId");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SettingsGalleryPages");
-                });
-
-            modelBuilder.Entity("TestNetCore.Models.TableIncome", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("DateOfReceipt");
-
-                    b.Property<string>("DonatCurrency");
-
-                    b.Property<string>("DonatorId");
-
-                    b.Property<decimal>("Income")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<string>("MessageText");
-
-                    b.Property<string>("NameDonator");
-
-                    b.Property<string>("PaymentSystem");
-
-                    b.Property<string>("UserId");
-
-                    b.Property<string>("VoiceName");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TableIncomes");
-                });
-
-            modelBuilder.Entity("TestNetCore.Models.WidgetsViewModels.AllUserWidget", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<bool>("RunTestMessage");
-
-                    b.Property<Guid>("UserId");
-
-                    b.Property<int>("WidgetId");
-
-                    b.Property<string>("WidgetUrl");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AllUserWidgets");
-                });
-
-            modelBuilder.Entity("TestNetCore.Models.WidgetsViewModels.GalleryFileImg", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.GalleryFileImg", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -468,15 +332,13 @@ namespace TestNetCore.Data.Migrations
                     b.Property<string>("FileName");
 
                     b.Property<string>("Size");
-
-                    b.Property<string>("UserId");
 
                     b.HasKey("Id");
 
                     b.ToTable("GalleryFilesImgs");
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.WidgetsViewModels.GalleryFileSound", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.GalleryFileSound", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -486,14 +348,12 @@ namespace TestNetCore.Data.Migrations
 
                     b.Property<string>("Size");
 
-                    b.Property<string>("UserId");
-
                     b.HasKey("Id");
 
                     b.ToTable("GalleryFilesSounds");
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.WidgetsViewModels.HotelInformation", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.HotelInformation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -518,7 +378,7 @@ namespace TestNetCore.Data.Migrations
                     b.ToTable("HotelInformations");
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.WidgetsViewModels.HotelReservation", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.HotelReservation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -545,7 +405,39 @@ namespace TestNetCore.Data.Migrations
                     b.ToTable("HotelReservations");
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.WidgetsViewModels.SettingsDonationNotification", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.RussianDictionary", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Definition");
+
+                    b.Property<string>("Word");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RussianDictionaries");
+                });
+
+            modelBuilder.Entity("TestNetCore.Data.TableData.SavedUserAssociation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AllWordsAss");
+
+                    b.Property<string>("UserId");
+
+                    b.Property<string>("Word");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SavedUserAssociations");
+                });
+
+            modelBuilder.Entity("TestNetCore.Data.TableData.SettingsDonationNotification", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -653,7 +545,49 @@ namespace TestNetCore.Data.Migrations
                     b.ToTable("SettingsDonationNotifications");
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.WidgetsViewModels.UploadFileImg", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.SettingsPageGallery", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AnimationDelay");
+
+                    b.Property<int>("AnimationDuration");
+
+                    b.Property<string>("BgBox");
+
+                    b.Property<string>("BgMessage");
+
+                    b.Property<decimal>("BgMessageOpacity")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<int>("CaliberImage");
+
+                    b.Property<string>("FinishEffectAnimation");
+
+                    b.Property<string>("LayoutMessage");
+
+                    b.Property<string>("NameImage");
+
+                    b.Property<string>("NameSound");
+
+                    b.Property<string>("PathImage");
+
+                    b.Property<string>("PathSound");
+
+                    b.Property<int>("SoundVolume");
+
+                    b.Property<string>("StartEffectAnimation");
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SettingsGalleryPages");
+                });
+
+            modelBuilder.Entity("TestNetCore.Data.TableData.UploadFileImg", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -670,7 +604,7 @@ namespace TestNetCore.Data.Migrations
                     b.ToTable("UploadFilesImgs");
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.WidgetsViewModels.UploadFileSound", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.UploadFileSound", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -685,6 +619,25 @@ namespace TestNetCore.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UploadFilesSounds");
+                });
+
+            modelBuilder.Entity("TestNetCore.Data.TableData.UserSort", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Age");
+
+                    b.Property<int>("CompanyId");
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("UsersSort");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -732,16 +685,9 @@ namespace TestNetCore.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("TestNetCore.Models.EFViewModels.Phone", b =>
+            modelBuilder.Entity("TestNetCore.Data.TableData.UserSort", b =>
                 {
-                    b.HasOne("TestNetCore.Models.EFViewModels.Company", "Manufacturer")
-                        .WithMany()
-                        .HasForeignKey("ManufacturerId");
-                });
-
-            modelBuilder.Entity("TestNetCore.Models.EFViewModels.UserSort", b =>
-                {
-                    b.HasOne("TestNetCore.Models.EFViewModels.CompanySort", "Company")
+                    b.HasOne("TestNetCore.Data.TableData.CompanySort", "Company")
                         .WithMany("UsersSort")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade);

@@ -24,6 +24,7 @@ namespace TestNetCore.Controllers
     public class MessagesController : BaseController
     {
         private readonly IHostingEnvironment _appEnvironment;
+        private string VoiceName;
 
         public MessagesController(
             IHttpContextAccessor httpContextAccessor, 
@@ -40,6 +41,13 @@ namespace TestNetCore.Controllers
         public IActionResult Messages()
         {
             var viewModel = new MessagesViewModel();
+
+            // FOR READ FROM TXT FILE AND WRITE TO DATABASE
+            if (_dbContext.RussianDictionaries.FirstOrDefault() == null)
+            {
+                DefaultDataDB seed = new DefaultDataDB(_dbContext);
+                seed.SeedForbidden();
+            }
 
             viewModel = ModelForMessages(viewModel);
             return View("~/Views/Widgets/Messages.cshtml", viewModel);
@@ -67,7 +75,7 @@ namespace TestNetCore.Controllers
                 var forbidden = _dbContext.ForbiddenWordUsers.Where(a => a.UserId == UserID);
                 foreach (var f in forbidden)
                 {
-                    viewModel.StringForbiddenWordsUser = viewModel.StringForbiddenWordsUser + f;
+                    viewModel.StringForbiddenWordsUser = viewModel.StringForbiddenWordsUser + " " + f.Word;
                 }
             }
 
@@ -89,8 +97,10 @@ namespace TestNetCore.Controllers
                     if (file != null && file.Length > 0)
                     {
                         viewModel.AttachFile = UploadFile(file);
+                        viewModel.AttachFile = file.FileName;
                     }
                 }
+                viewModel.AlertType = "alertUpload";
             }
 
             if (viewModel.PostType == "sendEmail")
@@ -105,6 +115,22 @@ namespace TestNetCore.Controllers
                     viewModel.TextMessage = RemoveWords(viewModel.TextMessage, forbiddenWordsUser, forbiddenWordStandart, viewModel, "***");
                 }
                 SendEMail(UserEmail, viewModel.NameFrom, viewModel.TitleMessage, viewModel.TextMessage, viewModel.AttachFile, UserID);
+
+                viewModel.AlertType = "alertSended";
+
+                // write to DB
+                EmailMessage mes = new EmailMessage();
+                mes.UserId = UserID;
+                mes.SendTo = UserEmail;
+                mes.NameFrom = viewModel.NameFrom;
+                mes.TitleMessage = viewModel.TitleMessage;
+                mes.TextMessage = viewModel.TextMessage;
+                mes.AttachFile = viewModel.AttachFile;
+                mes.VoiceName = this.VoiceName;
+                mes.DateMessage = DateTime.Now;
+
+                _dbContext.EmailMessages.Add(mes);
+                _dbContext.SaveChanges();
             }
 
             if (viewModel.PostType == "saveSettings")
@@ -152,6 +178,8 @@ namespace TestNetCore.Controllers
                     }
                     _dbContext.SaveChanges();
                 }
+
+                viewModel.AlertType = "alertSave";
             }
 
             viewModel = ModelForMessages(viewModel);
@@ -162,7 +190,7 @@ namespace TestNetCore.Controllers
         //Save Text OnBlur
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult SaveText(string text)
+        public IActionResult GenerateVoice(string text)
         {
             if (text != null && text != "")
             {
@@ -178,10 +206,11 @@ namespace TestNetCore.Controllers
                 text = RemoveWords(text, forbiddenWordsUser, forbiddenWordStandart, viewModel, " цензура ");
 
                 string fileName = GetMd5Hash(text);
+                VoiceName = fileName;
                 generateMP3.tts(text, "ru", dirPath, fileName);
-                string fullPath = $"wwwroot/usersfiles/{UserID}/voiceMessage/{fileName}.mp3";
+                string pathForPlay = $"../usersfiles/{UserID}/voiceMessage/{fileName}.mp3";
 
-                return Json(fullPath);
+                return Json(pathForPlay);
             }
             else
             {

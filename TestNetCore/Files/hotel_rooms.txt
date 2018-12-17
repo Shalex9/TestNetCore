@@ -1,0 +1,4 @@
+101-600-Стандарт-False-True-False-True
+102-750-Полулюкс-True-True-True-True
+201-900-Люкс-True-True-True-False
+202-750-Полулюкс-True-True-False-False

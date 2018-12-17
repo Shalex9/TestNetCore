@@ -1,0 +1,9 @@
+alarmroosterxperia.mp3 27,7КБ
+alionc.mp3 152КБ
+artic_music.mp3 264КБ
+crazy_tone.mp3 178КБ
+default.ogg 50,7КБ
+email.mp3 18,8КБ
+horse.ogg 13,5КБ
+on_time.mp3 39,6КБ
+over_the_horizon.mp3 32,6КБ
