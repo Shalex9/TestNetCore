@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using TestNetCore.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+//using log4net.Repository.Hierarchy;
+using Microsoft.Extensions.Logging;
 
 namespace TestNetCore
 {
@@ -57,7 +59,7 @@ namespace TestNetCore
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {

@@ -9,17 +9,21 @@ using TestNetCore.Data;
 using TestNetCore.Models.API.PrivatBank;
 using Newtonsoft.Json;
 using System.Net;
+using Microsoft.Extensions.Logging;
 
 namespace TestNetCore.Controllers.API
 {
     public class PrivatBankController : BaseController
     {
+        ILoggerFactory _logger;
 
         public PrivatBankController(
             IHttpContextAccessor httpContextAccessor,
-            ApplicationDbContext dbContext)
+            ApplicationDbContext dbContext,
+            ILoggerFactory loggerFactory)
             : base(httpContextAccessor, dbContext)
         {
+            _logger = loggerFactory;
         }
 
 
@@ -27,6 +31,7 @@ namespace TestNetCore.Controllers.API
         [Route("privatbank")]
         public IActionResult PrivatBank()
         {
+            _logger.CreateLogger("Hello");
             var viewModel = new PrivatBankViewModel();
 
             var linkCoursePB = "https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5";
