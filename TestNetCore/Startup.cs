@@ -14,6 +14,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 //using log4net.Repository.Hierarchy;
 using Microsoft.Extensions.Logging;
+using log4net;
+using log4net.Config;
 
 namespace TestNetCore
 {
